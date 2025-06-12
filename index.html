@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Quiz - แบบทดสอบเนื้อเพลง</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral Harmony -->
+    <!-- Application Structure Plan: The application uses a tab-based navigation structure to allow users to easily switch between song quizzes on a single page. This design is task-oriented, focusing on the core user journey: select a song, take the quiz, and get immediate feedback. When a user clicks a song tab, the corresponding quiz is dynamically rendered. The quiz itself consists of lyrics with input fields for blanks and clickable spans for explanations. Upon submission, answers are checked instantly, and results are displayed inline. Explanations for specific phrases are shown in a modal window to avoid cluttering the main interface and to handle potentially long descriptions gracefully. This structure was chosen for its simplicity, efficiency, and ability to keep the user engaged within a single, cohesive view. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: Fill-in-the-blank lyrics -> Goal: Test user recall of lyrics -> Presentation Method: HTML <input> elements within the lyric text. -> Interaction: User types their answer and clicks a "Check Answers" button. -> Justification: This is the most direct and intuitive method for a fill-in-the-blank quiz, providing a clear call to action. -> Library/Method: Vanilla JavaScript for checking answers.
+        2. Report Info: Italicized/bolded phrases needing explanation -> Goal: Provide deeper context and meaning without disrupting the quiz flow. -> Presentation Method: Clickable <span> elements styled to indicate interactivity, which open a modal window. -> Interaction: User clicks the phrase to open the modal and clicks a close button or outside the modal to dismiss it. -> Justification: A modal is superior to a tooltip as it can comfortably contain longer, formatted text and provides a focused view of the information. It keeps the main quiz interface clean. -> Library/Method: HTML/CSS/JS for the modal component.
+        3. Report Info: Quiz results -> Goal: Provide immediate and clear feedback. -> Presentation Method: The borders of the input fields are colored green for correct and red for incorrect. The correct answer is displayed next to incorrect attempts. -> Interaction: This is a static display triggered by the submission button. -> Justification: Instant, inline feedback is crucial for learning and user satisfaction. It directly shows the user where they made mistakes and what the correct answers are. -> Library/Method: Vanilla JavaScript to manipulate CSS classes.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #FDFBF8;
+            color: #4A4A4A;
+        }
+        .tab-active {
+            background-color: #EAE3D9;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+        .tab-inactive {
+            background-color: transparent;
+            color: #6B7280;
+        }
+        .lyric-input {
+            border: 1px solid #D1D5DB;
+            background-color: #FFFFFF;
+            padding: 4px 8px;
+            border-radius: 6px;
+            width: 120px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        .lyric-input:focus {
+            outline: none;
+            border-color: #A5947E;
+            box-shadow: 0 0 0 2px rgba(165, 148, 126, 0.2);
+        }
+        .lyric-input.correct {
+            border-color: #10B981;
+            color: #059669;
+        }
+        .lyric-input.incorrect {
+            border-color: #EF4444;
+            color: #DC2626;
+        }
+        .explanation-phrase {
+            font-weight: 700;
+            font-style: italic;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-color: #D1C7BB;
+            text-decoration-thickness: 2px;
+            transition: color 0.3s;
+        }
+        .explanation-phrase:hover {
+            color: #A5947E;
+        }
+        .correct-answer-span {
+            color: #10B981;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="app" class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-[#3a3a3a]">แบบทดสอบเนื้อเพลง</h1>
+            <p class="text-lg mt-2 text-gray-600">เติมคำในช่องว่างและเรียนรู้ความหมายที่ซ่อนอยู่ในเพลง</p>
+        </header>
+
+        <nav id="song-navigation" class="flex justify-center border-b border-gray-200 mb-8">
+            <!-- Tabs will be rendered here by JS -->
+        </nav>
+
+        <main id="quiz-container">
+            <!-- Quiz content will be rendered here by JS -->
+        </main>
+    </div>
+
+    <!-- Modal for Explanations -->
+    <div id="explanation-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4 hidden transition-opacity duration-300">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative animate-fade-in">
+            <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>
+            <p id="modal-content" class="text-base leading-relaxed"></p>
+            <button id="modal-close-button" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = {
+            fortnight: {
+                title: "Fortnight",
+                artist: "Taylor Swift (feat. Post Malone)",
+                lyrics: [
+                    "I was supposed to be <span class=\"explanation-phrase\" data-key=\"sent_away\">sent away</span>, but they forgot to come and get me",
+                    "I was a <span class=\"explanation-phrase\" data-key=\"functioning_alcoholic\">functioning alcoholic</span> till nobody noticed my <span class=\"explanation-phrase\" data-key=\"new_aesthetic\">new aesthetic</span>",
+                    "All of this to say, I hope you're okay, but you're the reason",
+                    "And no one here's to blame, but what about your <span class=\"explanation-phrase\" data-key=\"quiet_treason\">quiet treason</span>?",
+                    "<br/>",
+                    "And for a <span class=\"explanation-phrase\" data-key=\"fortnight_term\">fortnight</span> there, we were forever",
+                    "Run into you sometimes, ask about the weather",
+                    "Now you're in my backyard, turned into good neighbors",
+                    "Your wife ____ flowers I wanna kill her",
+                    "<br/>",
+                    "All my mornings are Mondays stuck in an endless ____",
+                    "I took the <span class=\"explanation-phrase\" data-key=\"miracle_drug\">miracle move-on drug</span>, the effects were temporary",
+                    "And I love you, it's <span class=\"explanation-phrase\" data-key=\"ruining_life\">ruining my life</span>",
+                    "I love you, it's ruining my life",
+                    "I touched you for only a fortnight",
+                    "I touched you",
+                    "But I touched you",
+                    "<br/>",
+                    "And for a fortnight there, we were ____",
+                    "Run into you sometimes, ask about the weather",
+                    "Now you're in my backyard, <span class=\"explanation-phrase\" data-key=\"good_neighbors\">turned into good neighbors</span>",
+                    "Your wife ____ flowers I wanna kill ____",
+                    "<br/>",
+                    "And for a fortnight there, we were ____",
+                    "Run into you sometimes, comment on my sweater",
+                    "Now you're at the mailbox, turned into good neighbors",
+                    "My husband is cheating I wanna kill ____",
+                    "<br/>",
+                    "I love you, it's ruining my life",
+                    "I love you, it's ruining my life",
+                    "I touched you for only a fortnight",
+                    "I touched you",
+                    "I touched you",
+                    "<br/>",
+                    "I love you, it's ruining my life",
+                    "I love you, it's ruining my life",
+                    "I touched you for only a fortnight",
+                    "I touched you",
+                    "I touched you",
+                    "<br/>",
+                    "Thought of calling ya, but you won't <span class=\"explanation-phrase\" data-key=\"pick_up\">pick up</span>",
+                    "Another fortnight lost in America",
+                    "Move to Florida, buy the car she wanted",
+                    "But it won't <span class=\"explanation-phrase\" data-key=\"start_up\">start up</span> till you touch, touch, touch me"
+                ],
+                answers: ["waters", "February", "forever", "waters", "her", "together", "him"],
+                explanations: {
+                    sent_away: "วลี 'I was supposed to be sent away' สื่อถึงความรู้สึกว่าตัวละครถูกมองว่าเป็นอันตรายหรือควบคุมไม่ได้ จนควรถูกส่งไปอยู่ที่อื่น บ่งบอกว่าตัวละครรู้สึกว่าตนเองควรถูกกักขังหรือแยกออกจากสถานการณ์ แต่สิ่งนั้นไม่เคยเกิดขึ้นจริง สร้างบรรยากาศของความไม่มั่นคง",
+                    functioning_alcoholic: "'functioning alcoholic' เป็นคำเรียกอย่างไม่เป็นทางการสำหรับผู้ที่ติดสุราแต่ยังสามารถดำเนินชีวิตประจำวันและรับผิดชอบการงานหรือครอบครัวได้ พวกเขาอาจดูเหมือนไม่มีปัญหาแต่ใช้แอลกอฮอล์เพื่อรับมือกับความเจ็บปวด",
+                    new_aesthetic: "คำว่า 'new aesthetic' ในบริบทนี้ตามหลัง 'functioning alcoholic' อาจสื่อถึงการเปลี่ยนแปลงภายนอกหรือพฤติกรรมที่เห็นได้ชัดเจนขึ้น ซึ่งเป็นผลมาจากการรับมือกับความเจ็บปวดหรือความสัมพันธ์ที่จบลง",
+                    quiet_treason: "'quiet treason' หรือ 'การทรยศอย่างเงียบงัน' สื่อถึงการกระทำที่ไม่ซื่อสัตย์หรือการหักหลังที่เกิดขึ้นอย่างลับๆ โดยไม่เปิดเผย อาจเป็นการค่อยๆ ทำลายความไว้วางใจ",
+                    fortnight_term: "'fortnight' หมายถึงระยะเวลาสองสัปดาห์ (สิบสี่คืน) เป็นคำในภาษาอังกฤษแบบบริติช ในเพลงนี้ใช้เพื่อเน้นถึงธรรมชาติของความสัมพันธ์ที่สั้นแต่ส่งผลกระทบยาวนาน",
+                    miracle_drug: "'miracle move-on drug' เป็นการเปรียบเปรยถึงสิ่งที่ใช้เพื่อพยายามลืมหรือก้าวข้ามความสัมพันธ์ที่จบไป ซึ่งในที่นี้มักตีความว่าหมายถึงความสัมพันธ์ครั้งใหม่ แต่ผลของ 'ยา' นี้เป็นเพียงชั่วคราว",
+                    ruining_life: "วลี 'I love you, it's ruining my life' แสดงถึงความขัดแย้งภายในใจอย่างรุนแรง ความรักที่มีต่อคนคนหนึ่งกลายเป็นสิ่งที่ทำลายชีวิตของตัวละคร สะท้อนถึงความสัมพันธ์ที่เป็นพิษ",
+                    good_neighbors: "การกลายเป็น 'เพื่อนบ้านที่ดี' หลังจากความสัมพันธ์ที่เคยลึกซึ้งจบลง เป็นภาพที่แสดงถึงความห่างเหินและความเจ็บปวดที่ต้องเห็นอดีตคนรักใช้ชีวิตอยู่ใกล้ๆ แต่ไม่สามารถกลับไปมีความสัมพันธ์แบบเดิมได้อีก",
+                    pick_up: "ในบริบทของ 'Thought of calling ya, but you won't pick up' คำว่า 'pick up' หมายถึงการรับโทรศัพท์ การที่ตัวละครคิดว่าอีกฝ่ายจะไม่รับสาย แสดงถึงความไม่มั่นใจหรือความสัมพันธ์ที่ขาดสะบั้น",
+                    start_up: "วลี 'But it won't start up till you touch, touch, touch me' ใช้ภาพของรถยนต์ที่ไม่สามารถสตาร์ทติด เพื่อเปรียบเทียบกับชีวิตของตัวละครที่ไม่สามารถเริ่มต้นใหม่หรือเดินหน้าต่อไปได้หากปราศจากการมีอยู่ของอีกคนหนึ่ง"
+                }
+            },
+            birds_of_a_feather: {
+                title: "Birds of a Feather",
+                artist: "Billie Eilish",
+                lyrics: [
+                    'I want you to ____',
+                    "'Til I'm in the ____",
+                    "'Til I <span class=\"explanation-phrase\" data-key=\"rot_away\">rot away</span>, dead and buried",
+                    "'Til I'm in the <span class=\"explanation-phrase\" data-key=\"casket\">casket</span> you carry",
+                    "<br/>",
+                    "If you go, I'm going too, uh",
+                    "'Cause it was always you, alright",
+                    "And if I'm <span class=\"explanation-phrase\" data-key=\"turnin_blue\">turnin' blue</span>, please don't save me",
+                    "Nothing left to lose <span class=\"explanation-phrase\" data-key=\"without_baby\">without my baby</span>",
+                    "<br/>",
+                    '<span class="explanation-phrase" data-key="birds_feather">Birds of a feather</span>, we should <span class="explanation-phrase" data-key="stick_together">stick together</span>, I know',
+                    "I said I'd never think I wasn't better ____",
+                    "Can't change the weather, might not be forever",
+                    "But if it's ____, it's even better",
+                    "<br/>",
+                    "And I don't know what I'm cryin' for",
+                    'I don\'t think I could love you more',
+                    'It might not be long, but baby, I',
+                    "I'll love you 'til the day that I die",
+                    "'Til the day that I die",
+                    "'Til the <span class=\"explanation-phrase\" data-key=\"light_leaves\">light leaves my eyes</span>",
+                    "'Til the day that I die",
+                    "<br/>",
+                    'I want you to see, hm',
+                    'How you look to me, hm',
+                    "You wouldn't believe if I told ya",
+                    'You would keep the <span class="explanation-phrase" data-key="compliments">compliments</span> I throw ya',
+                    "<br/>",
+                    "But you're so full of shit, uh",
+                    "Tell me <span class=\"explanation-phrase\" data-key=\"its_a_bit\">it's a bit</span>, no",
+                    "Say you don't see it, your mind's <span class=\"explanation-phrase\" data-key=\"polluted\">polluted</span>",
+                    'Say you wanna ____, don\'t be stupid',
+                    "<br/>",
+                    "And I don't know what I'm cryin' for",
+                    'I don\'t think I could love you more',
+                    'Might not be long, but baby, I',
+                    "Don't wanna say goodbye",
+                    "<br/>",
+                    '<span class="explanation-phrase" data-key="birds_feather">Birds of a feather</span>, we should <span class="explanation-phrase" data-key="stick_together">stick together</span>, I know (\'til the day that I die)',
+                    "I said I'd never think I wasn't better alone ('til the light leaves my eyes)",
+                    "Can't change the weather, might not be forever ('til the day I die)",
+                    "But if it's forever, it's even better",
+                    "<br/>",
+                    'I knew you in another life',
+                    'You had that same look in your ____',
+                    "I love you, don't act so surprised"
+                ],
+                answers: ["stay", "grave", "alone", "forever", "leave", "eyes"],
+                explanations: {
+                    rot_away: "วลี 'rot away' หมายถึงการเน่าเปื่อยจนหมดสิ้นหลังความตาย เป็นการแสดงความรักที่ลึกซึ้งว่าจะอยู่ด้วยกันจนร่างกายสลายไป",
+                    casket: "'casket' คือโลงศพ ในเนื้อเพลง 'Til I'm in the casket you carry' เป็นสัญลักษณ์ของความตายและความปรารถนาให้คนรักอยู่เคียงข้างแม้ในวาระสุดท้าย",
+                    turnin_blue: "'turnin' blue' หรือการที่ร่างกายเปลี่ยนเป็นสีคล้ำจากการขาดออกซิเจน ในเพลงนี้ 'please don't save me' แสดงถึงความปรารถนาที่จะตายหากปราศจากคนรัก เป็นการเน้นย้ำความผูกพันที่ลึกซึ้ง",
+                    without_baby: "'without my baby' สื่อถึงการสูญเสียคนรักไปจากชีวิต เนื้อเพลงท่อนนี้แสดงให้เห็นว่าคนรักคือทุกสิ่งทุกอย่าง และหากไม่มีเขา ชีวิตก็ไม่มีความหมายอีกต่อไป",
+                    birds_feather: "สำนวน 'Birds of a feather flock together' หมายถึงคนที่คล้ายคลึงกันมักจะคบหาหรือรวมกลุ่มกัน",
+                    stick_together: "เมื่อใช้ร่วมกับ 'Birds of a feather' วลี 'we should stick together' จึงเป็นการเน้นย้ำว่าเพราะเราเป็นเหมือนกัน เราจึงควรอยู่ด้วยกันและสนับสนุนซึ่งกันและกัน",
+                    light_leaves: "'Til the light leaves my eyes' เป็นการเปรียบเปรยถึงความตาย แสงสว่างในดวงตาที่หายไปหมายถึงการสิ้นสุดของชีวิต เป็นวิธีที่กวีใช้เพื่อบรรยายถึงการจากไปอย่างถาวร",
+                    compliments: "'compliments' คือคำชม ในเพลง 'You would keep the compliments I throw ya' สื่อว่าคนรักจะเก็บรักษาคำชมที่มอบให้ แสดงถึงความรักและความชื่นชม",
+                    its_a_bit: "ในท่อน 'Tell me it's a bit' Billie Eilish หมายถึง 'บอกฉันทีว่าคุณล้อเล่น' หรือ 'บอกฉันทีว่ามันเป็นแค่การแสดง' ที่อีกฝ่ายมองไม่เห็นว่าตัวเองยอดเยี่ยมแค่ไหน",
+                    polluted: "'your mind's polluted' สื่อถึงการมีความคิดที่ไม่ดีหรือถูกครอบงำด้วยความคิดเชิงลบ จนทำให้มองไม่เห็นคุณค่าของตนเองหรือความเป็นจริง"
+                }
+            },
+            if_we_were_vampires: {
+                title: "If We Were Vampires",
+                artist: "Jason Isbell and The 400 Unit",
+                lyrics: [
+                    "It's not the long flowing dress that you're in",
+                    "Or the light <span class=\"explanation-phrase\" data-key=\"coming_off_skin\">coming off of your ____</span>",
+                    "The <span class=\"explanation-phrase\" data-key=\"fragile_heart\">fragile heart</span> you protected for so long",
+                    "Or the <span class=\"explanation-phrase\" data-key=\"mercy\">mercy</span> in your <span class=\"explanation-phrase\" data-key=\"sense_right_wrong\">sense of ____ and ____</span>",
+                    "<br/>",
+                    "It's not your hands, searching slow in the ____",
+                    "Or your nails leaving <span class=\"explanation-phrase\" data-key=\"loves_watermark\">love's watermark</span>",
+                    "It's not the way you <span class=\"explanation-phrase\" data-key=\"talk_me_off\">talk me off the roof</span>",
+                    "Your questions like directions to the truth",
+                    "<br/>",
+                    "It's knowing that this can't go on forever",
+                    "Likely one of us will have to spend some days alone",
+                    "Maybe we'll get forty years together",
+                    "But one day I'll be gone or one day you'll be gone",
+                    "<br/>",
+                    "If we were vampires and death was a joke",
+                    "We'd go out on the <span class=\"explanation-phrase\" data-key=\"sidewalk\">sidewalk</span> and smoke",
+                    "And laugh at all the lovers and their plans",
+                    "I wouldn't feel the need to hold your hand",
+                    "<br/>",
+                    "Maybe time <span class=\"explanation-phrase\" data-key=\"running_out\">running out</span> is a gift",
+                    "I'll work hard 'til the end of my ____",
+                    "And give you every second I can find",
+                    "And hope it isn't me who's <span class=\"explanation-phrase\" data-key=\"left_behind\">left ____</span>",
+                    "<br/>",
+                    "It's knowing that this can't go on forever",
+                    "Likely one of us will have to spend some days alone",
+                    "Maybe we'll get forty years together",
+                    "But <span class=\"explanation-phrase\" data-key=\"one_day_gone\">one day I'll be gone or one day you'll be ____</span>",
+                    "<br/>",
+                    "It's knowing that this can't go on forever",
+                    "Likely one of us will have to spend some days alone",
+                    "Maybe we'll get forty years together",
+                    "But <span class=\"explanation-phrase\" data-key=\"one_day_gone\">one day I'll be gone or one day you'll be ____</span>",
+                ],
+                answers: ["skin", "right", "wrong", "dark", "shift", "behind", "gone", "gone"],
+                explanations: {
+                    coming_off_skin: "วลี 'light coming off of your skin' เป็นเชิงเปรียบเทียบ สื่อถึงออร่าหรือการปรากฏตัวที่สว่างไสว เปล่งปลั่ง ซึ่งมักเกี่ยวข้องกับความงามหรือสุขภาพที่ดี",
+                    fragile_heart: "'fragile heart' หรือหัวใจที่เปราะบาง หมายถึงหัวใจที่แตกสลายหรือถูกทำร้ายได้ง่าย ในเพลงนี้สื่อถึงความพยายามในการปกป้องหัวใจจากความเจ็บปวด",
+                    mercy: "'mercy' หรือความเมตตา ในบริบทนี้หมายถึงความสามารถในการให้อภัย ความเห็นอกเห็นใจ หรือการตัดสินใจบนพื้นฐานของความเมตตามากกว่าความยุติธรรมเพียงอย่างเดียว",
+                    sense_right_wrong: "'sense of right and wrong' คือมโนธรรมหรือความสามารถในการแยกแยะระหว่างสิ่งที่ถูกและผิด เป็นพื้นฐานของศีลธรรมและการตัดสินใจ",
+                    loves_watermark: "วลี 'love's watermark' สื่อถึงร่องรอยอันบอบบางแต่ยั่งยืนที่คนรักทิ้งไว้ เหมือนลายน้ำบนกระดาษ เป็นสัญลักษณ์ของรอยประทับจากความรักใคร่ที่สะท้อนถึงธีมความตายในเพลง",
+                    talk_me_off: "'talk me off the roof' เป็นการเปรียบเปรยถึงการช่วยให้ใครบางคนสงบลงจากสภาวะอารมณ์ที่รุนแรงหรือสิ้นหวัง แสดงถึงการเป็นที่พึ่งทางใจที่สำคัญ",
+                    sidewalk: "'sidewalk' คือทางเท้า ในเพลงใช้เป็นภาพของการใช้ชีวิตอย่างสบายๆ ไม่กังวล หากความตายเป็นเรื่องตลก (ถ้าเป็นแวมไพร์)",
+                    running_out: "'time running out' หมายถึงเวลาที่เหลือน้อยลง เพลงนี้เสนอแนวคิดว่าการที่เวลามีจำกัดอาจเป็น 'ของขวัญ' ที่ทำให้เราเห็นคุณค่าของทุกช่วงเวลา",
+                    left_behind: "'left behind' สื่อถึงความกลัวที่จะเป็นคนที่ยังมีชีวิตอยู่หลังจากคนรักจากไป ต้องเผชิญกับความสูญเสียและความอ้างว้าง",
+                    one_day_gone: "วลีนี้เป็นแก่นของเพลง ย้ำเตือนถึงความจริงที่หลีกเลี่ยงไม่ได้ว่าในที่สุดคนใดคนหนึ่งจะต้องจากไปก่อน เป็นการตระหนักถึงความไม่จีรังของชีวิตและความสัมพันธ์"
+                }
+            }
+        };
+
+        const appState = {
+            currentSongId: 'fortnight',
+            quizSubmitted: false
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const navContainer = document.getElementById('song-navigation');
+            const quizContainer = document.getElementById('quiz-container');
+            const modal = document.getElementById('explanation-modal');
+            const modalCloseButton = document.getElementById('modal-close-button');
+            const modalOverlay = document.querySelector('#explanation-modal');
+
+            function renderTabs() {
+                navContainer.innerHTML = '';
+                Object.keys(quizData).forEach(songId => {
+                    const song = quizData[songId];
+                    const tabButton = document.createElement('button');
+                    tabButton.textContent = song.title;
+                    tabButton.dataset.songId = songId;
+                    tabButton.className = `px-4 py-2 text-sm md:text-base font-medium transition-colors duration-200 rounded-t-lg -mb-px ${appState.currentSongId === songId ? 'tab-active border-b-2 border-transparent' : 'tab-inactive'}`;
+                    tabButton.addEventListener('click', () => {
+                        appState.currentSongId = songId;
+                        render();
+                    });
+                    navContainer.appendChild(tabButton);
+                });
+            }
+
+            function renderQuiz() {
+                appState.quizSubmitted = false;
+                const song = quizData[appState.currentSongId];
+                let inputCounter = 0;
+                
+                const lyricHTML = song.lyrics.map(line => {
+                    const processedLine = line.replace(/____/g, () => {
+                        const inputHTML = `<input type="text" class="lyric-input" data-answer-index="${inputCounter}">`;
+                        inputCounter++;
+                        return inputHTML;
+                    });
+                    return `<p class="mb-2 text-lg leading-relaxed">${processedLine}</p>`;
+                }).join('');
+
+                quizContainer.innerHTML = `
+                    <div class="bg-white p-6 md:p-8 rounded-b-lg rounded-r-lg shadow-sm">
+                        <div class="text-center mb-6">
+                            <h2 class="text-3xl font-bold text-gray-800">${song.title}</h2>
+                            <p class="text-md text-gray-500">${song.artist}</p>
+                        </div>
+                        <div class="lyrics-section">
+                            ${lyricHTML}
+                        </div>
+                        <div class="mt-8 text-center">
+                            <button id="submit-quiz" class="bg-[#A5947E] text-white font-bold py-3 px-8 rounded-lg hover:bg-[#8e7c68] transition-colors duration-300 shadow-md">
+                                ตรวจคำตอบ
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('submit-quiz').addEventListener('click', checkAnswers);
+                document.querySelectorAll('.explanation-phrase').forEach(phrase => {
+                    phrase.addEventListener('click', showExplanation);
+                });
+            }
+
+            function checkAnswers() {
+                if (appState.quizSubmitted) return;
+                appState.quizSubmitted = true;
+
+                const song = quizData[appState.currentSongId];
+                const inputs = document.querySelectorAll('.lyric-input');
+
+                inputs.forEach(input => {
+                    const answerIndex = parseInt(input.dataset.answerIndex);
+                    const correctAnswer = song.answers[answerIndex];
+                    const userAnswer = input.value.trim().toLowerCase();
+                    
+                    if (userAnswer === correctAnswer.toLowerCase()) {
+                        input.classList.add('correct');
+                    } else {
+                        input.classList.add('incorrect');
+                        const correctAnswerSpan = document.createElement('span');
+                        correctAnswerSpan.textContent = `(${correctAnswer})`;
+                        correctAnswerSpan.className = 'correct-answer-span';
+                        input.parentNode.insertBefore(correctAnswerSpan, input.nextSibling);
+                    }
+                    input.disabled = true;
+                });
+
+                document.getElementById('submit-quiz').disabled = true;
+                document.getElementById('submit-quiz').classList.add('opacity-50', 'cursor-not-allowed');
+                
+                // Show confirmation message
+                const confirmation = document.createElement('p');
+                confirmation.textContent = 'ยืนยันคำตอบเรียบร้อยแล้ว! นี่คือเฉลยครับ';
+                confirmation.className = 'text-center text-green-700 font-semibold mt-4';
+                document.getElementById('submit-quiz').insertAdjacentElement('afterend', confirmation);
+            }
+
+            function showExplanation(event) {
+                const key = event.target.dataset.key;
+                const song = quizData[appState.currentSongId];
+                const explanation = song.explanations[key];
+                
+                document.getElementById('modal-title').textContent = event.target.textContent;
+                document.getElementById('modal-content').textContent = explanation;
+                modal.classList.remove('hidden');
+            }
+
+            function hideModal() {
+                modal.classList.add('hidden');
+            }
+            
+            modalCloseButton.addEventListener('click', hideModal);
+            modalOverlay.addEventListener('click', (event) => {
+                 if (event.target === modalOverlay) {
+                    hideModal();
+                }
+            });
+
+            function render() {
+                renderTabs();
+                renderQuiz();
+            }
+
+            render();
+        });
+    </script>
+</body>
+</html>
