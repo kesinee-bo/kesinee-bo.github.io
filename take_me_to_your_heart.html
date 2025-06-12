@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง: Take Me to Your Heart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Warm neutrals: bg-stone-100, text-stone-800, with a muted teal accent: bg-teal-600) -->
+    <!-- Application Structure Plan: A tab-based SPA design was chosen for optimal usability. Users can directly navigate to 'Introduction', 'Language Analysis' (with sub-sections for Vocabulary, Tenses, Phrasal Verbs, Figurative Language), 'Deeper Meaning', and an 'Interactive Quiz'. This non-linear structure is superior to a simple scroll, as it allows users to focus on specific learning goals and easily revisit sections. The interactive quiz at the end reinforces learning. -->
+    <!-- Visualization & Content Choices: Report Info: Tense frequency -> Goal: Compare -> Viz: Chart.js Donut Chart -> Interaction: Hover for details. Justification: Visually represents the dominance of Simple Present Tense discussed in the report. Report Info: Vocabulary, Phrasal Verbs, Figurative Language -> Goal: Inform/Organize -> Presentation: Interactive HTML cards/tables -> Interaction: Click/Hover to reveal details. Justification: Breaks down complex info into digestible, interactive chunks. Report Info: Quiz questions -> Goal: Test knowledge -> Presentation: Interactive HTML form -> Interaction: User selection and immediate feedback. Justification: Actively engages the user and reinforces learning concepts. -> Library/Method: Vanilla JS for interactivity, Chart.js for visualization. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+        }
+        .tab-btn.active {
+            border-color: #0d9488;
+            background-color: #0d9488;
+            color: white;
+        }
+        .sub-tab-btn.active {
+            background-color: #f1f5f9;
+            color: #0d9488;
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .quiz-option.correct {
+            background-color: #d1fae5;
+            border-color: #10b981;
+        }
+        .quiz-option.incorrect {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            max-height: 40vh;
+            width: 100%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-teal-700">Take Me to Your Heart</h1>
+            <p class="text-lg text-stone-600">โดย Michael Learns to Rock</p>
+            <p class="mt-2 text-xl font-light">แอปพลิเคชันวิเคราะห์เพลงเชิงโต้ตอบ</p>
+        </header>
+
+        <nav id="main-nav" class="flex flex-wrap justify-center border-b-2 border-stone-200 mb-8 gap-2">
+            <button data-target="intro" class="tab-btn px-4 py-2 rounded-t-lg border-b-4 border-transparent transition-colors duration-300">บทนำ</button>
+            <button data-target="analysis" class="tab-btn px-4 py-2 rounded-t-lg border-b-4 border-transparent transition-colors duration-300 active">วิเคราะห์ภาษา</button>
+            <button data-target="meaning" class="tab-btn px-4 py-2 rounded-t-lg border-b-4 border-transparent transition-colors duration-300">ความหมายเชิงลึก</button>
+            <button data-target="quiz" class="tab-btn px-4 py-2 rounded-t-lg border-b-4 border-transparent transition-colors duration-300">ทดสอบความเข้าใจ</button>
+        </nav>
+
+        <main id="main-content">
+            <!-- Section: Introduction -->
+            <section id="intro" class="content-section p-4 bg-white rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold text-teal-700 mb-4">ยินดีต้อนรับสู่การวิเคราะห์เพลง "Take Me to Your Heart"</h2>
+                <p class="mb-4">เพลง "Take Me to Your Heart" ของวง Michael Learns to Rock เป็นบทเพลงรักที่ครองใจผู้ฟังทั่วโลก โดยเฉพาะในเอเชีย ด้วยภาษาที่เรียบง่ายแต่สื่ออารมณ์ได้อย่างลึกซึ้ง แอปพลิเคชันนี้จะพาคุณเจาะลึกองค์ประกอบต่างๆ ของเพลง ตั้งแต่คำศัพท์ ไวยากรณ์ ไปจนถึงความหมายที่ซ่อนอยู่ เพื่อให้คุณเข้าใจและซาบซึ้งกับบทเพลงนี้มากยิ่งขึ้น</p>
+                <p>คุณสามารถเลือกสำรวจหัวข้อต่างๆ ได้จากแถบเมนูด้านบน ไม่ว่าจะเป็นการวิเคราะห์ภาษาในเชิงลึก การตีความหมายของบทเพลง หรือทดสอบความเข้าใจของคุณด้วยแบบทดสอบท้ายบทเรียน ขอให้สนุกกับการเรียนรู้ครับ!</p>
+            </section>
+
+            <!-- Section: Language Analysis -->
+            <section id="analysis" class="content-section active">
+                <div class="bg-white rounded-lg shadow-md p-4 md:p-6">
+                    <h2 class="text-2xl font-bold text-teal-700 mb-4">การวิเคราะห์ภาษา (Language Analysis)</h2>
+                    <p class="mb-6">ส่วนนี้จะเจาะลึกการใช้ภาษาในเพลง "Take Me to Your Heart" ซึ่งเป็นกุญแจสำคัญที่ทำให้เพลงนี้สื่อสารอารมณ์ความรู้สึกโหยหาและจริงใจออกมาได้อย่างทรงพลัง เราจะมาสำรวจตั้งแต่การเลือกใช้คำศัพท์ การใช้ Tenses ที่สร้างมิติทางอารมณ์ ไปจนถึงวลีกริยาและภาษาเปรียบเทียบที่ทำให้เนื้อเพลงมีสีสันและน่าจดจำ</p>
+                    <div id="sub-nav" class="flex flex-wrap gap-2 border-b border-stone-200 mb-6">
+                        <button data-subtarget="vocab" class="sub-tab-btn px-3 py-2 text-sm md:text-base rounded-t-md text-stone-600 active">คำศัพท์</button>
+                        <button data-subtarget="tenses" class="sub-tab-btn px-3 py-2 text-sm md:text-base rounded-t-md text-stone-600">การใช้ Tenses</button>
+                        <button data-subtarget="phrasal" class="sub-tab-btn px-3 py-2 text-sm md:text-base rounded-t-md text-stone-600">Phrasal Verbs</button>
+                        <button data-subtarget="figurative" class="sub-tab-btn px-3 py-2 text-sm md:text-base rounded-t-md text-stone-600">ภาษาเปรียบเทียบ</button>
+                    </div>
+
+                    <div id="analysis-content">
+                        <!-- Sub-section: Vocabulary -->
+                        <div id="vocab" class="analysis-sub-section">
+                            <h3 class="text-xl font-semibold mb-4">คำศัพท์ที่น่าสนใจ</h3>
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="p-4 bg-stone-50 rounded-lg border">
+                                    <h4 class="font-bold text-teal-600">Clue</h4>
+                                    <p class="text-sm">ใน "haven't got a clue" เน้นย้ำความไม่รู้เรื่องความรัก ทำให้คำร้องขอ "show me" ดูจริงใจและเปราะบาง</p>
+                                </div>
+                                <div class="p-4 bg-stone-50 rounded-lg border">
+                                    <h4 class="font-bold text-teal-600">Wonders</h4>
+                                    <p class="text-sm">สื่อถึงความเป็นไปได้ที่มหัศจรรย์และไม่ธรรมดาที่ความรักสามารถนำมาให้ สร้างความรู้สึกคาดหวัง</p>
+                                </div>
+                                <div class="p-4 bg-stone-50 rounded-lg border">
+                                    <h4 class="font-bold text-teal-600">Soul</h4>
+                                    <p class="text-sm">ยกระดับความสัมพันธ์ให้ลึกซึ้งกว่าเรื่องทางกาย ไปสู่การเชื่อมโยงทางจิตวิญญาณ</p>
+                                </div>
+                                <div class="p-4 bg-stone-50 rounded-lg border">
+                                    <h4 class="font-bold text-teal-600">Guiding star</h4>
+                                    <p class="text-sm">สร้างภาพดาวนำทาง สื่อถึงคนรักว่าเป็นผู้ชี้นำและเป็นแสงสว่างในชีวิต</p>
+                                </div>
+                                <div class="p-4 bg-stone-50 rounded-lg border">
+                                    <h4 class="font-bold text-teal-600">Crowded</h4>
+                                    <p class="text-sm">คำว่า "crowded street" (ถนนที่แออัด) ขับเน้นความรู้สึกโดดเดี่ยวท่ามกลางผู้คน</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sub-section: Tenses -->
+                        <div id="tenses" class="analysis-sub-section hidden">
+                             <h3 class="text-xl font-semibold mb-4">การกระจายตัวของการใช้ Tenses</h3>
+                             <p class="mb-4 text-center text-stone-600">แผนภูมินี้แสดงให้เห็นสัดส่วนการใช้ Tenses และ Moods ต่างๆ ในเพลง จะเห็นได้ว่าเพลงนี้ใช้ประโยคขอร้อง (Imperative) และ Simple Present Tense เป็นหลัก เพื่อสื่อสารความปรารถนาอย่างตรงไปตรงมาและแสดงความรู้สึกที่เป็นจริงในปัจจุบัน</p>
+                             <div class="chart-container">
+                                <canvas id="tensesChart"></canvas>
+                             </div>
+                        </div>
+
+                        <!-- Sub-section: Phrasal Verbs -->
+                        <div id="phrasal" class="analysis-sub-section hidden">
+                            <h3 class="text-xl font-semibold mb-4">Phrasal Verbs ที่สำคัญ</h3>
+                             <div class="space-y-4">
+                                <div class="p-4 border rounded-lg">
+                                    <p><strong class="text-teal-600">Take (someone) to (a place)</strong>: ใน "Take me to your heart/soul" เป็นการขอให้ยอมรับเข้าสู่โลกภายในและความรู้สึกนึกคิดอย่างลึกซึ้ง</p>
+                                </div>
+                                <div class="p-4 border rounded-lg">
+                                    <p><strong class="text-teal-600">Bring (someone) away</strong>: ใน "Bring me far away" คือการขอให้พาหนีไปจากสถานการณ์ปัจจุบัน ไปสู่สิ่งที่ดีกว่าด้วยกัน</p>
+                                </div>
+                                <div class="p-4 border rounded-lg">
+                                    <p><strong class="text-teal-600">Let go</strong>: ใน "I won't let go" หมายถึง ไม่ยอมแพ้ ไม่ละทิ้งความหวังหรือความทรงจำ</p>
+                                </div>
+                                <div class="p-4 border rounded-lg">
+                                    <p><strong class="text-teal-600">Fade away</strong>: ใน "my love will never fade away" หมายถึง ความรักจะไม่มีวันเลือนหายไป</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sub-section: Figurative Language -->
+                        <div id="figurative" class="analysis-sub-section hidden">
+                            <h3 class="text-xl font-semibold mb-4">ภาษาเปรียบเทียบ (Figurative Language)</h3>
+                            <div class="space-y-3">
+                                <details class="p-4 border rounded-lg cursor-pointer">
+                                    <summary class="font-semibold text-teal-700">Hyperbole (การกล่าวเกินจริง)</summary>
+                                    <p class="mt-2 text-sm">ใช้เพื่อเน้นย้ำความรู้สึกที่รุนแรง เช่น "Take me to your heart" (ไม่มีใครเข้าไปในหัวใจจริงๆ ได้) หรือ "Listening to my own heart beat" เพื่อแสดงถึงการจดจ่ออยู่กับความรู้สึกภายในอย่างมาก</p>
+                                </details>
+                                <details class="p-4 border rounded-lg cursor-pointer">
+                                    <summary class="font-semibold text-teal-700">Metaphor (อุปมา)</summary>
+                                    <p class="mt-2 text-sm">การเปรียบเทียบโดยนัย เช่น "Be my guiding star" เปรียบคนรักเป็น "ดาวนำทาง" ที่ให้ความหวังและชี้ทิศทางในชีวิต</p>
+                                </details>
+                                <details class="p-4 border rounded-lg cursor-pointer">
+                                    <summary class="font-semibold text-teal-700">Repetition (การซ้ำ)</summary>
+                                    <p class="mt-2 text-sm">การซ้ำวลี "Take me to your heart, take me to your soul" เพื่อตอกย้ำคำวิงวอนหลัก และทำให้เพลงน่าจดจำ</p>
+                                </details>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section: Deeper Meaning -->
+            <section id="meaning" class="content-section p-4 bg-white rounded-lg shadow-md">
+                 <h2 class="text-2xl font-bold text-teal-700 mb-4">การตีความหมายเชิงลึก</h2>
+                 <div class="space-y-4">
+                    <p>แก่นเรื่องหลักของเพลงคือการวิงวอนอย่างจริงใจเพื่อความรัก การยอมรับ และการเชื่อมโยงทางอารมณ์ ผู้ร้องแสดงออกถึงความปรารถนาอย่างสุดซึ้ง โดยเชื่อว่าคนรักสามารถมอบความหมายและการนำทางออกจากความเหงาได้</p>
+                    <div>
+                        <h4 class="font-semibold text-teal-600">การเดินทางจากความโดดเดี่ยวสู่การเชื่อมโยง</h4>
+                        <p>ท่อนเวิร์สของเพลงมักพรรณนาถึงความโดดเดี่ยว ("Hiding from the rain," "Standing in the dark") ในขณะที่ท่อนฮุกคือเสียงเรียกร้องที่จะถูกนำออกจากความโดดเดี่ยวนี้ไปสู่ความอบอุ่นของ "หัวใจ" และ "จิตวิญญาณ" ของคนรัก</p>
+                    </div>
+                     <div>
+                        <h4 class="font-semibold text-teal-600">ความรักในฐานะการไถ่ถอน</h4>
+                        <p>ท่อน "Show me what love is, haven't got a clue" แสดงภาพความรักว่าเป็นบ่อเกิดของความรู้และการเปลี่ยนแปลงที่เกือบจะมหัศจรรย์ เสมือนว่าคนรักเป็นผู้ถือกุญแจสู่ "สิ่งมหัศจรรย์" (wonders) ของชีวิต</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-teal-600">ความขัดแย้งของเวลา</h4>
+                        <p>เพลงมีความขัดแย้งที่น่าสนใจระหว่าง "nothing lasts forever" (ไม่มีอะไรคงอยู่ตลอดไป) กับความปรารถนาในรักนิรันดร์ ("my love will never fade away") และความเร่งด่วน ("love is now or never") ซึ่งสะท้อนความปรารถนาของมนุษย์ที่โหยหาความยั่งยืนแม้จะรู้ว่าชีวิตนั้นสั้น</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Quiz -->
+            <section id="quiz" class="content-section p-4 bg-white rounded-lg shadow-md">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-teal-700">ทดสอบความเข้าใจ</h2>
+                    <div class="text-right">
+                        <span class="text-lg font-medium">คะแนน: <span id="quiz-score">0</span> / 20</span>
+                    </div>
+                </div>
+                <div id="quiz-container" class="space-y-8"></div>
+                 <div class="text-center mt-8">
+                    <button id="reset-quiz-btn" class="bg-teal-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-700 transition-colors">เริ่มทำแบบทดสอบใหม่</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                category: 'ทดสอบการฟัง (เติมคำในช่องว่าง)',
+                questions: [
+                    { q: "Give me your hand before I'm ______.", opts: ['lost', 'old', 'cold', 'bold'], a: 'old' },
+                    { q: "Show me what love is, haven't got a ______.", opts: ['sign', 'chance', 'clue', 'reason'], a: 'clue' },
+                    { q: "We're only here ______.", opts: ['tonight', 'today', 'always', 'sometimes'], a: 'today' },
+                    { q: "Show me what love is, be my guiding ______.", opts: ['light', 'hand', 'way', 'star'], a: 'star' },
+                    { q: "It's easy, take me to your ______.", opts: ['home', 'place', 'heart', 'mind'], a: 'heart' }
+                ]
+            },
+            {
+                category: 'คำถามเกี่ยวกับการใช้ Tenses',
+                questions: [
+                    { q: "ในท่อน \"They say nothing lasts forever,\" กริยา 'lasts' อยู่ใน Tense ใด?", opts: ['Simple Past', 'Simple Present', 'Present Continuous', 'Present Perfect'], a: 'Simple Present' },
+                    { q: "การใช้ Imperative เช่น 'Take me' ในเพลงนี้ แสดงออกถึงสิ่งใดเป็นหลัก?", opts: ['ความเสียใจในอดีต', 'แผนการในอนาคต', 'ความปรารถนาอย่างแรงกล้าในปัจจุบัน', 'ข้อสังเกตทั่วไป'], a: 'ความปรารถนาอย่างแรงกล้าในปัจจุบัน' },
+                    { q: "ในท่อน \"Hiding from the rain and snow,\" การใช้ Present Continuous Tense สื่อถึงอะไร?", opts: ['การกระทำที่เพิ่งสิ้นสุดลง', 'นิสัยที่ทำเป็นประจำ', 'การกระทำที่กำลังดำเนินอยู่ในขณะนั้น', 'แผนการสำหรับอนาคตอันใกล้'], a: 'การกระทำที่กำลังดำเนินอยู่ในขณะนั้น' },
+                    { q: "วลี \"my love will never fade away\" ใช้ Tense ใดเพื่อแสดงความหมาย?", opts: ['Simple Present', 'Simple Future', 'Present Perfect', 'Past Continuous'], a: 'Simple Future' },
+                    { q: "การเปลี่ยน Tense จาก Present Continuous ในเวิร์สไปเป็น Imperative ในฮุก มีผลต่อเพลงอย่างไร?", opts: ['ทำให้เพลงฟังดูสับสน', 'ลดทอนความเข้มข้นทางอารมณ์', 'สร้างพลวัตทางอารมณ์จากสภาวะครุ่นคิดไปสู่การร้องขออย่างเปิดเผย', 'เปลี่ยนหัวข้อของเพลงอย่างกะทันหัน'], a: 'สร้างพลวัตทางอารมณ์จากสภาวะครุ่นคิดไปสู่การร้องขออย่างเปิดเผย' }
+                ]
+            },
+            {
+                category: 'คำถามเกี่ยวกับความเข้าใจในความหมาย',
+                questions: [
+                    { q: "วลี \"be my guiding star\" สื่อว่าผู้ร้องมองบุคคลอันเป็นที่รักอย่างไร?", opts: ['เป็นคนที่อยู่ห่างไกล', 'เป็นผู้ที่สามารถชี้นำทางและให้ความหวังได้', 'เป็นคนมีชื่อเสียง', 'เป็นคนที่มองเห็นได้เฉพาะตอนกลางคืน'], a: 'เป็นผู้ที่สามารถชี้นำทางและให้ความหวังได้' },
+                    { q: "ความรู้สึกโดยรวมที่ผู้ร้องแสดงออกในเพลงนี้คืออะไร?", opts: ['ความโกรธและความผิดหวัง', 'ความปรารถนาอย่างลึกซึ้งและความเปราะบาง', 'ความพึงพอใจและความสงบ', 'ความไม่แยแสและความเบื่อหน่าย'], a: 'ความปรารถนาอย่างลึกซึ้งและความเปราะบาง' },
+                    { q: "ท่อน \"Give me your hand before I'm old\" มีความหมายโดยนัยว่าอย่างไร?", opts: ['ผู้ร้องต้องการความช่วยเหลือทางกายภาพเพราะแก่แล้ว', 'ผู้ร้องกลัวความแก่เพียงอย่างเดียว', 'ผู้ร้องต้องการความรักและการยอมรับก่อนที่จะสายเกินไป', 'ผู้ร้องต้องการคำแนะนำเรื่องการดูแลสุขภาพเมื่อสูงวัย'], a: 'ผู้ร้องต้องการความรักและการยอมรับก่อนที่จะสายเกินไป' },
+                    { q: "การที่ผู้ร้องขอให้ \"take me to your heart, take me to your soul\" แสดงถึงความต้องการอะไร?", opts: ['ต้องการการตรวจสุขภาพหัวใจ', 'ต้องการการยอมรับทางอารมณ์และความผูกพันที่ลึกซึ้ง', 'ต้องการให้พาไปยังสถานที่ที่เป็นรูปธรรม', 'ต้องการให้ทำนายโชคชะตา'], a: 'ต้องการการยอมรับทางอารมณ์และความผูกพันที่ลึกซึ้ง' },
+                    { q: "เพลงนี้สื่อถึงความขัดแย้งระหว่างแนวคิดใดกับความปรารถนาของผู้ร้อง?", opts: ['ความสุขกับความทุกข์', 'ความฝันกับความเป็นจริง', 'ความไม่จีรังของสรรพสิ่ง กับความปรารถนาในรักที่ยั่งยืน', 'ความสันโดษกับความวุ่นวายในสังคม'], a: 'ความไม่จีรังของสรรพสิ่ง กับความปรารถนาในรักที่ยั่งยืน' }
+                ]
+            },
+            {
+                category: 'คำถามเกี่ยวกับ Phrasal Verbs',
+                questions: [
+                    { q: "ในวลี \"Take me to your heart,\" ผู้ร้องต้องการอะไร?", opts: ['การตรวจสุขภาพหัวใจ', 'การได้รับการยอมรับทางอารมณ์และความรู้สึก', 'การถูกพาไปยังสถานที่ที่เป็นรูปธรรม', 'การได้รับคำแนะนำเรื่องความรัก'], a: 'การได้รับการยอมรับทางอารมณ์และความรู้สึก' },
+                    { q: "วลี \"Bring me far away\" ในบริบทของเพลง สื่อถึงความปรารถนาใด?", opts: ['ต้องการเดินทางไปต่างประเทศ', 'ต้องการหลีกหนีจากความรัก', 'ต้องการให้คนรักพาออกจากสภาวะปัจจุบันไปสู่สิ่งที่ดีกว่าด้วยกัน', 'ต้องการอยู่ห่างจากผู้คน'], a: 'ต้องการให้คนรักพาออกจากสภาวะปัจจุบันไปสู่สิ่งที่ดีกว่าด้วยกัน' },
+                    { q: "คำว่า \"let go\" ในท่อน \"I won't let go\" หมายถึงอะไร?", opts: ['ปล่อยมือ', 'ยอมแพ้หรือละทิ้ง (ความหวัง, ความรู้สึก)', 'อนุญาตให้ไป', 'เริ่มต้นใหม่'], a: 'ยอมแพ้หรือละทิ้ง (ความหวัง, ความรู้สึก)' },
+                    { q: "Phrasal verb \"fade away\" มีความหมายว่าอย่างไร?", opts: ['ค่อยๆ เลือนหายไป', 'ส่องสว่างขึ้น', 'แข็งแกร่งขึ้น', 'เปลี่ยนแปลงไป'], a: 'ค่อยๆ เลือนหายไป' },
+                    { q: "โครงสร้าง \"take (someone) to (a place)\" ใช้ \"heart\" และ \"soul\" เป็น \"place\" เชิงเปรียบเทียบเพื่อสื่อถึงอะไร?", opts: ['สถานที่พักผ่อนทางจิตใจ', 'โรงพยาบาลเฉพาะทาง', 'พื้นที่ส่วนตัวที่จับต้องได้', 'การเข้าถึงและการยอมรับในระดับอารมณ์และจิตวิญญาณ'], a: 'การเข้าถึงและการยอมรับในระดับอารมณ์และจิตวิญญาณ' }
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainNav = document.getElementById('main-nav');
+            const contentSections = document.querySelectorAll('.content-section');
+            const subNav = document.getElementById('sub-nav');
+            const analysisSubSections = document.querySelectorAll('.analysis-sub-section');
+            const quizContainer = document.getElementById('quiz-container');
+            const scoreElement = document.getElementById('quiz-score');
+            const resetQuizBtn = document.getElementById('reset-quiz-btn');
+
+            let currentScore = 0;
+            let questionsAnswered = 0;
+
+            function switchTab(nav, sections, targetId, btnClass, activeClass) {
+                nav.querySelectorAll(btnClass).forEach(btn => btn.classList.remove(activeClass));
+                sections.forEach(section => section.style.display = 'none');
+                
+                const activeBtn = nav.querySelector(`[data-target='${targetId}'], [data-subtarget='${targetId}']`);
+                const activeSection = document.getElementById(targetId);
+                
+                if (activeBtn) activeBtn.classList.add(activeClass);
+                if (activeSection) activeSection.style.display = 'block';
+            }
+
+            mainNav.addEventListener('click', (e) => {
+                if (e.target.matches('.tab-btn')) {
+                    const targetId = e.target.dataset.target;
+                    switchTab(mainNav, contentSections, targetId, '.tab-btn', 'active');
+                }
+            });
+            
+            subNav.addEventListener('click', (e) => {
+                if (e.target.matches('.sub-tab-btn')) {
+                    const subTargetId = e.target.dataset.subtarget;
+                     analysisSubSections.forEach(sec => sec.classList.add('hidden'));
+                     document.getElementById(subTargetId).classList.remove('hidden');
+
+                     subNav.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+                     e.target.classList.add('active');
+                }
+            });
+
+            function buildQuiz() {
+                quizContainer.innerHTML = '';
+                currentScore = 0;
+                questionsAnswered = 0;
+                scoreElement.textContent = 0;
+
+                quizData.forEach((cat, catIndex) => {
+                    const categoryEl = document.createElement('div');
+                    categoryEl.innerHTML = `<h3 class="text-xl font-semibold mb-4 text-teal-700">${cat.category}</h3>`;
+                    
+                    const questionsEl = document.createElement('div');
+                    questionsEl.className = 'space-y-6';
+
+                    cat.questions.forEach((q, qIndex) => {
+                        const questionWrapper = document.createElement('div');
+                        questionWrapper.className = 'p-4 border border-stone-200 rounded-lg';
+                        
+                        const questionText = document.createElement('p');
+                        questionText.className = 'font-medium mb-3';
+                        questionText.textContent = `${qIndex + 1}. ${q.q}`;
+                        questionWrapper.appendChild(questionText);
+
+                        const optionsWrapper = document.createElement('div');
+                        optionsWrapper.className = 'space-y-2';
+                        optionsWrapper.dataset.answer = q.a;
+
+                        q.opts.forEach(opt => {
+                            const optionLabel = document.createElement('label');
+                            optionLabel.className = 'quiz-option block p-3 border rounded-md cursor-pointer hover:bg-stone-100 transition-colors';
+                            
+                            const optionInput = document.createElement('input');
+                            optionInput.type = 'radio';
+                            optionInput.name = `q-${catIndex}-${qIndex}`;
+                            optionInput.value = opt;
+                            optionInput.className = 'mr-3';
+
+                            optionLabel.appendChild(optionInput);
+                            optionLabel.appendChild(document.createTextNode(opt));
+                            optionsWrapper.appendChild(optionLabel);
+                        });
+
+                        questionWrapper.appendChild(optionsWrapper);
+                        questionsEl.appendChild(questionWrapper);
+                    });
+
+                    categoryEl.appendChild(questionsEl);
+                    quizContainer.appendChild(categoryEl);
+                });
+
+                quizContainer.addEventListener('change', handleQuizAnswer);
+            }
+
+            function handleQuizAnswer(e) {
+                if (e.target.type === 'radio') {
+                    const selectedLabel = e.target.parentElement;
+                    const optionsWrapper = selectedLabel.parentElement;
+                    const correctAnswer = optionsWrapper.dataset.answer;
+                    
+                    // Disable all inputs for this question
+                    optionsWrapper.querySelectorAll('input').forEach(input => input.disabled = true);
+                    
+                    if (e.target.value === correctAnswer) {
+                        selectedLabel.classList.add('correct');
+                        currentScore++;
+                    } else {
+                        selectedLabel.classList.add('incorrect');
+                        // Highlight the correct answer
+                        Array.from(optionsWrapper.children).find(label => label.textContent.includes(correctAnswer))?.classList.add('correct');
+                    }
+                    scoreElement.textContent = currentScore;
+                }
+            }
+            
+            resetQuizBtn.addEventListener('click', buildQuiz);
+
+            function createTensesChart() {
+                const ctx = document.getElementById('tensesChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Imperative (ขอร้อง)', 'Simple Present', 'Present Continuous', 'Simple Future'],
+                        datasets: [{
+                            label: 'การใช้ Tense ในเพลง',
+                            data: [40, 35, 20, 5], 
+                            backgroundColor: [
+                                'rgba(13, 148, 136, 0.7)',  // teal-600
+                                'rgba(20, 184, 166, 0.7)',  // teal-500
+                                'rgba(45, 212, 191, 0.7)', // teal-400
+                                'rgba(153, 153, 153, 0.7)' // stone-400
+                            ],
+                            borderColor: [
+                                'rgba(13, 148, 136, 1)',
+                                'rgba(20, 184, 166, 1)',
+                                'rgba(45, 212, 191, 1)',
+                                'rgba(113, 113, 113, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Initial setup
+            switchTab(mainNav, contentSections, 'analysis', '.tab-btn', 'active');
+            createTensesChart();
+            buildQuiz();
+        });
+    </script>
+</body>
+</html>

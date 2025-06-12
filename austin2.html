@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง "Austin" - Blake Shelton</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Country Road -->
+    <!-- Application Structure Plan: Sticking to the successful 4-tab SPA model (Intro, Lyrics, Analysis, Quiz). The core interactive features—clickable lyrics, flip cards, and quiz—remain central to the user experience. The analysis section is specifically adapted to showcase the song's unique narrative structure, which revolves around a recurring answering machine message. This provides a clear, focused analytical lens. -->
+    <!-- Visualization & Content Choices: 1. Lyrics: Report Info -> Lyrics, translation, and narrative explanation. Goal -> Explore/Inform. Viz -> Clickable list with modals. Interaction -> Click-to-reveal. Justification -> Effectively segments the story-driven lyrics for easy digestion. Library -> HTML/CSS/JS. 2. Narrative Structure Analysis: Report Info -> The song's use of an answering machine message as a chorus/anchor. Goal -> Analyze/Inform. Viz -> A donut chart showing the proportion of "Answering Machine Message" vs. "Narrative Storytelling". Justification -> Visually highlights the song's unique structural device. Library -> Chart.js. 3. Key Concepts: Report Info -> Answering machine motif, patience, P.S., narrative songwriting. Goal -> Organize/Learn. Viz -> Flip cards. Interaction -> Click-to-flip. Justification -> Great for explaining literary and thematic concepts. Library -> HTML/CSS/JS. 4. Quiz: Report Info -> Comprehension questions on the story, characters, and vocabulary. Goal -> Test/Reinforce. Note: User requested 10 fill-in-the-blank questions, so the quiz is expanded to 20 total questions. Library -> HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #F5F5DC; /* Beige */
+            color: #3D2B1F; /* Dark Brown */
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            color: #5A4D41;
+        }
+        .nav-btn.active, .nav-btn:hover {
+            color: #4682B4; /* Steel Blue */
+            border-bottom-color: #4682B4;
+        }
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .lyric-line:hover {
+            background-color: #F8F4E9;
+        }
+        .quiz-option {
+            transition: background-color 0.2s ease-in-out;
+            border-color: #D2B48C; /* Tan */
+        }
+        .quiz-option:hover {
+            background-color: #EAE3D6;
+        }
+        .quiz-option.correct {
+            background-color: #D4EDDA;
+            border-color: #A3C9A8;
+        }
+        .quiz-option.incorrect {
+            background-color: #F8D7DA;
+            border-color: #D9A0A7;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal-bg {
+             background-color: rgba(61, 43, 31, 0.7);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="lyric-modal" class="fixed inset-0 modal-bg flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-[#F5F5DC] rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 md:p-8 relative border border-[#D2B48C]">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl">&times;</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#3D2B1F]">Austin</h1>
+            <p class="text-xl text-[#5A4D41] mt-2">โดย Blake Shelton</p>
+            <p class="mt-4 text-lg text-[#4682B4] font-semibold">แอปพลิเคชันวิเคราะห์เพลงเชิงโต้ตอบ</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-[#D2B48C] mb-10 space-x-4 md:space-x-8">
+            <button id="nav-intro" class="nav-btn py-2 px-1 md:px-4 text-lg active" onclick="showSection('intro')">บทนำ</button>
+            <button id="nav-lyrics" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('lyrics')">เนื้อเพลง</button>
+            <button id="nav-analysis" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('analysis')">วิเคราะห์</button>
+            <button id="nav-quiz" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('quiz')">แบบทดสอบ</button>
+        </nav>
+
+        <main>
+            <section id="intro" class="content-section space-y-6 leading-relaxed">
+                <p class="text-lg text-[#3D2B1F]">ยินดีต้อนรับสู่การวิเคราะห์ "Austin" เพลงเปิดตัวที่กลายเป็นตำนานของ Blake Shelton แอปพลิเคชันนี้จะพาคุณไปสัมผัสกับเรื่องราวความรักที่เรียบง่ายแต่ทรงพลัง ผ่านบทเพลงที่ใช้เครื่องตอบรับโทรศัพท์เป็นสื่อกลางในการแสดงออกถึงความอดทนและความหวังที่ไม่เคยจางหาย ส่วนนี้จะให้ภาพรวมของเพลงและแก่นเรื่องหลัก เพื่อให้คุณเข้าใจว่าทำไมเพลงนี้ถึงครองใจแฟนเพลงคันทรีมาได้อย่างยาวนาน</p>
+                <div class="bg-white/50 p-6 rounded-lg shadow-md border border-[#D2B48C]">
+                    <h2 class="text-2xl font-bold text-[#4682B4] mb-4">แก่นเรื่องหลัก: ความรักที่รอคอย</h2>
+                    <p class="text-[#3D2B1F]">หัวใจของเพลง "Austin" คือความเชื่อมั่นในความรักที่อยู่เหนือกาลเวลาและระยะทาง Blake Shelton เล่าเรื่องของผู้ชายคนหนึ่งที่ไม่ยอมแพ้ต่อความรัก แม้คนรักของเขาจะย้ายไปไกลถึงออสติน เขาเปลี่ยนข้อความในเครื่องตอบรับโทรศัพท์ให้กลายเป็นคำมั่นสัญญาที่เงียบงันแต่ชัดเจนว่าเขายังคงรออยู่ เพลงนี้เฉลิมฉลองให้กับความอดทน ความภักดี และความหวังที่ว่ารักแท้จะหาทางกลับมาเจอกันได้เสมอ</p>
+                </div>
+            </section>
+
+            <section id="lyrics" class="content-section hidden">
+                 <p class="text-lg mb-6 text-center text-[#3D2B1F]">ติดตามเรื่องราวความรักผ่านข้อความตอบรับอัตโนมัติ คลิกที่แต่ละท่อนเพื่อดูคำแปลและความหมายเบื้องหลังคำพูดที่แสนธรรมดาแต่เต็มไปด้วยความหวัง</p>
+                <div id="lyrics-container" class="space-y-4 bg-white/50 p-6 rounded-lg shadow-md border border-[#D2B48C]">
+                </div>
+            </section>
+
+            <section id="analysis" class="content-section hidden space-y-12">
+                <p class="text-lg mb-6 text-[#3D2B1F]">ในส่วนนี้ เราจะมาเจาะลึกองค์ประกอบที่ทำให้ "Austin" เป็นเพลงเล่าเรื่องที่ยอดเยี่ยม ตั้งแต่การวิเคราะห์โครงสร้างของเพลงผ่านแผนภูมิ ไปจนถึงการทำความเข้าใจสัญลักษณ์และแนวคิดสำคัญที่ซ่อนอยู่</p>
+                
+                <div>
+                    <h2 class="text-2xl font-bold text-[#3D2B1F] mb-4 text-center">การวิเคราะห์โครงสร้างการเล่าเรื่อง</h2>
+                    <div class="chart-container">
+                        <canvas id="analysisChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-[#5A4D41]">แผนภูมินี้แสดงสัดส่วนระหว่าง "ข้อความตอบรับอัตโนมัติ" ซึ่งทำหน้าที่เป็นท่อนคอรัส กับ "การเล่าเรื่อง" ที่ขับเคลื่อนเนื้อหาของเพลง</p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-[#3D2B1F] mb-4 text-center">แนวคิดและสัญลักษณ์สำคัญ</h2>
+                    <p class="text-center mb-6 text-[#5A4D41]">คลิกที่การ์ดเพื่อพลิกดูความหมายและบทบาทในเพลง</p>
+                    <div id="analysis-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="quiz" class="content-section hidden">
+                <p class="text-lg mb-6 text-center text-[#3D2B1F]">ถึงเวลาทดสอบความเข้าใจในเรื่องราวของเพลง "Austin" แล้ว ลองดูสิว่าคุณจดจำรายละเอียดของบทเพลงแห่งการรอคอยนี้ได้ดีแค่ไหน!</p>
+                <div id="quiz-container" class="bg-white/50 p-6 rounded-lg shadow-md border border-[#D2B48C]">
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+const lyricData = [
+    { lyric: "She left without leaving a number / Said she needed to clear her head / He figured she'd gone back to Austin / 'Cause that's where she always said she'd go", translation: "เธอจากไปโดยไม่ทิ้งเบอร์โทรไว้ / บอกว่าเธอต้องการให้สมองปลอดโปร่ง / เขาคาดว่าเธอกลับไปที่ออสติน / เพราะนั่นคือที่ที่เธอมักพูดเสมอว่าจะไป", explanation: "ท่อนเปิดเรื่องที่สร้างฉากของการจากลาอย่างกะทันหันและไร้การติดต่อ แสดงให้เห็นถึงความสับสนของฝ่ายชาย แต่ก็ยังมีความหวังเล็กๆ จากคำพูดในอดีตของเธอ" },
+    { lyric: "If you're callin' 'bout the car, I sold it / If this is Tuesday night, I'm bowlin' / If you've got something to sell, you're wastin' your time, I'm not buyin' / If it's anybody else, wait for the tone, you know what to do / And P.S. if this is Austin, I still love you", translation: "ถ้าคุณโทรมาเรื่องรถ ผมขายไปแล้ว / ถ้าเป็นคืนวันอังคาร ผมไปเล่นโบว์ลิ่ง / ถ้าคุณมีอะไรจะขาย คุณกำลังเสียเวลา ผมไม่ซื้อ / ถ้าเป็นคนอื่น รอสัญญาณแล้วคุณก็รู้ว่าต้องทำอะไร / และ ป.ล. ถ้าคนนี้คือออสติน ผมยังรักคุณนะ", explanation: "นี่คือข้อความตอบรับอัตโนมัติชุดแรกที่ทำหน้าที่เป็นท่อนคอรัส มันคือการสื่อสารทางอ้อมที่แยบยล ข้อความส่วนใหญ่เป็นเรื่องทั่วไป แต่ประโยคสุดท้าย 'ป.ล. ถ้าคนนี้คือออสติน ฉันยังรักเธอ' คือข้อความที่ส่งถึงคนเพียงคนเดียว" },
+    { lyric: "The telephone keeps on ringin' / And the operator knows his name / But his machine says, 'He ain't sinkin'' / He's just been hangin' on", translation: "โทรศัพท์ยังคงดังไม่หยุด / และพนักงานรับโทรศัพท์ก็รู้จักชื่อเขา / แต่เครื่องของเขาบอกว่า 'เขาไม่ได้จมปลักอยู่' / เขาแค่ยังคงยึดมั่นอยู่", explanation: "ท่อนนี้แสดงให้เห็นว่าเวลาผ่านไป และการรอคอยของเขาก็เป็นที่รับรู้แม้กระทั่งจากคนนอก (พนักงานรับโทรศัพท์) แต่ข้อความในเครื่องก็ยืนยันว่าเขายังคงมีความหวังและไม่ยอมแพ้" },
+    { lyric: "It's been a year since he's seen her / He hurt so bad he couldn't cry / He'd take a trip down to the river / And watch the barges float on by", translation: "เป็นเวลาหนึ่งปีแล้วที่เขาไม่ได้เจอเธอ / เขาเจ็บปวดมากจนร้องไห้ไม่ออก / เขาจะเดินทางไปที่แม่น้ำ / และเฝ้ามองเรือบรรทุกสินค้าลอยผ่านไป", explanation: "แสดงถึงความเจ็บปวดที่ฝังลึกและการผ่านไปของเวลา การมองเรือที่ลอยไปเรื่อยๆ เป็นสัญลักษณ์ของการรอคอยที่ไม่มีจุดหมาย แต่ก็ยังไม่ยอมแพ้" },
+    { lyric: "Then one day he came home from workin' / And there were fifty calls or more / But the only one he returned was the one he'd been waitin' for", translation: "แล้ววันหนึ่งเขากลับมาจากทำงาน / และมีสายที่ไม่ได้รับห้าสิบกว่าสาย / แต่สายเดียวที่เขาโทรกลับคือสายที่เขารอคอยมาตลอด", explanation: "จุดเปลี่ยนของเรื่องราว การรอคอยสิ้นสุดลง เขาได้รับโทรศัพท์จากคนที่เขาเฝ้ารอ" },
+    { lyric: "She said, 'I bet you're surprised to hear from me' / He said, 'I knew it would be you / I've kept this message for a year now, what else is new?'", translation: "เธอบอกว่า 'ฉันพนันได้เลยว่าคุณคงประหลาดใจที่ได้ยินเสียงฉัน' / เขาตอบว่า 'ฉันรู้ว่าต้องเป็นเธอ / ฉันเก็บข้อความนี้ไว้เป็นปีแล้ว มีอะไรใหม่บ้างล่ะ?'", explanation: "บทสนทนาแรกหลังจากห่างหายไปนาน คำตอบของเขาแสดงให้เห็นความเชื่อมั่นที่ไม่เคยสั่นคลอนว่าเธอจะโทรกลับมา" },
+    { lyric: "She said, 'I saw your number in the paper' / He said, 'I've had it in there for a week / I was runnin' out of bait and savin' up for a tank of gas'", translation: "เธอบอก 'ฉันเห็นเบอร์คุณในหนังสือพิมพ์' / เขาบอก 'ผมลงไว้ในนั้นมาสัปดาห์นึงแล้ว / พอดีเหยื่อตกปลาผมกำลังจะหมด และกำลังเก็บเงินเติมน้ำมันเต็มถังอยู่'", explanation: "วิธีที่เขาพยายามติดต่อกลับน่าสนใจ เขาลงประกาศขายของ (ซึ่งอาจไม่มีอยู่จริง) โดยอ้างเรื่องที่เกี่ยวข้องกับการตกปลา/การเดินทาง เป็นความพยายามครั้งสุดท้ายที่ชาญฉลาดและเข้ากับบรรยากาศเพลงคันทรี" },
+    { lyric: "She said, 'I'm in Austin.' / And he said, 'I'm comin' home.'", translation: "เธอบอกว่า 'ฉันอยู่ที่ออสติน' / และเขาตอบว่า 'ฉันกำลังจะกลับบ้าน'", explanation: "บทสรุปที่สวยงามและชัดเจนของเรื่องราว การรอคอยสิ้นสุดลงด้วยการยืนยันตำแหน่งของเธอ และการตัดสินใจอย่างแน่วแน่ของเขาที่จะไปหาเธอทันที คำว่า 'กลับบ้าน' ในที่นี้หมายถึงการกลับไปหาเธอซึ่งเปรียบเสมือนบ้านของหัวใจ" }
+];
+
+const analysisCardsData = [
+    { term: "สัญลักษณ์เครื่องตอบรับโทรศัพท์", definition: "เป็นหัวใจสำคัญของเพลง ทำหน้าที่เป็นช่องทางสื่อสารทางเดียวที่แสดงถึงความหวัง ความอดทน และคำมั่นสัญญาที่ไม่เปลี่ยนแปลงของผู้ชายคนหนึ่ง", example: "And P.S. if this is Austin, I still love you" },
+    { term: "ความอดทนและความหวัง", definition: "แก่นเรื่องหลักของเพลง แสดงให้เห็นว่าความเชื่อมั่นและความอดทนสามารถเอาชนะอุปสรรคของเวลาและระยะทางได้ในที่สุด", example: "I've kept this message for a year now" },
+    { term: "การเล่าเรื่องผ่านบทเพลง", definition: "เพลง 'Austin' เป็นตัวอย่างที่ยอดเยี่ยมของการเล่าเรื่องที่มีจุดเริ่มต้น กลาง และจบอย่างสมบูรณ์ ทำให้ผู้ฟังติดตามและมีอารมณ์ร่วมไปกับตัวละคร", example: "She left without leaving a number..." },
+    { term: "P.S. (Postscript/ปัจฉิมลิขิต)", definition: "การใช้ 'ป.ล.' เป็นเทคนิคที่ชาญฉลาดในการซ่อนข้อความส่วนตัวที่สำคัญที่สุดไว้ท้ายข้อความที่เป็นทางการ ทำให้มันโดดเด่นและมีความหมายพิเศษ", example: "And P.S. if this is Austin, I still love you" },
+    { term: "อารมณ์ที่ไม่แสดงออกอย่างเปิดเผย", definition: "ผู้ชายในเพลงไม่ได้แสดงความเศร้าโศกเสียใจอย่างฟูมฟาย แต่แสดงออกผ่านการกระทำที่เงียบขรึม เช่น การคงข้อความเดิมไว้และการไปนั่งมองแม่น้ำ", example: "He hurt so bad he couldn't cry" }
+];
+
+const quizData = [
+    // Fill-in-the-blanks (10 questions)
+    { type: 'fill', question: "She left without leaving a ____.", options: ["note", "number", "message", "trace"], answer: 1 },
+    { type: 'fill', question: "If you're callin' 'bout the car, I ____ it.", options: ["wrecked", "crashed", "sold", "kept"], answer: 2 },
+    { type: 'fill', question: "If this is Tuesday night, I'm ____.", options: ["workin'", "fishin'", "drinkin'", "bowlin'"], answer: 3 },
+    { type: 'fill', question: "And P.S. if this is ____, I still love you.", options: ["Houston", "Dallas", "Austin", "Boston"], answer: 2 },
+    { type: 'fill', question: "The telephone keeps on ____.", options: ["ringin'", "breakin'", "buzzin'", "fallin'"], answer: 0 },
+    { type: 'fill', question: "He hurt so bad he couldn't ____.", options: ["speak", "move", "eat", "cry"], answer: 3 },
+    { type: 'fill', question: "He'd take a trip down to the ____.", options: ["river", "ocean", "lake", "road"], answer: 0 },
+    { type: 'fill', question: "She said, 'I saw your number in the ____'.", options: ["letter", "paper", "book", "email"], answer: 1 },
+    { type: 'fill', question: "The ____ knows his name.", options: ["sheriff", "pastor", "operator", "postman"], answer: 2 },
+    { type: 'fill', question: "I was runnin' out of ____ and savin' up for a tank of gas.", options: ["time", "patience", "bait", "luck"], answer: 2 },
+    // Comprehension (5 questions)
+    { type: 'comp', question: "ทำไมผู้ชายในเพลงถึงคงข้อความเดิมไว้ในเครื่องตอบรับโทรศัพท์เป็นเวลาหนึ่งปี?", options: ["เขาขี้เกียจเปลี่ยน", "เขาต้องการให้ Austin รู้ว่าเขายังรักและรอเธออยู่", "เครื่องตอบรับโทรศัพท์ของเขาเสีย", "เขาไม่รู้วิธีเปลี่ยนข้อความ"], answer: 1 },
+    { type: 'comp', question: "แก่นเรื่องหลักของเพลง 'Austin' คืออะไร?", options: ["การแก้แค้น", "ความโกรธและการให้อภัย", "การก้าวต่อไปอย่างรวดเร็ว", "ความอดทน ความหวัง และความรักที่มั่นคง"], answer: 3 },
+    { type: 'comp', question: "Austin ติดต่อกลับมาได้อย่างไร?", options: ["เธอจำเบอร์ของเขาได้", "เธอเจอเบอร์ของเขาในสมุดโทรศัพท์", "เธอเห็นเบอร์ของเขาในประกาศหนังสือพิมพ์", "เพื่อนของเธอบอกเบอร์ให้"], answer: 2 },
+    { type: 'comp', question: "การที่ตัวละครชาย 'ไปนั่งมองเรือบรรทุกสินค้าลอยผ่านไป' สื่อถึงอะไร?", options: ["เขาสนใจเรื่องการขนส่งทางเรือ", "เป็นการแสดงถึงการรอคอยอย่างอดทนและการผ่านไปของเวลา", "เขาเบื่องานประจำของเขา", "เขากำลังวางแผนที่จะย้ายบ้าน"], answer: 1 },
+    { type: 'comp', question: "เพลงนี้จบลงอย่างไร?", options: ["พวกเขาตัดสินใจเป็นเพื่อนกัน", "Austin บอกว่าเธอจะไม่กลับมา", "Austin บอกว่าเธออยู่ที่ออสตินและเขากำลังจะไปหา", "พวกเขาไม่เคยได้คุยกันอีกเลย"], answer: 2 },
+    // Vocabulary/Idiom (5 questions)
+    { type: 'vocab', question: "วลี 'clear her head' หมายความว่าอย่างไร?", options: ["สระผม", "ทำให้สมองปลอดโปร่งเพื่อคิดทบทวน", "ลบความจำ", "ปวดหัว"], answer: 1 },
+    { type: 'vocab', question: "คำว่า 'P.S.' ในเพลงย่อมาจากอะไรและมีความสำคัญอย่างไร?", options: ["Please Sing: เป็นการขอให้ร้องเพลง", "Postscript: เป็นการเพิ่มข้อความสำคัญไว้ท้ายสุด", "Pretty Soon: แปลว่าเร็วๆ นี้", "Private Stuff: แปลว่าเรื่องส่วนตัว"], answer: 1 },
+    { type: 'vocab', question: "วลี 'hangin' on' ในบริบทนี้หมายถึงอะไร?", options: ["กำลังจะวางสายโทรศัพท์", "ห้อยโหนอยู่", "ยึดมั่นในความหวังและไม่ยอมแพ้", "ไปเที่ยวกับเพื่อน"], answer: 2 },
+    { type: 'vocab', question: "วลี 'runnin' out of bait' เป็นส่วนหนึ่งของข้ออ้างเพื่ออะไร?", options: ["เพื่อจะได้ไปพักผ่อน", "เพื่อเป็นข้ออ้างในการลงเบอร์ในหนังสือพิมพ์", "เพื่อบ่นเรื่องค่าครองชีพ", "เพื่อขอความช่วยเหลือเรื่องตกปลา"], answer: 1 },
+    { type: 'vocab', question: "คำว่า 'barge' ในเพลงหมายถึงอะไร?", options: ["รถยนต์", "รถไฟ", "เรือบรรทุกสินค้าท้องแบน", "เครื่องบิน"], answer: 2 },
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`nav-${sectionId}`).classList.add('active');
+}
+
+function openModal(index) {
+    const data = lyricData[index];
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <p class="text-2xl font-bold text-[#3D2B1F] mb-4">"${data.lyric}"</p>
+        <div class="space-y-4">
+            <div>
+                <h3 class="font-semibold text-lg text-[#4682B4]">คำแปล:</h3>
+                <p class="text-[#3D2B1F]">${data.translation}</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg text-[#4682B4]">คำอธิบายความหมาย:</h3>
+                <p class="text-[#3D2B1F]">${data.explanation}</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('lyric-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('lyric-modal').classList.add('hidden');
+}
+
+function createLyrics() {
+    const container = document.getElementById('lyrics-container');
+    container.innerHTML = lyricData.map((line, index) => `
+        <div class="lyric-line cursor-pointer p-4 rounded-lg" onclick="openModal(${index})">
+            <p class="text-lg text-[#3D2B1F]">"${line.lyric}"</p>
+        </div>
+    `).join('');
+}
+
+function createAnalysisCards() {
+    const container = document.getElementById('analysis-cards-container');
+    container.innerHTML = analysisCardsData.map(cardData => `
+        <div class="card h-56 [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-face absolute w-full h-full flex items-center justify-center p-4 bg-white/70 rounded-lg shadow-md border border-[#D2B48C]">
+                <p class="text-xl font-semibold text-center text-[#4682B4]">${cardData.term}</p>
+            </div>
+            <div class="card-back absolute w-full h-full flex flex-col items-center justify-center p-4 bg-[#4682B4] text-white rounded-lg shadow-md">
+                <p class="text-sm text-center font-light">${cardData.definition}</p>
+                <p class="text-xs text-center italic mt-2 opacity-80">e.g., "${cardData.example}"</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function createAnalysisChart() {
+    const ctx = document.getElementById('analysisChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['การเล่าเรื่อง (Narrative)', 'ข้อความตอบรับอัตโนมัติ (Answering Machine)'],
+            datasets: [{
+                label: 'โครงสร้างเพลง',
+                data: [65, 35], // Approximate percentage
+                backgroundColor: [ '#5A4D41', '#4682B4' ],
+                borderColor: '#F5F5DC',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#3D2B1F', font: { size: 14 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                label += context.parsed + '% ของเพลง';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    showQuestion();
+}
+
+function showQuestion() {
+    const quizContainer = document.getElementById('quiz-container');
+    if (currentQuestionIndex < quizData.length) {
+        const question = quizData[currentQuestionIndex];
+        let questionTitle = '';
+        if (currentQuestionIndex < 10) {
+            questionTitle = `เติมคำในช่องว่าง (${currentQuestionIndex + 1}/10)`;
+        } else if (currentQuestionIndex < 15) {
+            questionTitle = `ความเข้าใจในความหมาย (${currentQuestionIndex - 9}/5)`;
+        } else {
+            questionTitle = `คำศัพท์และสำนวน (${currentQuestionIndex - 14}/5)`;
+        }
+
+        quizContainer.innerHTML = `
+            <div class="mb-4">
+                <p class="text-lg font-semibold mb-1 text-[#4682B4]">${questionTitle}</p>
+                <p class="text-xl">${question.question}</p>
+            </div>
+            <div id="options-container" class="space-y-3">
+                ${question.options.map((option, index) => `
+                    <button class="quiz-option w-full text-left p-3 border-2 rounded-lg" onclick="checkAnswer(${index})">
+                        ${String.fromCharCode(97 + index)}. ${option}
+                    </button>
+                `).join('')}
+            </div>
+            <div id="feedback-container" class="mt-4"></div>
+        `;
+    } else {
+        showFinalScore();
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    const question = quizData[currentQuestionIndex];
+    const options = document.querySelectorAll('.quiz-option');
+    const feedbackContainer = document.getElementById('feedback-container');
+
+    options.forEach(button => button.disabled = true);
+    
+    if (selectedIndex === question.answer) {
+        score++;
+        options[selectedIndex].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-green-800 font-semibold">ถูกต้อง!</p>`;
+    } else {
+        options[selectedIndex].classList.add('incorrect');
+        options[question.answer].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-red-800 font-semibold">ผิด! คำตอบที่ถูกต้องคือ: ${String.fromCharCode(97 + question.answer)}</p>`;
+    }
+
+    feedbackContainer.innerHTML += `<button class="mt-4 bg-[#4682B4] text-white py-2 px-6 rounded-lg hover:bg-opacity-80" onclick="nextQuestion()">คำถามถัดไป</button>`;
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+function showFinalScore() {
+    const quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = `
+        <div class="text-center">
+            <h2 class="text-2xl font-bold mb-4">จบแบบทดสอบ!</h2>
+            <p class="text-xl mb-4">คุณได้ ${score} จาก ${quizData.length} คะแนน</p>
+            <button class="bg-[#4682B4] text-white py-2 px-6 rounded-lg hover:bg-opacity-80" onclick="createQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+        </div>
+    `;
+}
+
+window.onload = function() {
+    createLyrics();
+    createAnalysisCards();
+    createAnalysisChart();
+    createQuiz();
+    showSection('intro'); 
+
+    document.getElementById('lyric-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'lyric-modal') {
+            closeModal();
+        }
+    });
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง "If We Were Vampires" - Jason Isbell</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Warm Neutrals & Dusty Rose -->
+    <!-- Application Structure Plan: A tabbed single-page application design with four distinct sections: Introduction, Interactive Lyrics, In-depth Analysis, and Quiz. This structure is chosen over a linear document format to enhance usability and targeted learning. Users can navigate directly to the section of interest, allowing for both a comprehensive journey or a focused study on a specific area like vocabulary or the quiz. The interactive elements within each section (clickable lyrics, flip cards, interactive quiz) are designed to promote active engagement rather than passive reading, making the learning process more effective and memorable. -->
+    <!-- Visualization & Content Choices: 
+        1. Lyrics: Report Info -> Lyrics, translation, explanation. Goal -> Explore, Inform. Viz -> Clickable list of lyrics revealing details in a modal. Interaction -> Click-to-reveal. Justification -> Breaks down a large table into focused, user-driven interactions. Library -> HTML/CSS/JS.
+        2. Tense Analysis: Report Info -> Analysis of tenses. Goal -> Compare, Inform. Viz -> Bar chart visualizing the frequency of different tenses. Interaction -> Hover tooltips. Justification -> Offers a novel, visual way to understand grammatical patterns, making it more engaging than plain text. Library -> Chart.js (Canvas).
+        3. Vocabulary/Phrasal Verbs: Report Info -> Key terms and phrasal verbs. Goal -> Organize, Learn. Viz -> Interactive flip cards. Interaction -> Click-to-flip. Justification -> Mimics flashcards, a proven method for vocabulary acquisition. Library -> HTML/CSS/JS.
+        4. Quiz: Report Info -> Comprehension test questions. Goal -> Test, Reinforce. Viz -> Multi-step interactive form with immediate feedback. Interaction -> Select answer, check result, progress. Justification -> Provides active recall practice and immediate reinforcement, which is crucial for learning. Library -> HTML/CSS/JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #FAF8F1;
+            color: #4A4A4A;
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-btn.active, .nav-btn:hover {
+            color: #B08968;
+            border-bottom-color: #B08968;
+        }
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .lyric-line:hover {
+            background-color: #F7F1E3;
+        }
+        .quiz-option {
+            transition: background-color 0.2s ease-in-out;
+        }
+        .quiz-option:hover {
+            background-color: #EFEBE4;
+        }
+        .quiz-option.correct {
+            background-color: #D1E7DD;
+            border-color: #A3C9A8;
+        }
+        .quiz-option.incorrect {
+            background-color: #F8D7DA;
+            border-color: #D9A0A7;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="lyric-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 md:p-8 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#7F5539]">If We Were Vampires</h1>
+            <p class="text-xl text-gray-600 mt-2">โดย Jason Isbell and the 400 Unit</p>
+            <p class="mt-4 text-lg">แอปพลิเคชันวิเคราะห์เพลงเชิงโต้ตอบ</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-gray-300 mb-10 space-x-4 md:space-x-8">
+            <button id="nav-intro" class="nav-btn py-2 px-1 md:px-4 text-lg active" onclick="showSection('intro')">บทนำ</button>
+            <button id="nav-lyrics" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('lyrics')">เนื้อเพลง</button>
+            <button id="nav-analysis" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('analysis')">วิเคราะห์</button>
+            <button id="nav-quiz" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('quiz')">แบบทดสอบ</button>
+        </nav>
+
+        <main>
+            <section id="intro" class="content-section space-y-6 leading-relaxed">
+                <p class="text-lg">ยินดีต้อนรับสู่การสำรวจบทเพลง "If We Were Vampires" ที่ได้รับรางวัลแกรมมี่ของ Jason Isbell แอปพลิเคชันนี้จะนำคุณไปพบกับความหมายอันลึกซึ้งที่ซ่อนอยู่เบื้องหลังเนื้อเพลงที่สวยงามและเจ็บปวดใจไปพร้อมกัน ส่วนนี้จะให้ภาพรวมเกี่ยวกับศิลปินและแก่นเรื่องหลักของเพลง เพื่อเป็นรากฐานก่อนที่คุณจะดำดิ่งลงไปในรายละเอียดของการวิเคราะห์ภาษาและวรรณกรรมในส่วนถัดไป</p>
+                <div class="bg-white/70 p-6 rounded-lg shadow-sm">
+                    <h2 class="text-2xl font-bold text-[#7F5539] mb-4">แก่นเรื่องหลัก: ความรัก ชั่วชีวิต และคุณค่าของเวลา</h2>
+                    <p>เพลงนี้ไม่ได้วาดภาพความรักที่สวยหรูและเป็นนิรันดร์ แต่กลับนำเสนอความจริงที่ว่าความรักของมนุษย์นั้นงดงามและมีความหมายอย่างยิ่งก็เพราะมันเกิดขึ้นภายใต้เงื่อนไขของชีวิตที่มีวันสิ้นสุด Jason Isbell ชี้ให้เห็นว่าการตระหนักรู้ถึงความไม่จีรังนี้เองที่เป็น "ของขวัญ" ที่ผลักดันให้เรามอบทุกวินาทีที่มีให้แก่คนที่เรารัก และทำให้การกระทำเล็กๆ น้อยๆ อย่างการจับมือนั้นมีความสำคัญอย่างเหลือล้น</p>
+                </div>
+            </section>
+
+            <section id="lyrics" class="content-section hidden">
+                 <p class="text-lg mb-6 text-center">สำรวจเนื้อเพลงและความหมายที่ซ่อนอยู่เบื้องหลัง คลิกที่แต่ละท่อนเพื่อดูคำแปลและคำอธิบายโดยละเอียด ส่วนนี้ออกแบบมาเพื่อให้คุณได้สัมผัสกับเรื่องราวที่ Jason Isbell ต้องการจะเล่าผ่านบทเพลงอย่างใกล้ชิดและเป็นส่วนตัวที่สุด</p>
+                <div id="lyrics-container" class="space-y-4 bg-white/70 p-6 rounded-lg shadow-sm">
+                </div>
+            </section>
+
+            <section id="analysis" class="content-section hidden space-y-12">
+                <p class="text-lg mb-6">ในส่วนนี้ เราจะมาเจาะลึกการใช้ภาษาที่ชาญฉลาดในเพลง "If We Were Vampires" ตั้งแต่การวิเคราะห์การใช้ Tenses, การทำความเข้าใจ Phrasal Verbs ที่สำคัญ, ไปจนถึงการตีความอุปลักษณ์และสัญลักษณ์ต่างๆ ที่ทำให้เพลงนี้ทรงพลัง คุณจะได้เห็นว่า Isbell สร้างสรรค์ผลงานชิ้นเอกทางวรรณกรรมผ่านองค์ประกอบทางภาษาเหล่านี้ได้อย่างไร</p>
+                
+                <div>
+                    <h2 class="text-2xl font-bold text-[#7F5539] mb-4 text-center">การวิเคราะห์ Tenses</h2>
+                    <div class="chart-container">
+                        <canvas id="tensesChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-gray-600">แผนภูมินี้แสดงการกระจายตัวของการใช้ Tenses ต่างๆ ในเพลง ซึ่งช่วยขับเน้นบรรยากาศและเจตนาของแต่ละส่วน</p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-[#7F5539] mb-4 text-center">คำศัพท์และ Phrasal Verbs ที่น่าสนใจ</h2>
+                    <p class="text-center mb-6 text-gray-600">คลิกที่การ์ดเพื่อพลิกดูความหมายและตัวอย่างการใช้งาน</p>
+                    <div id="analysis-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="quiz" class="content-section hidden">
+                <p class="text-lg mb-6 text-center">ถึงเวลาทดสอบความเข้าใจของคุณแล้ว! ส่วนนี้คือแบบทดสอบเชิงโต้ตอบที่ครอบคลุมทุกแง่มุมของเพลง ตั้งแต่ความหมายไปจนถึงการใช้ไวยากรณ์ ลองดูสิว่าคุณเข้าใจบทกวีชิ้นนี้ได้ดีแค่ไหน</p>
+                <div id="quiz-container" class="bg-white/70 p-6 rounded-lg shadow-sm">
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+const lyricData = [
+    { lyric: "It's not the long, flowing dress that you're in", translation: "มันไม่ใช่ชุดยาวพริ้วไหวที่เธอสวมใส่", explanation: "ผู้ร้องเริ่มต้นด้วยการปฏิเสธสิ่งที่คนทั่วไปมักมองว่าเป็นเสน่ห์ดึงดูดภายนอก เขาไม่ได้รักเธอเพราะรูปลักษณ์หรือเครื่องแต่งกายที่สวยงาม" },
+    { lyric: "Or the light coming off of your skin", translation: "หรือแสงที่เปล่งประกายจากผิวของเธอ", explanation: "ยังคงเป็นการกล่าวถึงความงามทางกายภาพ เช่น ผิวพรรณที่ผุดผ่อง ซึ่งก็ไม่ใช่เหตุผลหลักของความรักที่เขามี" },
+    { lyric: "The fragile heart you protected for so long", translation: "หัวใจอันเปราะบางที่เธอปกป้องมาเนิ่นนาน", explanation: "เริ่มกล่าวถึงสิ่งที่ลึกซึ้งกว่านั้น คือความเปราะบางภายในและความพยายามในการดูแลรักษาจิตใจ ซึ่งแสดงถึงความเข้าใจในตัวตนของอีกฝ่าย" },
+    { lyric: "Or the mercy in your sense of right and wrong", translation: "หรือความเมตตาในสำนึกผิดชอบชั่วดีของเธอ", explanation: "คุณสมบัติทางด้านจิตใจและศีลธรรม เช่น ความเมตตากรุณา ก็ยังไม่ใช่ 'สิ่งนั้น' ที่เป็นแก่นแท้ของความรัก แม้จะเป็นสิ่งที่น่าชื่นชม" },
+    { lyric: "It's not your hands searching slow in the dark", translation: "มันไม่ใช่สองมือของเธอที่ค่อยๆ คลำหาในความมืด", explanation: "การกระทำที่แสดงถึงความใกล้ชิดและความคุ้นเคยทางกาย เช่น การสัมผัสในความมืด ก็ถูกกล่าวถึงว่าไม่ใช่เหตุผลสำคัญที่สุด" },
+    { lyric: "Or your nails leaving love's watermark", translation: "หรือเล็บของเธอที่ทิ้งร่องรอยแห่งรักไว้", explanation: "'Love's watermark' เป็นภาพเปรียบเทียบที่งดงามและสื่อถึงความทรงจำจากการสัมผัสทางกายที่ลึกซึ้งและทิ้งร่องรอยไว้ ถึงกระนั้น นี่ก็ยังไม่ใช่ 'สิ่งนั้น'" },
+    { lyric: "It's not the way you talk me off the roof", translation: "มันไม่ใช่วิธีที่เธอพูดกล่อมให้ฉันลงมาจากหลังคา", explanation: "'Talk me off the roof' เป็นสำนวนหมายถึงการพูดปลอบโยนหรือห้ามปรามไม่ให้ทำสิ่งที่สิ้นหวังหรืออันตราย แสดงถึงการเป็นที่พึ่งทางใจ" },
+    { lyric: "Your questions like directions to the truth", translation: "คำถามของเธอที่เป็นดั่งเข็มทิศนำทางสู่ความจริง", explanation: "คำถามที่เฉียบคมของเธอช่วยนำทางผู้ร้องไปสู่ความเข้าใจที่ถูกต้องหรือความจริง เปรียบเหมือนแผนที่หรือเข็มทิศ เป็นการยกย่องสติปัญญาของคนรัก" },
+    { lyric: "It's knowing that this can't go on forever", translation: "แต่มันคือการตระหนักรู้ว่าสิ่งนี้ไม่อาจคงอยู่ตลอดไป", explanation: "นี่คือ 'สิ่งนั้น' จุดเปลี่ยนสำคัญของเพลง ผู้ร้องเปิดเผยว่าแก่นแท้ของความรักที่เขารู้สึกนั้นผูกพันกับการรับรู้ว่าความสัมพันธ์และชีวิตนี้มีวันสิ้นสุด" },
+    { lyric: "Likely one of us will have to spend some days alone", translation: "เป็นไปได้ว่าเราคนใดคนหนึ่งจะต้องใช้ชีวิตบางวันอย่างเดียวดาย", explanation: "ความจริงที่หลีกเลี่ยงไม่ได้คือ เมื่อคนหนึ่งจากไป อีกคนจะต้องเผชิญกับความอ้างว้าง" },
+    { lyric: "Maybe we'll get forty years together", translation: "บางทีเราอาจจะได้อยู่ด้วยกันสี่สิบปี", explanation: "'สี่สิบปี' เป็นตัวเลขที่แสดงถึงชีวิตคู่ที่ยืนยาว แต่ก็ยังคงตอกย้ำถึงความมีขีดจำกัดของเวลา" },
+    { lyric: "But one day I'll be gone, or one day you'll be gone", translation: "แต่สักวันหนึ่งฉันจะจากไป หรือสักวันหนึ่งเธอจะจากไป", explanation: "ท่อนนี้ย้ำเตือนถึงความตายที่แน่นอนของคนใดคนหนึ่ง เป็นความจริงที่เรียบง่ายแต่ทรงพลัง" },
+    { lyric: "If we were vampires and death was a joke", translation: "ถ้าหากเราเป็นแวมไพร์และความตายเป็นเรื่องตลก", explanation: "ผู้ร้องสร้างสถานการณ์สมมติที่ตรงกันข้ามกับความเป็นจริงของมนุษย์ แวมไพร์เป็นสัญลักษณ์ของความเป็นอมตะ" },
+    { lyric: "We'd go out on the sidewalk and smoke", translation: "เราคงออกไปเดินเล่นสูบบุหรี่ริมทางเท้า", explanation: "การใช้ชีวิตอย่างไม่ใส่ใจ ไม่ต้องกังวลถึงเวลาหรือความตาย" },
+    { lyric: "And laugh at all the lovers and their plans", translation: "และหัวเราะเยาะคู่รักทั้งหลายกับแผนการของพวกเขา", explanation: "หากเป็นอมตะ อาจมองความพยายามของมนุษย์ในการสร้างอนาคตและความรักเป็นเรื่องน่าขัน เพราะพวกเขามีเวลาไม่จำกัด" },
+    { lyric: "I wouldn't feel the need to hold your hand", translation: "ฉันคงไม่รู้สึกว่าต้องจับมือเธอไว้", explanation: "จุดสำคัญของอุปลักษณ์แวมไพร์ การจับมือซึ่งเป็นสัญลักษณ์ของความใกล้ชิดและความผูกพัน อาจไม่จำเป็นหากชีวิตเป็นนิรันดร์ ความปรารถนาที่จะสัมผัสและอยู่ใกล้ชิดนั้นถูกกระตุ้นโดยการรับรู้ว่าเวลาของเรามีจำกัด" },
+    { lyric: "Maybe time running out is a gift", translation: "บางทีการที่เวลากำลังจะหมดลงอาจเป็นของขวัญ", explanation: "มุมมองที่เปลี่ยนไปอย่างสิ้นเชิง จากความกลัวความสูญเสียเป็นการมองว่าเวลาที่จำกัดคือ 'ของขวัญ'" },
+    { lyric: "I'll work hard 'til the end of my shift", translation: "ฉันจะทำงานอย่างหนักจนกว่าจะหมดกะของฉัน", explanation: "'Shift' (กะทำงาน) เป็นอุปลักษณ์หมายถึงช่วงชีวิต หรือความรับผิดชอบในความสัมพันธ์ แสดงถึงความมุ่งมั่นที่จะทุ่มเทให้กับความรักอย่างเต็มที่จนถึงที่สุด" },
+    { lyric: "And give you every second I can find", translation: "และจะมอบทุกวินาทีที่ฉันหาได้ให้เธอ", explanation: "การตระหนักรู้ถึงเวลาที่เหลือน้อย นำไปสู่การกระทำ คือการให้คุณค่ากับทุกขณะและมอบเวลาทั้งหมดให้แก่คนรัก" },
+    { lyric: "And hope it isn't me who's left behind", translation: "และหวังว่าคงไม่ใช่ฉันที่ถูกทิ้งให้อยู่ข้างหลัง", explanation: "ความปรารถนาที่ซื่อตรงและเป็นธรรมชาติของมนุษย์ คือความกลัวที่จะต้องเป็นคนที่อยู่อย่างเดียวดายหลังจากคนรักจากไป" }
+];
+
+const analysisCardsData = [
+    { term: "talk (someone) off", definition: "พูดกล่อม เกลี้ยกล่อม หรือปลอบโยนให้ใครบางคนสงบลง หรือไม่ให้ทำในสิ่งที่สิ้นหวังหรือเป็นอันตราย", example: "It's not the way you talk me off the roof" },
+    { term: "running out", definition: "(เวลา) กำลังจะหมดไป, ลดน้อยลง, ใกล้จะสิ้นสุด", example: "Maybe time running out is a gift" },
+    { term: "go on", definition: "ดำเนินต่อไป, คงอยู่ต่อไป", example: "It's knowing that this can't go on forever" },
+    { term: "left behind", definition: "ถูกทิ้งให้อยู่ข้างหลัง, เป็นผู้ที่ยังคงอยู่หลังจากผู้อื่นจากไป (โดยเฉพาะในบริบทของการเสียชีวิต)", example: "And hope it isn't me who's left behind" },
+    { term: "love's watermark", definition: "อุปลักษณ์ (metaphor) หมายถึงร่องรอยหรือความทรงจำที่ลบเลือนได้ยากจากการสัมผัสทางกายที่แสดงความรัก", example: "your nails leaving love's watermark" },
+    { term: "end of my shift", definition: "อุปลักษณ์ (metaphor) เปรียบเทียบการสิ้นสุดของชีวิตหรือความรับผิดชอบในความสัมพันธ์กับการหมดเวลางาน", example: "I'll work hard 'til the end of my shift" }
+];
+
+const quizData = [
+    {
+        question: "ในเพลง วลี 'talk me off the roof' มีความหมายว่าอย่างไร?",
+        options: ["ช่วยฉันปีนลงจากหลังคา", "พูดปลอบโยนไม่ให้ทำสิ่งที่สิ้นหวัง", "ปรึกษาเรื่องซ่อมหลังคา", "ผลักฉันตกจากหลังคา"],
+        answer: 1
+    },
+    {
+        question: "แนวคิดหลักที่เพลงต้องการสื่อเกี่ยวกับความรักและเวลาคืออะไร?",
+        options: ["ความรักจะคงอยู่ตลอดไป", "เวลาที่จำกัดทำให้ความรักมีความหมายยิ่งขึ้น", "การเป็นแวมไพร์คือรักแท้", "ความรักเป็นภาพลวงตา"],
+        answer: 1
+    },
+    {
+        question: "ประโยค 'If we were vampires...' เป็นตัวอย่างของการใช้ Tense ในลักษณะใด?",
+        options: ["Present Perfect", "Past Simple", "Second Conditional", "Future Continuous"],
+        answer: 2
+    },
+    {
+        question: "อุปลักษณ์ 'แวมไพร์' ในเพลงนี้ใช้เพื่อเน้นย้ำประเด็นใดเป็นหลัก?",
+        options: ["ความน่ากลัวของแวมไพร์", "ความปรารถนาที่จะมีชีวิตอมตะ", "ความแตกต่างระหว่างชีวิตอมตะกับชีวิตจำกัดของมนุษย์", "เรื่องราวความรักโรแมนติก"],
+        answer: 2
+    },
+    {
+        question: "ความหมายของ 'left behind' ในเพลงคืออะไร?",
+        options: ["ลืมของไว้", "ตามไม่ทัน", "เป็นผู้ที่ยังอยู่หลังคนรักจากไป (เสียชีวิต)", "ถูกทอดทิ้ง"],
+        answer: 2
+    }
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`nav-${sectionId}`).classList.add('active');
+}
+
+function openModal(index) {
+    const data = lyricData[index];
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <p class="text-2xl font-bold text-gray-800 mb-4">"${data.lyric}"</p>
+        <div class="space-y-4">
+            <div>
+                <h3 class="font-semibold text-lg text-[#B08968]">คำแปล:</h3>
+                <p class="text-gray-700">${data.translation}</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg text-[#B08968]">คำอธิบายความหมาย:</h3>
+                <p class="text-gray-700">${data.explanation}</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('lyric-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('lyric-modal').classList.add('hidden');
+}
+
+function createLyrics() {
+    const container = document.getElementById('lyrics-container');
+    container.innerHTML = lyricData.map((line, index) => `
+        <div class="lyric-line cursor-pointer p-4 rounded-lg" onclick="openModal(${index})">
+            <p class="text-lg text-gray-800">"${line.lyric}"</p>
+        </div>
+    `).join('');
+}
+
+function createAnalysisCards() {
+    const container = document.getElementById('analysis-cards-container');
+    container.innerHTML = analysisCardsData.map(cardData => `
+        <div class="card h-48 [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-face absolute w-full h-full flex items-center justify-center p-4 bg-white rounded-lg shadow-md">
+                <p class="text-xl font-semibold text-center text-[#7F5539]">${cardData.term}</p>
+            </div>
+            <div class="card-back absolute w-full h-full flex flex-col items-center justify-center p-4 bg-[#E07A5F] text-white rounded-lg shadow-md">
+                <p class="text-sm text-center font-light">${cardData.definition}</p>
+                <p class="text-xs text-center italic mt-2 opacity-80">e.g., "${cardData.example}"</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function createTensesChart() {
+    const ctx = document.getElementById('tensesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Present Simple', 'Future Simple', 'Second Conditional'],
+            datasets: [{
+                label: 'จำนวนการใช้ในท่อนสำคัญ',
+                data: [13, 4, 4],
+                backgroundColor: ['#B08968', '#DDB892', '#E07A5F'],
+                borderColor: ['#7F5539', '#A98467', '#BC6C25'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 2
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ` ใช้ประมาณ ${context.parsed.y} ครั้ง`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    showQuestion();
+}
+
+function showQuestion() {
+    const quizContainer = document.getElementById('quiz-container');
+    if (currentQuestionIndex < quizData.length) {
+        const question = quizData[currentQuestionIndex];
+        quizContainer.innerHTML = `
+            <div class="mb-4">
+                <p class="text-xl font-semibold mb-1">คำถาม ${currentQuestionIndex + 1} / ${quizData.length}</p>
+                <p class="text-lg">${question.question}</p>
+            </div>
+            <div id="options-container" class="space-y-3">
+                ${question.options.map((option, index) => `
+                    <button class="quiz-option w-full text-left p-3 border-2 border-gray-300 rounded-lg" onclick="checkAnswer(${index})">
+                        ${String.fromCharCode(97 + index)}. ${option}
+                    </button>
+                `).join('')}
+            </div>
+            <div id="feedback-container" class="mt-4"></div>
+        `;
+    } else {
+        showFinalScore();
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    const question = quizData[currentQuestionIndex];
+    const options = document.querySelectorAll('.quiz-option');
+    const feedbackContainer = document.getElementById('feedback-container');
+
+    options.forEach(button => button.disabled = true);
+    
+    if (selectedIndex === question.answer) {
+        score++;
+        options[selectedIndex].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-green-700 font-semibold">ถูกต้อง!</p>`;
+    } else {
+        options[selectedIndex].classList.add('incorrect');
+        options[question.answer].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-red-700 font-semibold">ผิด! คำตอบที่ถูกต้องคือ: ${String.fromCharCode(97 + question.answer)}</p>`;
+    }
+
+    feedbackContainer.innerHTML += `<button class="mt-4 bg-[#7F5539] text-white py-2 px-6 rounded-lg hover:bg-[#6F4529]" onclick="nextQuestion()">คำถามถัดไป</button>`;
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+function showFinalScore() {
+    const quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = `
+        <div class="text-center">
+            <h2 class="text-2xl font-bold mb-4">จบแบบทดสอบ!</h2>
+            <p class="text-xl mb-4">คุณได้ ${score} จาก ${quizData.length} คะแนน</p>
+            <button class="bg-[#7F5539] text-white py-2 px-6 rounded-lg hover:bg-[#6F4529]" onclick="createQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+        </div>
+    `;
+}
+
+window.onload = function() {
+    createLyrics();
+    createAnalysisCards();
+    createTensesChart();
+    createQuiz();
+    showSection('intro'); 
+
+    document.getElementById('lyric-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'lyric-modal') {
+            closeModal();
+        }
+    });
+};
+</script>
+
+</body>
+</html>

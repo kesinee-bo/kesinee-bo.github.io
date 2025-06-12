@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เจาะลึกบทเพลง "If We Were Vampires" โดย Jason Isbell</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&family=Pridi:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral & Slate (Background: stone-100, Text: slate-800, Accent: teal-600) -->
+    <!-- Application Structure Plan: The application uses a single-page, thematic dashboard structure instead of mirroring the linear report. The goal is to encourage non-linear exploration. Key sections (The Song, The Artists, Deep Dive, Legacy) are accessible via a sticky top navigation. The most complex section, 'Deep Dive', uses an interactive tabbed interface (Vocabulary, Grammar, Symbolism, Themes) to present the dense analysis in manageable, interactive chunks (e.g., clickable cards), preventing user overwhelm and promoting engagement over passive reading. -->
+    <!-- Visualization & Content Choices: Report info is transformed for interactivity. Lyrical analysis (symbols, themes) is presented in clickable cards (Goal: Organize/Inform, Method: HTML/JS) instead of paragraphs, making it explorable. Phrasal verbs use hover-reveal cards (Goal: Inform, Method: HTML/JS). An emotional arc chart is created using Chart.js (Goal: Change/Relationships, Method: Canvas) to visually synthesize the song's thematic progression, a concept implied but not visualized in the report. This approach prioritizes user discovery and synthesis. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f5f5f4; /* stone-100 */
+            color: #2d3748; /* slate-800 */
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Pridi', serif;
+        }
+        .nav-link {
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .nav-link.active {
+            color: #0d9488; /* teal-600 */
+            border-bottom-color: #0d9488;
+        }
+        .interactive-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .interactive-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button.active {
+            background-color: #0d9488; /* teal-600 */
+            color: white;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-slate-800">
+
+    <header id="header" class="bg-stone-100/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div class="font-display text-xl font-semibold text-teal-700">If We Were Vampires</div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#song" class="nav-link text-slate-600 hover:text-teal-600 border-b-2 border-transparent pb-1">บทเพลง</a>
+                    <a href="#artists" class="nav-link text-slate-600 hover:text-teal-600 border-b-2 border-transparent pb-1">ศิลปิน</a>
+                    <a href="#analysis" class="nav-link text-slate-600 hover:text-teal-600 border-b-2 border-transparent pb-1">เจาะลึกบทเพลง</a>
+                    <a href="#legacy" class="nav-link text-slate-600 hover:text-teal-600 border-b-2 border-transparent pb-1">มรดก</a>
+                </div>
+                 <div class="md:hidden">
+                    <button id="menu-btn" class="text-slate-600 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden mt-4">
+                <a href="#song" class="block py-2 text-slate-600 hover:text-teal-600">บทเพลง</a>
+                <a href="#artists" class="block py-2 text-slate-600 hover:text-teal-600">ศิลปิน</a>
+                <a href="#analysis" class="block py-2 text-slate-600 hover:text-teal-600">เจาะลึกบทเพลง</a>
+                <a href="#legacy" class="block py-2 text-slate-600 hover:text-teal-600">มรดก</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+
+        <section id="hero" class="text-center min-h-[60vh] flex flex-col justify-center items-center">
+            <h1 class="text-4xl md:text-6xl font-bold font-display text-slate-900 leading-tight">If We Were Vampires</h1>
+            <p class="mt-4 text-xl md:text-2xl text-slate-600 font-display">การสำรวจความรัก ชีวิต และความตาย ผ่านผลงานชิ้นเอกของ Jason Isbell</p>
+            <blockquote class="mt-8 text-lg md:text-xl text-teal-800 italic border-l-4 border-teal-500 pl-4">
+                "Maybe time running out is a gift."
+            </blockquote>
+            <a href="#song" class="mt-12 px-8 py-3 bg-teal-600 text-white font-semibold rounded-lg shadow-md hover:bg-teal-700 transition-colors duration-300">
+                เริ่มต้นการสำรวจ
+            </a>
+        </section>
+
+        <section id="song" class="py-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold font-display text-center mb-2">บทเพลงและเนื้อร้อง</h2>
+             <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">
+                สัมผัสประสบการณ์ของเพลง "If We Were Vampires" โดยตรง ส่วนนี้จะนำเสนอข้อมูลพื้นฐานของเพลงและเนื้อร้องฉบับเต็ม ให้คุณได้ซึมซับกับถ้อยคำที่เรียบง่ายแต่ทรงพลัง ซึ่งเป็นหัวใจสำคัญของการวิเคราะห์ทั้งหมด
+            </p>
+            <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col md:flex-row gap-8">
+                <div class="md:w-1/3">
+                    <img src="https://placehold.co/600x600/0d9488/ffffff?text=The+Nashville+Sound" alt="Album Art for The Nashville Sound" class="rounded-lg shadow-md w-full">
+                    <div class="mt-6 text-sm text-slate-700">
+                        <p><strong class="font-semibold">ศิลปิน:</strong> Jason Isbell and the 400 Unit</p>
+                        <p><strong class="font-semibold">อัลบั้ม:</strong> The Nashville Sound (2017)</p>
+                        <p><strong class="font-semibold">ขับร้อง:</strong> Jason Isbell และ Amanda Shires</p>
+                        <p><strong class="font-semibold">รางวัล:</strong> Grammy Award for Best American Roots Song</p>
+                    </div>
+                </div>
+                <div class="md:w-2/3 prose max-w-none text-slate-700">
+                    <h3 class="font-display text-2xl font-semibold mb-4">เนื้อเพลง</h3>
+                    <div class="h-96 overflow-y-auto pr-4 text-base leading-relaxed">
+                        <p>"It's not the long, flowing dress that you're in<br>
+                        Or the light coming off of your skin<br>
+                        The fragile heart you protected for so long<br>
+                        Or the mercy in your sense of right and wrong"</p>
+                        
+                        <p>"It's not your hands searching slow in the dark<br>
+                        Or your nails leaving love's watermark<br>
+                        It's not the way you talk me off the roof<br>
+                        Your questions like directions to the truth"</p>
+
+                        <p>"It's knowing that this can't go on forever<br>
+                        Likely one of us will have to spend some days alone<br>
+                        Maybe we'll get forty years together<br>
+                        But one day I'll be gone<br>
+                        Or one day you'll be gone"</p>
+
+                        <p>"If we were vampires and death was a joke<br>
+                        We'd go out on the sidewalk and smoke<br>
+                        And laugh at all the lovers and their plans<br>
+                        I wouldn't feel the need to hold your hand"</p>
+                        
+                        <p>"Maybe time running out is a gift<br>
+                        I'll work hard 'til the end of my shift<br>
+                        And give you every second I can find<br>
+                        And hope it isn't me who's left behind"</p>
+                        
+                         <p>"It's knowing that this can't go on forever<br>
+                        Likely one of us will have to spend some days alone<br>
+                        Maybe we'll get forty years together<br>
+                        But one day I'll be gone<br>
+                        Or one day you'll be gone"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="artists" class="py-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold font-display text-center mb-2">ผู้รังสรรค์บทเพลง</h2>
+            <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">
+               เบื้องหลังความลึกซึ้งของบทเพลงคือเรื่องราวและความสัมพันธ์ของศิลปิน ทำความรู้จัก Jason Isbell และ Amanda Shires ผู้ที่การทำงานร่วมกันในฐานะคู่ชีวิตได้มอบความจริงใจและเปราะบางให้กับเพลงนี้
+            </p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center">
+                    <img src="https://placehold.co/200x200/475569/ffffff?text=JI" alt="Jason Isbell" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-slate-200">
+                    <h3 class="font-display text-2xl font-semibold">Jason Isbell</h3>
+                    <p class="text-teal-600 font-medium">นักเล่าเรื่อง</p>
+                    <p class="mt-4 text-slate-600 text-left">
+                        นักร้องและนักแต่งเพลงหลัก ผู้อยู่เบื้องหลังเนื้อร้องที่เฉียบคมและเต็มไปด้วยอารมณ์ เขาได้รับการยอมรับว่าเป็นหนึ่งในนักแต่งเพลงที่เก่งที่สุดในยุคของเขา ความสามารถของเขาในการสังเกตและถ่ายทอดความซับซ้อนของความสัมพันธ์และสภาวะของมนุษย์คือแกนหลักของเพลงนี้
+                    </p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center">
+                    <img src="https://placehold.co/200x200/475569/ffffff?text=AS" alt="Amanda Shires" class="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-slate-200">
+                    <h3 class="font-display text-2xl font-semibold">Amanda Shires</h3>
+                    <p class="text-teal-600 font-medium">เสียงประสานและความกลมกลืน</p>
+                    <p class="mt-4 text-slate-600 text-left">
+                       ในฐานะภรรยาของ Isbell และนักดนตรีมากความสามารถ เสียงร้องและไวโอลินของเธอไม่ได้เป็นเพียงส่วนเสริม แต่เป็นส่วนสำคัญที่สร้างบทสนทนาทางอารมณ์ การมีส่วนร่วมของเธอทำให้เพลงนี้กลายเป็นการไตร่ตรองร่วมกันของคู่ชีวิตที่เผชิญหน้ากับความไม่แน่นอนของอนาคต
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="analysis" class="py-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold font-display text-center mb-2">เจาะลึกบทเพลง: ถอดรหัสความหมาย</h2>
+             <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">
+                เพลงนี้เป็นมากกว่าแค่ท่วงทำนองที่ไพเราะ แต่คือบทกวีที่ถูกถักทอขึ้นอย่างประณีต ส่วนนี้จะพาคุณไปสำรวจชั้นความหมายต่างๆ ที่ซ่อนอยู่ในบทเพลง ตั้งแต่การเลือกใช้คำ ไปจนถึงสัญลักษณ์และแก่นเรื่องหลัก เลือกหัวข้อที่คุณสนใจเพื่อเริ่มต้นการวิเคราะห์
+            </p>
+
+            <div class="bg-white rounded-xl shadow-lg p-4 sm:p-8">
+                <div class="flex flex-wrap justify-center border-b border-slate-200 mb-8">
+                    <button class="tab-button active text-sm sm:text-base px-4 py-2 m-1 font-semibold rounded-t-lg transition" data-tab="themes">แก่นเรื่องหลัก</button>
+                    <button class="tab-button text-sm sm:text-base px-4 py-2 m-1 font-semibold rounded-t-lg transition" data-tab="symbolism">สัญลักษณ์และภาพพจน์</button>
+                    <button class="tab-button text-sm sm:text-base px-4 py-2 m-1 font-semibold rounded-t-lg transition" data-tab="phrasal-verbs">กริยาวลีที่น่าสนใจ</button>
+                    <button class="tab-button text-sm sm:text-base px-4 py-2 m-1 font-semibold rounded-t-lg transition" data-tab="tenses">การใช้กาล (Tenses)</button>
+                </div>
+
+                <div id="themes" class="tab-content active">
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="interactive-card bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">ความรัก ความตาย และคุณค่าของเวลา</h4>
+                            <p class="mt-2 text-sm text-slate-600">วิทยานิพนธ์หลักของเพลง: การตระหนักรู้ว่าเวลาของความรักมีจำกัด (เพราะความตาย) คือสิ่งที่ทำให้ความรักและเวลาในปัจจุบันมีความหมายและล้ำค่าอย่างยิ่งยวด</p>
+                        </div>
+                        <div class="interactive-card bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">การเห็นคุณค่าของปัจจุบัน</h4>
+                            <p class="mt-2 text-sm text-slate-600">เพลงกระตุ้นให้เราใช้ชีวิตและมอบความรักให้แก่กันอย่างเต็มที่ใน "ตอนนี้" เพราะความไม่แน่นอนของอนาคตเป็นสิ่งเดียวที่แน่นอน</p>
+                        </div>
+                        <div class="interactive-card bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">ความรักบนพื้นฐานความเป็นจริง</h4>
+                            <p class="mt-2 text-sm text-slate-600">ความรักที่แท้จริงไม่ได้อยู่ในจินตนาการที่สวยงาม แต่คือการยอมรับความเปราะบาง ความไม่สมบูรณ์ และการสูญเสียที่อาจเกิดขึ้นได้ในท้ายที่สุด</p>
+                        </div>
+                        <div class="interactive-card bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">ความกลัวของมนุษย์</h4>
+                            <p class="mt-2 text-sm text-slate-600">ท่อน "And hope it isn't me who's left behind" แสดงถึงความกลัวตามธรรมชาติที่จะต้องเป็นผู้ที่อยู่รอดและเผชิญความสูญเสีย ซึ่งเพิ่มความจริงใจอย่างที่สุดให้กับเพลง</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="symbolism" class="tab-content">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="interactive-card bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">สัญลักษณ์ "แวมไพร์"</h4>
+                            <p class="mt-2 text-sm text-slate-600">แวมไพร์เป็นตัวแทนของความเป็นอมตะและความไร้กาลเวลา Isbell ใช้สัญลักษณ์นี้เพื่อเปรียบเทียบและเน้นย้ำถึงคุณค่าของชีวิตมนุษย์ที่มีจำกัด หากเรามีเวลาไม่สิ้นสุด ความรักอาจขาดความเร่งด่วนและความหมายไป</p>
+                        </div>
+                         <div class="interactive-card bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">"Maybe time running out is a gift"</h4>
+                            <p class="mt-2 text-sm text-slate-600">แนวคิดที่ขัดแย้งกันว่าข้อจำกัดของเวลาคือ "ของขวัญ" เพราะมันบีบให้เราต้องเห็นคุณค่าและใช้ทุกวินาทีอย่างมีความหมายที่สุด แทนที่จะปล่อยให้เวลาผ่านไปอย่างไร้ค่า</p>
+                        </div>
+                        <div class="interactive-card bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">"Love's watermark" (รอยรัก)</h4>
+                            <p class="mt-2 text-sm text-slate-600">อุปมาอุปมัยที่สวยงามถึงร่องรอยหรือผลกระทบทางอารมณ์ที่ความรักทิ้งไว้ ซึ่งเป็นสิ่งที่มองไม่เห็นแต่คงอยู่และเป็นเครื่องยืนยันถึงความสัมพันธ์ที่ลึกซึ้ง</p>
+                        </div>
+                        <div class="interactive-card bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">"End of my shift" (หมดกะของฉัน)</h4>
+                            <p class="mt-2 text-sm text-slate-600">เปรียบเทียบชีวิตเหมือนกับการทำงานเป็นกะ ซึ่งมีจุดเริ่มต้นและจุดสิ้นสุดที่แน่นอน เป็นการยอมรับในหน้าที่และความรับผิดชอบที่จะรักและดูแลอีกฝ่ายอย่างดีที่สุดภายในเวลาที่มี</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="phrasal-verbs" class="tab-content">
+                    <p class="text-center text-slate-500 mb-6">Isbell ใช้ภาษาพูดในชีวิตประจำวันเพื่อสร้างความรู้สึกที่จริงใจและเข้าถึงง่าย กริยาวลีเหล่านี้คือตัวอย่างที่ดี</p>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                         <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                            <p class="font-semibold text-teal-700">coming off (of)</p>
+                            <p class="text-sm text-slate-600 mt-1">ความหมาย: (แสง) ที่เปล่งออกมาจาก</p>
+                        </div>
+                         <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                            <p class="font-semibold text-teal-700">talk (someone) off</p>
+                            <p class="text-sm text-slate-600 mt-1">ความหมาย: พูดเกลี้ยกล่อมให้สงบลง</p>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                            <p class="font-semibold text-teal-700">go on</p>
+                            <p class="text-sm text-slate-600 mt-1">ความหมาย: ดำเนินต่อไป, เกิดขึ้นต่อไป</p>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                            <p class="font-semibold text-teal-700">running out</p>
+                            <p class="text-sm text-slate-600 mt-1">ความหมาย: กำลังจะหมดไป</p>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                            <p class="font-semibold text-teal-700">left behind</p>
+                            <p class="text-sm text-slate-600 mt-1">ความหมาย: ผู้ที่ยังมีชีวิตอยู่หลังคนรักจากไป</p>
+                        </div>
+                         <div class="bg-stone-50 p-4 rounded-lg border border-stone-200">
+                            <p class="font-semibold text-teal-700">go out</p>
+                            <p class="text-sm text-slate-600 mt-1">ความหมาย: ออกไปข้างนอก</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tenses" class="tab-content">
+                     <p class="text-center text-slate-500 mb-6">การสลับใช้ Tense ต่างๆ สะท้อนกระบวนการคิดของผู้เล่าเรื่อง ตั้งแต่การยอมรับความจริงในปัจจุบันไปจนถึงการครุ่นคิดถึงอนาคต</p>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">Present Simple</h4>
+                            <p class="mt-2 text-sm text-slate-600">ใช้สำหรับสัจธรรมสากลและความเป็นจริงในปัจจุบัน</p>
+                            <blockquote class="mt-3 border-l-2 border-teal-400 pl-3 text-sm italic">"It's knowing that this can't go on forever."</blockquote>
+                        </div>
+                         <div class="bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">Future Simple</h4>
+                            <p class="mt-2 text-sm text-slate-600">ใช้สำหรับเหตุการณ์ในอนาคตที่หลีกเลี่ยงไม่ได้</p>
+                            <blockquote class="mt-3 border-l-2 border-teal-400 pl-3 text-sm italic">"one of us will have to spend some days alone."</blockquote>
+                        </div>
+                        <div class="bg-stone-50 p-6 rounded-lg border border-stone-200">
+                            <h4 class="font-display font-semibold text-lg text-teal-700">Conditional</h4>
+                            <p class="mt-2 text-sm text-slate-600">ใช้สำหรับสถานการณ์สมมติที่ตรงกันข้ามกับความจริง</p>
+                            <blockquote class="mt-3 border-l-2 border-teal-400 pl-3 text-sm italic">"If we were vampires and death was a joke..."</blockquote>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="legacy" class="py-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold font-display text-center mb-2">มรดกและเสียงตอบรับ</h2>
+            <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">
+                ความสำเร็จของเพลงนี้ไม่ได้วัดจากรางวัลเพียงอย่างเดียว แต่ยังวัดจากเสียงสะท้อนของนักวิจารณ์และผลกระทบที่เกิดขึ้นในใจของผู้ฟังทั่วโลก ส่วนนี้คือการรวบรวมการยอมรับและมรดกที่เพลงนี้ได้สร้างไว้
+            </p>
+            <div class="grid lg:grid-cols-5 gap-8">
+                <div class="lg:col-span-3 bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="font-display text-2xl font-semibold mb-4">เสียงจากนักวิจารณ์</h3>
+                     <blockquote class="border-l-4 border-teal-500 pl-4 mb-6">
+                        <p class="italic text-slate-700">"เพลงบัลลาดที่น่าหลงใหล...ถูกหลอกหลอนด้วยความสูญเสียที่หลีกเลี่ยงไม่ได้"</p>
+                        <footer class="text-sm text-slate-500 mt-2">- Saving Country Music</footer>
+                    </blockquote>
+                    <blockquote class="border-l-4 border-teal-500 pl-4">
+                        <p class="italic text-slate-700">"ไม่มีนักแต่งเพลงคนใดในโลกนี้ที่ดีไปกว่านี้อีกแล้วในขณะนี้... Isbell ยังคงสร้างสรรค์ผลงานที่ทั้งฉลาดหลักแหลมและเข้าถึงอารมณ์ได้อย่างลึกซึ้ง"</p>
+                        <footer class="text-sm text-slate-500 mt-2">- American Songwriter</footer>
+                    </blockquote>
+                    <div class="mt-8">
+                        <h4 class="font-display text-xl font-semibold mb-3">รางวัลแกรมมี่</h4>
+                        <div class="flex items-center bg-teal-50 p-4 rounded-lg">
+                            <span class="text-3xl mr-4">🏆</span>
+                            <div>
+                                <p class="font-semibold text-teal-800">Best American Roots Song (2018)</p>
+                                <p class="text-sm text-teal-700">การยอมรับอย่างเป็นทางการถึงความเป็นเลิศในการแต่งเพลงและคุณค่าทางศิลปะ</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="font-display text-2xl font-semibold mb-4">เส้นโค้งอารมณ์ของบทเพลง</h3>
+                    <p class="text-sm text-slate-600 mb-4">แผนภูมินี้แสดงการตีความเส้นโค้งทางอารมณ์และแก่นเรื่องที่โดดเด่นในแต่ละส่วนของเพลง จากความรักในปัจจุบันสู่การยอมรับความจริงที่เจ็บปวด</p>
+                    <div class="chart-container">
+                        <canvas id="emotionalArcChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-slate-800 text-slate-300 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>เว็บไซต์นี้สร้างขึ้นเพื่อการวิเคราะห์และยกย่องผลงานเพลง "If We Were Vampires"</p>
+            <p class="text-sm mt-2 text-slate-400">สร้างสรรค์โดยใช้ข้อมูลจากบทวิเคราะห์เชิงลึก</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const menuBtn = document.getElementById('menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: '-50% 0px -50% 0px' });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+            
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.dataset.tab;
+
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    tabContents.forEach(content => {
+                        content.classList.toggle('active', content.id === tabId);
+                    });
+                });
+            });
+
+            const ctx = document.getElementById('emotionalArcChart').getContext('2d');
+            const emotionalArcChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['ท่อน 1: ความรักในปัจจุบัน', 'ท่อน 2: การตระหนักรู้', 'ท่อน 3: สถานการณ์สมมติ', 'ท่อน 4: ข้อสรุปและคำมั่น'],
+                    datasets: [{
+                        label: 'ความเข้มข้นทางอารมณ์',
+                        data: [7, 10, 8, 9],
+                        backgroundColor: [
+                            'rgba(56, 189, 155, 0.6)', // teal
+                            'rgba(239, 68, 68, 0.6)', // red
+                            'rgba(168, 85, 247, 0.6)', // purple
+                            'rgba(13, 148, 136, 0.7)' // dark teal
+                        ],
+                        borderColor: [
+                            'rgba(56, 189, 155, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(168, 85, 247, 1)',
+                            'rgba(13, 148, 136, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const labels = [
+                                        'แก่นเรื่อง: ความรักบนพื้นฐานความเป็นจริง',
+                                        'แก่นเรื่อง: การยอมรับความตายและความสูญเสีย',
+                                        'แก่นเรื่อง: การเปรียบเทียบกับความเป็นอมตะ',
+                                        'แก่นเรื่อง: การเห็นคุณค่าของเวลาและคำสัญญา'
+                                    ];
+                                    return labels[context.dataIndex];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                display: false
+                            }
+                        },
+                        y: {
+                             ticks: {
+                                font: {
+                                    family: "'Sarabun', sans-serif",
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

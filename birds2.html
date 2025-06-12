@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง "Birds of a Feather" - Billie Eilish</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Deep Blue & Teal -->
+    <!-- Application Structure Plan: Using the same successful 4-tab SPA structure (Intro, Lyrics, Analysis, Quiz) to create a consistent user experience. This design allows users to focus on specific aspects of the song, from a general overview to deep lyrical analysis and self-assessment. The key interaction is the click-to-reveal modal for lyrics, which breaks down dense information into manageable chunks. The design's strength is its focused, non-linear approach to learning. -->
+    <!-- Visualization & Content Choices: 1. Lyrics: Report Info -> Lyrics, translation, detailed analysis. Goal -> Explore/Inform. Viz -> Clickable list with modals. Interaction -> Click-to-reveal. Justification -> Excellent for focused study. Library -> HTML/CSS/JS. 2. Thematic Analysis: Report Info -> Contrast between pop sound and dark lyrics. Goal -> Compare/Inform. Viz -> A custom horizontal bar chart labeled 'Thematic Duality' to visually represent this core conflict. Interaction -> Hover tooltips. Justification -> A unique visualization tailored to the report's main analytical point. Library -> Chart.js. 3. Key Concepts: Report Info -> Idiom meaning, 'toxic' intent, 'tough love'. Goal -> Organize/Learn. Viz -> Flip cards. Interaction -> Click-to-flip. Justification -> Effective for memorizing concepts. Library -> HTML/CSS/JS. 4. Quiz: Report Info -> Comprehension points. Goal -> Test/Reinforce. Viz -> Interactive form. Library -> HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #0A192F;
+            color: #CCD6F6;
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            color: #8892B0;
+        }
+        .nav-btn.active, .nav-btn:hover {
+            color: #64FFDA;
+            border-bottom-color: #64FFDA;
+        }
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .lyric-line:hover {
+            background-color: #112240;
+        }
+        .quiz-option {
+            transition: background-color 0.2s ease-in-out;
+            border-color: #233554;
+        }
+        .quiz-option:hover {
+            background-color: #112240;
+            border-color: #64FFDA;
+        }
+        .quiz-option.correct {
+            background-color: #123732;
+            border-color: #64FFDA;
+        }
+        .quiz-option.incorrect {
+            background-color: #491f2e;
+            border-color: #ff79c6;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal-bg {
+             background-color: rgba(2, 12, 27, 0.8);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="lyric-modal" class="fixed inset-0 modal-bg flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-[#112240] rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 md:p-8 relative border border-[#233554]">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-[#64FFDA] text-2xl">&times;</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-white">Birds of a Feather</h1>
+            <p class="text-xl text-[#CCD6F6] mt-2">โดย Billie Eilish</p>
+            <p class="mt-4 text-lg text-[#8892B0]">แอปพลิเคชันวิเคราะห์เพลงเชิงโต้ตอบ</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-[#233554] mb-10 space-x-4 md:space-x-8">
+            <button id="nav-intro" class="nav-btn py-2 px-1 md:px-4 text-lg active" onclick="showSection('intro')">บทนำ</button>
+            <button id="nav-lyrics" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('lyrics')">เนื้อเพลง</button>
+            <button id="nav-analysis" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('analysis')">วิเคราะห์</button>
+            <button id="nav-quiz" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('quiz')">แบบทดสอบ</button>
+        </nav>
+
+        <main>
+            <section id="intro" class="content-section space-y-6 leading-relaxed">
+                <p class="text-lg text-[#8892B0]">ยินดีต้อนรับสู่การสำรวจ "Birds of a Feather" บทเพลงที่ซับซ้อนและงดงามจากอัลบั้ม *HIT ME HARD AND SOFT* ของ Billie Eilish แอปพลิเคชันนี้จะพาคุณเจาะลึกความขัดแย้งอันเป็นหัวใจของเพลง ระหว่างท่วงทำนองป็อปที่สดใสและเนื้อเพลงที่เต็มไปด้วยความรักอันลึกซึ้ง เข้มข้น และบางครั้งก็หมิ่นเหม่ไปในทางที่น่าขนลุก ส่วนนี้จะให้ภาพรวมของเพลงและแก่นเรื่องหลัก เพื่อเตรียมคุณให้พร้อมสำหรับการวิเคราะห์ในส่วนต่อไป</p>
+                <div class="bg-[#112240] p-6 rounded-lg shadow-lg border border-[#233554]">
+                    <h2 class="text-2xl font-bold text-[#64FFDA] mb-4">แก่นเรื่องหลัก: ความรักที่อยู่เหนือกาลเวลา</h2>
+                    <p class="text-[#8892B0]">เพลงนี้ท้าทายขนบของ "เพลงรัก" ทั่วไป โดยนำเสนอความทุ่มเทที่ไปไกลเกินกว่าคำว่า "จนกว่าความตายจะพรากเราจากกัน" Billie Eilish ใช้ภาพของความตายและการเสื่อมสลาย ไม่ใช่เพื่อสร้างความตกใจ แต่เพื่อเป็นเครื่องมือวัดความลึกของความรักที่ไม่อาจประเมินค่าได้ ความขัดแย้งระหว่างเสียงดนตรีที่ร่าเริงและเนื้อหาที่มืดมนสร้างประสบการณ์ที่ไม่เหมือนใคร ทำให้ผู้ฟังต้องขบคิดถึงธรรมชาติที่ซับซ้อนของความผูกพันอันลึกซึ้ง</p>
+                </div>
+            </section>
+
+            <section id="lyrics" class="content-section hidden">
+                 <p class="text-lg mb-6 text-center text-[#8892B0]">สำรวจคำมั่นสัญญาชั่วนิรันดร์ในเนื้อเพลง คลิกที่แต่ละท่อนเพื่อดูคำแปล คำอธิบาย และความหมายที่ซ่อนอยู่เบื้องหลังคำประกาศความรักอันท่วมท้นของ Billie</p>
+                <div id="lyrics-container" class="space-y-4 bg-[#112240] p-6 rounded-lg shadow-lg border border-[#233554]">
+                </div>
+            </section>
+
+            <section id="analysis" class="content-section hidden space-y-12">
+                <p class="text-lg mb-6 text-[#8892B0]">ในส่วนนี้ เราจะถอดรหัสชั้นความหมายต่างๆ ของเพลง ตั้งแต่การสำรวจความขัดแย้งทางอารมณ์ผ่านแผนภูมิ ไปจนถึงการทำความเข้าใจแนวคิดและสำนวนสำคัญที่ Billie และ Finneas บรรจงสร้างขึ้น เพื่อเปลี่ยนเพลงรักให้กลายเป็นผลงานศิลปะที่ซับซ้อนและน่าจดจำ</p>
+                
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4 text-center">การวิเคราะห์ความขัดแย้งทางแก่นเรื่อง</h2>
+                    <div class="chart-container">
+                        <canvas id="thematicChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-[#8892B0]">แผนภูมินี้แสดงภาพความขัดแย้งระหว่าง "ท่วงทำนองที่สดใส" กับ "เนื้อเพลงที่มืดมน" ซึ่งเป็นหัวใจสำคัญของเพลงนี้</p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4 text-center">แนวคิดและสำนวนสำคัญ</h2>
+                    <p class="text-center mb-6 text-[#8892B0]">คลิกที่การ์ดเพื่อพลิกดูคำอธิบายและเจตนาเบื้องหลัง</p>
+                    <div id="analysis-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="quiz" class="content-section hidden">
+                <p class="text-lg mb-6 text-center text-[#8892B0]">ทดสอบความเข้าใจของคุณในบทกวีแห่งรักที่ไม่ธรรมดาบทนี้ คำถามจะครอบคลุมตั้งแต่การตีความเนื้อเพลงไปจนถึงเบื้องหลังการสร้างสรรค์เพลง</p>
+                <div id="quiz-container" class="bg-[#112240] p-6 rounded-lg shadow-lg border border-[#233554]">
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+const lyricData = [
+    { lyric: "I want you to stay / 'Til I'm in the grave / 'Til I rot away, dead and buried / 'Til I'm in the casket you carry", translation: "ฉันอยากให้เธออยู่ / จนกระทั่งฉันอยู่ในหลุมศพ / จนกระทั่งฉันเน่าเปื่อยไป ถูกฝังกลบ / จนกระทั่งฉันอยู่ในโลงที่เธอแบก", explanation: "เป็นการประกาศความรักที่ยืนยงผ่านความตายและความเสื่อมสลายทางกายภาพ สะท้อนถึงความผูกพันที่เข้มข้นและปรารถนาที่จะอยู่ด้วยกันแม้ในสภาวะที่น่าสยดสยองที่สุด" },
+    { lyric: "If you go, I'm goin' too / 'Cause it was always you / And if I'm turnin' blue, please don't save me / Nothin' left to lose without my baby", translation: "ถ้าเธอไป ฉันก็จะไปด้วย / เพราะมันเป็นเธอเสมอมา / และถ้าฉันตัวเริ่มเขียว โปรดอย่าช่วยฉันเลย / ไม่มีอะไรจะเสียอีกแล้วถ้าไม่มีที่รักของฉัน", explanation: "ยกระดับความทุ่มเทไปสู่การพึ่งพาอาศัยกันอย่างสมบูรณ์ และการไม่แยแสต่อชีวิตของตนเองหากปราศจากคนรัก Billie เองยอมรับว่าต้องการให้ท่อนนี้ให้ความรู้สึก 'เป็นพิษ' และ 'love-bomby'" },
+    { lyric: "Birds of a feather, we should stick together, I know", translation: "นกขนสีเดียวกัน เราควรอยู่ด้วยกัน ฉันรู้", explanation: "การนำสำนวนโบราณมาใช้เพื่อเน้นย้ำความผูกพันที่ไม่อาจแยกจากและความเข้ากันได้ของคนทั้งสอง ไม่ใช่แค่ความคล้ายคลึง แต่เป็นความจำเป็นหรือโชคชะตาที่ต้องอยู่ร่วมกัน" },
+    { lyric: "I said I'd never think I wasn't better alone", translation: "ฉันเคยพูดว่าฉันไม่เคยคิดว่าการอยู่คนเดียวจะไม่ดีกว่า", explanation: "แสดงถึงการเปลี่ยนแปลงครั้งใหญ่ในมุมมองของผู้เล่า ความรักได้เข้ามาเปลี่ยนทัศนคติเดิมที่เคยเชื่อมั่นในการอยู่คนเดียวและพึ่งพาตนเอง" },
+    { lyric: "And I don't know what I'm cryin' for / I don't think I could love you more", translation: "และฉันไม่รู้ว่าฉันร้องไห้เพื่ออะไร / ฉันไม่คิดว่าฉันจะรักเธอได้มากกว่านี้อีกแล้ว", explanation: "สะท้อนความรู้สึกรักที่ท่วมท้นจนควบคุมไม่ได้ เกินกว่าจะหาเหตุผลมาอธิบายได้ เป็นอารมณ์ที่บริสุทธิ์และรุนแรง" },
+    { lyric: "It might not be long, but baby, I / I'll love you 'til the day that I die", translation: "มันอาจจะไม่นานนัก แต่ที่รัก ฉัน / ฉันจะรักเธอจนถึงวันที่ฉันตาย", explanation: "คำมั่นสัญญาแห่งรักนิรันดร์ที่ถูกทำให้มีความหมายลึกซึ้งยิ่งขึ้นด้วยการยอมรับความไม่แน่นอนของชีวิต ('มันอาจจะไม่นานนัก') ซึ่งเป็นความตั้งใจของ Finneas ที่จะทำให้คำพูดนี้ไม่หวานเลี่ยนจนเกินไป" },
+    { lyric: "I want you to see, how you look to me / You wouldn't believe if I told ya", translation: "ฉันอยากให้เธอเห็น ว่าเธอเป็นอย่างไรในสายตาฉัน / เธอคงไม่เชื่อถ้าฉันบอกเธอ", explanation: "ความปรารถนาให้คนรักตระหนักถึงคุณค่าของตนเองผ่านมุมมองของผู้เล่า สะท้อนความห่วงใยและความต้องการที่จะเสริมสร้างความมั่นใจให้คนรัก" },
+    { lyric: "I knew you in another life / You had that same look in your eyes / I love you, don't act so surprised", translation: "ฉันรู้จักเธอในชาติภพอื่น / เธอมีแววตาแบบเดิมนั้น / ฉันรักเธอ อย่าทำเป็นประหลาดใจไปเลย", explanation: "ยกระดับความรักไปสู่การเชื่อมโยงระดับจิตวิญญาณหรือคู่แท้ที่ข้ามผ่านกาลเวลาและภพชาติ บ่งบอกถึงความผูกพันที่ถูกกำหนดไว้ล่วงหน้า" }
+];
+
+const analysisCardsData = [
+    { term: "Birds of a Feather", definition: "สำนวนที่หมายถึง 'คนประเภทเดียวกันมักจะอยู่ด้วยกัน' ในเพลงนี้ถูกใช้เพื่อสื่อถึงความผูกพันที่เหมือนโชคชะตาและไม่อาจแยกจากกันได้", example: "Birds of a feather, we should stick together..." },
+    { term: "ความรักแบบ 'Toxic' / 'Love-bomby'", definition: "Billie ยอมรับว่าตั้งใจให้ท่อนเวิร์สแรกมีความรู้สึก 'เป็นพิษ' และ 'love-bomby' (การระดมความรักใส่) ซึ่งแสดงถึงความรักที่เข้มข้นเกินไปจนอาจเป็นอันตรายหรือน่าอึดอัด", example: "If you go, I'm goin' too..." },
+    { term: "รักแบบต้องสั่งสอน (Tough Love)", definition: "ท่อนเวิร์สที่สองแสดงความรักในรูปแบบที่ต้องการให้คนรักเห็นคุณค่าในตัวเอง แม้จะต้องใช้คำพูดที่ดูรุนแรง ('don't be stupid') ซึ่งเกิดจากความห่วงใยอย่างสุดซึ้ง", example: "...say you wanna quit, don't be stupid." },
+    { term: "ความรักข้ามภพชาติ", definition: "แนวคิดเรื่อง 'another life' หรือชาติภพอื่น ทำให้ความรักในเพลงนี้อยู่เหนือขอบเขตของชีวิตเดียว กลายเป็นการเชื่อมโยงทางจิตวิญญาณที่ถูกกำหนดไว้ล่วงหน้า", example: "I knew you in another life..." },
+    { term: "การทำให้ไม่หวานเลี่ยน", definition: "Finneas จงใจเพิ่มวลี 'It might not be long' เข้าไปในคำมั่นสัญญา 'I'll love you 'til the day that I die' เพื่อยอมรับความจริงของชีวิตและทำให้คำพูดที่ยิ่งใหญ่นี้มีความจริงใจและติดดินมากขึ้น", example: "It might not be long, but baby, I..." },
+    { term: "ความขัดแย้งทางอารมณ์", definition: "ลักษณะเด่นของเพลงคือการจับคู่ดนตรีป็อปที่สดใสเข้ากับเนื้อเพลงที่มืดมนและหมกมุ่น สร้างความขัดแย้งที่ทรงพลัง ซึ่ง Billie กล่าวว่ามันสะท้อนถึง 'สิ่งที่เธอปรารถนาจะรู้สึก'", example: "(การฟังดนตรีเทียบกับเนื้อเพลง)" }
+];
+
+const quizData = [
+    {
+        question: "อะไรคือความขัดแย้งหลักที่เป็นหัวใจของเพลง 'Birds of a Feather'?",
+        options: ["ความรักกับความเกลียด", "ดนตรีที่สดใสกับเนื้อเพลงที่มืดมน", "ความฝันกับความจริง", "อดีตกับปัจจุบัน"],
+        answer: 1
+    },
+    {
+        question: "Billie Eilish กล่าวว่าเธอตั้งใจให้ท่อนเวิร์สแรกให้ความรู้สึกแบบใด?",
+        options: ["ตลกขบขัน", "โรแมนติกแบบดั้งเดิม", "เป็นพิษและ love-bomby", "เศร้าและสิ้นหวัง"],
+        answer: 2
+    },
+    {
+        question: "เหตุใด Finneas จึงเพิ่มวลี 'It might not be long' เข้าไปในเพลง?",
+        options: ["เพื่อทำให้เพลงสั้นลง", "เพื่อบอกว่าความรักของพวกเขาจะจบลงเร็วๆ นี้", "เพื่อทำให้คำมั่นสัญญา 'รักจนวันตาย' ไม่หวานเลี่ยนและมีความจริงใจมากขึ้น", "เพื่อทำให้เพลงฟังดูเศร้าขึ้น"],
+        answer: 2
+    },
+    {
+        question: "สำนวน 'Birds of a feather' ในเพลงนี้มีความหมายเน้นย้ำไปในทางใดมากที่สุด?",
+        options: ["คนรักคู่นี้ชอบดูนก", "พวกเขาเป็นคนแปลกเหมือนกัน", "พวกเขาควรจะอยู่ด้วยกันเพราะมีความเข้ากันได้เหมือนโชคชะตา", "พวกเขามีสไตล์การแต่งตัวที่คล้ายกัน"],
+        answer: 2
+    },
+    {
+        question: "แนวคิดเรื่อง 'another life' (ชาติภพอื่น) ในเพลงสื่อถึงอะไร?",
+        options: ["ความปรารถนาที่จะเริ่มต้นชีวิตใหม่", "ความเชื่อเรื่องการเดินทางข้ามเวลา", "ความผูกพันทางจิตวิญญาณที่อยู่เหนือกาลเวลา", "การเปรียบเทียบความรักครั้งนี้กับครั้งก่อน"],
+        answer: 2
+    }
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`nav-${sectionId}`).classList.add('active');
+}
+
+function openModal(index) {
+    const data = lyricData[index];
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <p class="text-2xl font-bold text-white mb-4">"${data.lyric}"</p>
+        <div class="space-y-4">
+            <div>
+                <h3 class="font-semibold text-lg text-[#64FFDA]">คำแปล:</h3>
+                <p class="text-[#CCD6F6]">${data.translation}</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg text-[#64FFDA]">คำอธิบายความหมาย:</h3>
+                <p class="text-[#CCD6F6]">${data.explanation}</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('lyric-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('lyric-modal').classList.add('hidden');
+}
+
+function createLyrics() {
+    const container = document.getElementById('lyrics-container');
+    container.innerHTML = lyricData.map((line, index) => `
+        <div class="lyric-line cursor-pointer p-4 rounded-lg" onclick="openModal(${index})">
+            <p class="text-lg text-[#CCD6F6]">"${line.lyric}"</p>
+        </div>
+    `).join('');
+}
+
+function createAnalysisCards() {
+    const container = document.getElementById('analysis-cards-container');
+    container.innerHTML = analysisCardsData.map(cardData => `
+        <div class="card h-56 [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-face absolute w-full h-full flex items-center justify-center p-4 bg-[#112240] rounded-lg shadow-lg border border-[#233554]">
+                <p class="text-xl font-semibold text-center text-[#64FFDA]">${cardData.term}</p>
+            </div>
+            <div class="card-back absolute w-full h-full flex flex-col items-center justify-center p-4 bg-[#233554] text-white rounded-lg shadow-lg">
+                <p class="text-sm text-center font-light">${cardData.definition}</p>
+                <p class="text-xs text-center italic mt-2 opacity-70">e.g., "${cardData.example}"</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function createThematicChart() {
+    const ctx = document.getElementById('thematicChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['การรับรู้ทางอารมณ์ (Emotional Perception)'],
+            datasets: [
+                {
+                    label: 'ท่วงทำนองที่สดใส (Upbeat Melody)',
+                    data: [10],
+                    backgroundColor: '#64FFDA',
+                    borderColor: '#64FFDA',
+                    borderWidth: 1
+                },
+                {
+                    label: 'เนื้อเพลงที่มืดมน (Dark Lyrics)',
+                    data: [-10],
+                    backgroundColor: '#ff79c6',
+                    borderColor: '#ff79c6',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    stacked: true,
+                    ticks: { display: false },
+                    grid: { display: false }
+                },
+                y: {
+                    stacked: true,
+                    ticks: { 
+                        color: '#8892B0',
+                        font: { size: 14 }
+                    },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#CCD6F6' }
+                },
+                tooltip: {
+                    enabled: false
+                }
+            }
+        }
+    });
+}
+
+function createQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    showQuestion();
+}
+
+function showQuestion() {
+    const quizContainer = document.getElementById('quiz-container');
+    if (currentQuestionIndex < quizData.length) {
+        const question = quizData[currentQuestionIndex];
+        quizContainer.innerHTML = `
+            <div class="mb-4">
+                <p class="text-xl font-semibold mb-1 text-white">คำถาม ${currentQuestionIndex + 1} / ${quizData.length}</p>
+                <p class="text-lg text-[#CCD6F6]">${question.question}</p>
+            </div>
+            <div id="options-container" class="space-y-3">
+                ${question.options.map((option, index) => `
+                    <button class="quiz-option w-full text-left p-3 border-2 rounded-lg text-[#CCD6F6]" onclick="checkAnswer(${index})">
+                        ${String.fromCharCode(97 + index)}. ${option}
+                    </button>
+                `).join('')}
+            </div>
+            <div id="feedback-container" class="mt-4"></div>
+        `;
+    } else {
+        showFinalScore();
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    const question = quizData[currentQuestionIndex];
+    const options = document.querySelectorAll('.quiz-option');
+    const feedbackContainer = document.getElementById('feedback-container');
+
+    options.forEach(button => button.disabled = true);
+    
+    if (selectedIndex === question.answer) {
+        score++;
+        options[selectedIndex].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-[#64FFDA] font-semibold">ถูกต้อง!</p>`;
+    } else {
+        options[selectedIndex].classList.add('incorrect');
+        options[question.answer].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-[#ff79c6] font-semibold">ผิด! คำตอบที่ถูกต้องคือ: ${String.fromCharCode(97 + question.answer)}</p>`;
+    }
+
+    feedbackContainer.innerHTML += `<button class="mt-4 bg-[#64FFDA] text-[#0A192F] py-2 px-6 rounded-lg font-semibold hover:bg-opacity-80" onclick="nextQuestion()">คำถามถัดไป</button>`;
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+function showFinalScore() {
+    const quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = `
+        <div class="text-center">
+            <h2 class="text-2xl font-bold mb-4 text-white">จบแบบทดสอบ!</h2>
+            <p class="text-xl mb-4 text-[#CCD6F6]">คุณได้ ${score} จาก ${quizData.length} คะแนน</p>
+            <button class="bg-[#64FFDA] text-[#0A192F] py-2 px-6 rounded-lg font-semibold hover:bg-opacity-80" onclick="createQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+        </div>
+    `;
+}
+
+window.onload = function() {
+    createLyrics();
+    createAnalysisCards();
+    createThematicChart();
+    createQuiz();
+    showSection('intro'); 
+
+    document.getElementById('lyric-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'lyric-modal') {
+            closeModal();
+        }
+    });
+};
+</script>
+
+</body>
+</html>

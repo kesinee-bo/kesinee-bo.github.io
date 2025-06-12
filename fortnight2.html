@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง "Fortnight" - Taylor Swift ft. Post Malone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Monochrome Manuscript -->
+    <!-- Application Structure Plan: Adhering to the established and effective 4-tab SPA model (Intro, Lyrics, Analysis, Quiz). The core interactive elements remain: clickable lyrics with modals, flip cards, and a multi-part quiz. This structure provides a consistent and user-friendly experience. The analysis section is tailored to visualize the song's emotional structure, focusing on the conflict between past memory and present haunting. -->
+    <!-- Visualization & Content Choices: 1. Lyrics: Report Info -> Lyrics, translation, and analysis of key metaphors (alcoholism, Florida). Goal -> Explore/Inform. Viz -> Clickable list with modals. Interaction -> Click-to-reveal. Justification -> Breaks down the dense, metaphorical lyrics for easier comprehension. Library -> HTML/CSS/JS. 2. Emotional Structure Analysis: Report Info -> The song's central conflict between a brief affair and its lasting impact. Goal -> Analyze/Inform. Viz -> A donut chart illustrating the balance between "Memory of the Affair" and "Present-Day Consequences". Justification -> Offers a clean, visual summary of the song's core theme. Library -> Chart.js. 3. Key Concepts: Report Info -> "Fortnight" definition, the "functioning alcoholic" metaphor, the "tortured poet" archetype. Goal -> Organize/Learn. Viz -> Flip cards. Interaction -> Click-to-flip. Justification -> Excellent for defining and exploring the song's key literary devices and themes. Library -> HTML/CSS/JS. 4. Quiz: Report Info -> Comprehension questions covering lyrics, metaphors, and themes. Goal -> Test/Reinforce. Note: User request for 10 fill-in-the-blank questions has been implemented, totaling 20 quiz items. Library -> HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #F3F1ED; /* Off-white, paper-like */
+            color: #363636; /* Dark Gray */
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            color: #6B6B6B;
+        }
+        .nav-btn.active, .nav-btn:hover {
+            color: #1a1a1a;
+            border-bottom-color: #1a1a1a;
+        }
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .lyric-line:hover {
+            background-color: #EAE8E3;
+        }
+        .quiz-option {
+            transition: background-color 0.2s ease-in-out;
+            border-color: #D1D1D1;
+        }
+        .quiz-option:hover {
+            background-color: #EAE8E3;
+        }
+        .quiz-option.correct {
+            background-color: #D4EDDA;
+            border-color: #A3C9A8;
+        }
+        .quiz-option.incorrect {
+            background-color: #F8D7DA;
+            border-color: #D9A0A7;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal-bg {
+             background-color: rgba(26, 26, 26, 0.7);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="lyric-modal" class="fixed inset-0 modal-bg flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-[#F3F1ED] rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 md:p-8 relative border border-[#D1D1D1]">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl">&times;</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#1a1a1a]">Fortnight</h1>
+            <p class="text-xl text-[#363636] mt-2">โดย Taylor Swift ft. Post Malone</p>
+            <p class="mt-4 text-lg text-[#6B6B6B] font-serif">แอปพลิเคชันวิเคราะห์เพลงเชิงโต้ตอบ</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-[#D1D1D1] mb-10 space-x-4 md:space-x-8">
+            <button id="nav-intro" class="nav-btn py-2 px-1 md:px-4 text-lg active" onclick="showSection('intro')">บทนำ</button>
+            <button id="nav-lyrics" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('lyrics')">เนื้อเพลง</button>
+            <button id="nav-analysis" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('analysis')">วิเคราะห์</button>
+            <button id="nav-quiz" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('quiz')">แบบทดสอบ</button>
+        </nav>
+
+        <main>
+            <section id="intro" class="content-section space-y-6 leading-relaxed">
+                <p class="text-lg text-[#363636]">ยินดีต้อนรับสู่การสำรวจ "Fortnight" เพลงเปิดอัลบั้ม *THE TORTURED POETS DEPARTMENT* ที่ Taylor Swift ได้ Post Malone มาร่วมถ่ายทอดเรื่องราว แอปพลิเคชันนี้จะพาคุณดำดิ่งสู่โลกของความสัมพันธ์ชั่วครู่ที่ทิ้งบาดแผลยาวนาน ผ่านมุมมองของ "กวีผู้ทรมาน" ที่ต้องใช้ชีวิตอยู่กับความทรงจำที่หลอกหลอน ส่วนนี้จะให้ภาพรวมของเพลงและแก่นเรื่องหลัก เพื่อเป็นประตูสู่การวิเคราะห์ที่ซับซ้อนยิ่งขึ้น</p>
+                <div class="bg-white/60 p-6 rounded-lg shadow-sm border border-[#D1D1D1]">
+                    <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4 font-serif">แก่นเรื่องหลัก: ความรักชั่วคราว บาดแผลถาวร</h2>
+                    <p class="text-[#363636]">หัวใจของ "Fortnight" คือความขัดแย้งระหว่างเวลาทางกายภาพกับเวลาทางอารมณ์ ความสัมพันธ์ที่เกิดขึ้นและจบลงในเวลาเพียง "สองสัปดาห์" (a fortnight) กลับกลายเป็นเงาที่ตามหลอกหลอนชีวิตของเธอไปตลอดกาล เพลงนี้สำรวจความรู้สึกของการถูกทิ้งให้อยู่กับอดีต การรับมือกับความเจ็บปวดด้วยกลไกป้องกันตัวเอง (เช่น การเปรียบเปรยว่าเป็น "functioning alcoholic") และการเฝ้ามองคนรักเก่าใช้ชีวิตต่อไปอย่างมีความสุข ซึ่งทั้งหมดนี้คือชะตากรรมของ "กวีผู้ทรมาน"</p>
+                </div>
+            </section>
+
+            <section id="lyrics" class="content-section hidden">
+                 <p class="text-lg mb-6 text-center text-[#363636]">สำรวจเรื่องราวความรักสองสัปดาห์ที่กลายเป็นแผลเป็นตลอดไป คลิกที่แต่ละท่อนเพื่อดูคำแปลและความหมายที่ซ่อนอยู่เบื้องหลังคำสารภาพของกวีผู้ทรมาน</p>
+                <div id="lyrics-container" class="space-y-4 bg-white/60 p-6 rounded-lg shadow-sm border border-[#D1D1D1]">
+                </div>
+            </section>
+
+            <section id="analysis" class="content-section hidden space-y-12">
+                <p class="text-lg mb-6 text-[#363636]">ในส่วนนี้ เราจะถอดรหัสชั้นความหมายต่างๆ ของเพลง ตั้งแต่การสำรวจโครงสร้างทางอารมณ์ผ่านแผนภูมิ ไปจนถึงการทำความเข้าใจอุปลักษณ์และสัญลักษณ์สำคัญที่ Taylor Swift ร้อยเรียงขึ้นมาอย่างเชี่ยวชาญ</p>
+                
+                <div>
+                    <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4 text-center font-serif">การวิเคราะห์โครงสร้างทางอารมณ์</h2>
+                    <div class="chart-container">
+                        <canvas id="analysisChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-[#6B6B6B]">แผนภูมินี้แสดงสัดส่วนระหว่าง "ความทรงจำถึงความสัมพันธ์ชั่วครู่" กับ "ผลกระทบที่หลอกหลอนในปัจจุบัน" ซึ่งเป็นความขัดแย้งหลักของเพลง</p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4 text-center font-serif">แนวคิดและสัญลักษณ์สำคัญ</h2>
+                    <p class="text-center mb-6 text-[#6B6B6B]">คลิกที่การ์ดเพื่อพลิกดูความหมายและบทบาทในเพลง</p>
+                    <div id="analysis-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="quiz" class="content-section hidden">
+                <p class="text-lg mb-6 text-center text-[#363636]">ทดสอบความเข้าใจของคุณในบทกวีแห่งความเจ็บปวดนี้ คำถามจะครอบคลุมตั้งแต่ความหมายในเนื้อเพลงไปจนถึงการตีความสัญลักษณ์ต่างๆ</p>
+                <div id="quiz-container" class="bg-white/60 p-6 rounded-lg shadow-sm border border-[#D1D1D1]">
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+const lyricData = [
+    { lyric: "I was supposed to be sent away / But they forgot to come and get me", translation: "ฉันควรจะถูกส่งตัวไปแล้ว / แต่พวกเขาลืมมารับฉัน", explanation: "ท่อนเปิดที่สร้างบรรยากาศของความสับสนและการถูกทอดทิ้ง อาจสื่อถึงความรู้สึกว่าเธอควรจะถูก 'รักษา' หรือนำออกจากสถานการณ์ที่เจ็บปวด แต่กลับถูกปล่อยให้อยู่กับความรู้สึกนั้นตามลำพัง" },
+    { lyric: "I was a functioning alcoholic / 'Til nobody noticed my new aesthetic", translation: "ฉันเป็นผู้ติดสุราที่ยังทำงานได้ / จนกระทั่งไม่มีใครสังเกตเห็นสุนทรียภาพใหม่ของฉัน", explanation: "อุปลักษณ์ที่ทรงพลัง 'Functioning alcoholic' ไม่ได้หมายถึงการติดสุราจริงๆ แต่คือการเปรียบเทียบความเจ็บปวดจากความรักเหมือนการเสพติดที่เธอต้องซ่อนไว้ภายใต้ท่าทีที่ดูปกติ เพื่อให้ยังใช้ชีวิตต่อไปได้" },
+    { lyric: "And I took a miracle drug, the effects were temporary / And I love you, it's ruining my life", translation: "และฉันใช้ยามหัศจรรย์ ผลของมันแค่ชั่วคราว / และฉันรักคุณ มันกำลังทำลายชีวิตฉัน", explanation: "ความรักในอดีตเปรียบเหมือน 'ยามหัศจรรย์' ที่ให้ความสุขเพียงชั่วครู่ แต่ผลข้างเคียงคือการทำลายชีวิตในปัจจุบัน นี่คือคำสารภาพที่ขัดแย้งแต่จริงใจถึงผลกระทบของความรักครั้งนั้น" },
+    { lyric: "I touched you for only a fortnight / And I cursed you for only a fortnight", translation: "ฉันได้สัมผัสเธอเพียงแค่สองสัปดาห์ / และฉันสาปแช่งเธอเพียงแค่สองสัปดาห์", explanation: "ท่อนที่แสดงความขัดแย้งของความสัมพันธ์ที่สั้นแต่เข้มข้น มีทั้งความรัก ('touched') และความโกรธ ('cursed') อัดแน่นอยู่ในช่วงเวลาเพียงสองสัปดาห์" },
+    { lyric: "Your wife waters the flowers / I wanna kill her", translation: "ภรรยาของคุณรดน้ำดอกไม้ / ฉันอยากจะฆ่าเธอ", explanation: "การแสดงออกถึงความอิจฉาอย่างรุนแรงและไม่ปรุงแต่งต่อชีวิตใหม่ที่ดูสมบูรณ์แบบของคนรักเก่า สะท้อนความคิดที่ดำมืดและไม่ผ่านการขัดเกลาของ 'กวีผู้ทรมาน'" },
+    { lyric: "My husband is cheating, I wanna kill him / He was leaving town / Now I have to live here with you", translation: "สามีของฉันกำลังนอกใจ ฉันอยากจะฆ่าเขา / เขากำลังจะย้ายออกจากเมือง / ตอนนี้ฉันเลยต้องอยู่ที่นี่กับคุณ", explanation: "ท่อนนี้สร้างความสับสนและอาจเป็นสถานการณ์สมมติที่เธอสร้างขึ้นเพื่อผูกมัดตัวเองไว้กับความทรงจำของคนรักเก่า เหมือนเป็นโชคชะตาที่ทำให้เธอต้องติดอยู่ในเมืองเดียวกับเขา" },
+    { lyric: "I'm calling you but you're not picking up / Another fortnight and I'll be saved", translation: "ฉันโทรหาคุณแต่คุณไม่รับสาย / อีกแค่สองสัปดาห์แล้วฉันจะได้รับการปลดปล่อย", explanation: "ความพยายามที่สิ้นหวังในการติดต่ออดีต และความเชื่อที่อาจเป็นเพียงภาพลวงตาว่าความเจ็บปวดนี้จะสิ้นสุดลงในอีก 'สองสัปดาห์' ซึ่งเป็นช่วงเวลาเดียวกับที่ความสัมพันธ์เคยเกิดขึ้น" },
+    { lyric: "I was a storm, you were a tragedy / Now we're at the same bar, it's a tragedy", translation: "ฉันเคยเป็นพายุ ส่วนคุณคือโศกนาฏกรรม / ตอนนี้เราอยู่ในบาร์เดียวกัน มันคือโศกนาฏกรรม", explanation: "สรุปความสัมพันธ์ในอดีตที่เต็มไปด้วยความรุนแรงทางอารมณ์ และการกลับมาพบกันในปัจจุบันก็ยังคงเป็นเรื่องน่าเศร้า ตอกย้ำว่าไม่มีอะไรดีขึ้น" },
+    { lyric: "Thought of callin' ya, but you won't pick up / Another fortnight and I'll be clean", translation: "คิดจะโทรหาคุณ แต่คุณคงไม่รับ / อีกแค่สองสัปดาห์แล้วฉันจะสะอาด", explanation: "เสียงร้องของ Post Malone ที่สะท้อนความคิดของ Taylor โดยเปลี่ยนจาก 'saved' เป็น 'clean' ซึ่งเชื่อมโยงกลับไปที่อุปลักษณ์เรื่องการเสพติด (addiction) ที่ต้องการจะ 'ถอน' หรือ 'เลิก' ให้ได้" },
+    { lyric: "I'll be haunting you 'til the end of time / I'll be knockin' on your wall when you're creepin' home late", translation: "ฉันจะหลอกหลอนคุณไปจนวันสุดท้าย / ฉันจะไปเคาะกำแพงของคุณตอนที่คุณย่องกลับบ้านดึกๆ", explanation: "คำประกาศว่าจะอยู่ในความทรงจำของเขาไปตลอดกาล ไม่ใช่ในฐานะความรักที่สวยงาม แต่ในฐานะ 'ผี' ที่คอยหลอกหลอนและเตือนให้รู้สึกผิด" }
+];
+
+const analysisCardsData = [
+    { term: "Fortnight (สองสัปดาห์)", definition: "คำศัพท์โบราณของอังกฤษที่หมายถึง 'ระยะเวลา 14 คืน' หรือสองสัปดาห์ การเลือกใช้คำนี้สร้างบรรยากาศที่ดูคลาสสิกและเน้นย้ำถึงความสั้นของความสัมพันธ์", example: "I touched you for only a fortnight" },
+    { term: "Functioning Alcoholic (ผู้ติดสุราที่ยังทำงานได้)", definition: "อุปลักษณ์ (Metaphor) ที่เปรียบเทียบการแบกรับความเจ็บปวดจากความรักเหมือนการเสพติดที่ต้องซ่อนไว้ เพื่อให้สามารถใช้ชีวิตประจำวันต่อไปได้ตามปกติ", example: "I was a functioning alcoholic" },
+    { term: "The Tortured Poet (กวีผู้ทรมาน)", definition: "ต้นแบบตัวละคร (Archetype) ที่เป็นศูนย์กลางของอัลบั้ม คือศิลปินที่เปลี่ยนความเจ็บปวดและความทุกข์ทรมานของตนเองให้กลายเป็นงานศิลปะ", example: "(แก่นเรื่องของทั้งอัลบั้ม)" },
+    { term: "สัญลักษณ์ของฟลอริดา (Florida Symbolism)", definition: "แม้จะไม่ถูกกล่าวถึงโดยตรงในเพลงนี้ แต่เพลง 'Florida!!!' ในอัลบั้มเดียวกันพูดถึงฟลอริดาในฐานะสถานที่หลบหนีจากปัญหาและความเจ็บปวด ซึ่งเป็นบริบทที่น่าสนใจเมื่อพิจารณาเพลงนี้", example: "(เชื่อมโยงกับเพลง Florida!!!)" },
+    { term: "ความคิดที่รุนแรงและไม่ขัดเกลา", definition: "เพลงนี้เต็มไปด้วยความคิดที่รุนแรงและตรงไปตรงมา ('I wanna kill her') ซึ่งสะท้อนสภาวะจิตใจที่ไม่มั่นคงและเจ็บปวดของผู้เล่าเรื่อง", example: "Your wife waters the flowers / I wanna kill her" }
+];
+
+const quizData = [
+    // Fill-in-the-blanks (10 questions)
+    { type: 'fill', question: "I was a functioning ____ / 'Til nobody noticed my new aesthetic.", options: ["artist", "alcoholic", "actress", "architect"], answer: 1 },
+    { type: 'fill', question: "And I took a miracle ____, the effects were temporary.", options: ["pill", "drink", "drug", "vow"], answer: 2 },
+    { type: 'fill', question: "And I love you, it's ruining my ____.", options: ["day", "mind", "career", "life"], answer: 3 },
+    { type: 'fill', question: "Your wife waters the ____ / I wanna kill her.", options: ["plants", "garden", "flowers", "lawn"], answer: 2 },
+    { type: 'fill', question: "I was a ____, you were a tragedy.", options: ["storm", "mess", "dream", "fire"], answer: 0 },
+    { type: 'fill', question: "Now we're at the same ____, it's a tragedy.", options: ["place", "bar", "town", "party"], answer: 1 },
+    { type: 'fill', question: "Thought of callin' ya, but you won't pick ____.", options: ["me", "up", "sides", "fights"], answer: 1 },
+    { type: 'fill', question: "Another fortnight and I'll be ____.", options: ["gone", "free", "saved", "home"], answer: 2 },
+    { type: 'fill', question: "Another fortnight and I'll be ____ (Post Malone's lyric).", options: ["sober", "clean", "healed", "fine"], answer: 1 },
+    { type: 'fill', question: "I'll be ____ you 'til the end of time.", options: ["loving", "missing", "haunting", "watching"], answer: 2 },
+    // Comprehension (5 questions)
+    { type: 'comp', question: "อุปลักษณ์ 'functioning alcoholic' ในเพลงนี้สื่อถึงอะไร?", options: ["การดื่มสุรามากเกินไป", "การใช้ชีวิตไปวันๆ โดยซ่อนความเจ็บปวดจากความรักไว้ภายใน", "การทำงานในบาร์", "การเฉลิมฉลองความสัมพันธ์"], answer: 1 },
+    { type: 'comp', question: "คำว่า 'Fortnight' ที่เป็นชื่อเพลงมีความสำคัญอย่างไร?", options: ["เป็นชื่อเมืองที่พวกเขาพบกัน", "เป็นคำที่ Taylor Swift เพิ่งเรียนรู้", "เพื่อเน้นย้ำว่าความสัมพันธ์นั้นสั้นมากเพียงแค่สองสัปดาห์", "เป็นชื่อเล่นของคนรักเก่า"], answer: 2 },
+    { type: 'comp', question: "เพลงนี้จบลงด้วยอารมณ์แบบใด?", options: ["การให้อภัยและการก้าวต่อไป", "ความสุขที่ได้กลับมาคบกัน", "ความขมขื่นและคำประกาศว่าจะตามหลอกหลอนไปตลอดกาล", "ความไม่ใส่ใจและลืมเลือนอดีต"], answer: 2 },
+    { type: 'comp', question: "บทบาทของ Post Malone ในเพลงนี้คืออะไร?", options: ["เป็นคนรักใหม่ของ Taylor", "เป็นเสียงสะท้อนความคิดของ Taylor และเสนออีกมุมมองหนึ่ง", "เป็นเพื่อนที่คอยปลอบใจ", "เป็นเพียงนักร้องประสานเสียง"], answer: 1 },
+    { type: 'comp', question: "แก่นเรื่องหลักของเพลง 'Fortnight' คืออะไร?", options: ["ความสุขของความรักครั้งใหม่", "ความสัมพันธ์ระยะสั้นที่สร้างผลกระทบทางอารมณ์ที่ยาวนาน", "มิตรภาพที่แน่นแฟ้น", "การเดินทางท่องเที่ยวในฟลอริดา"], answer: 1 },
+    // Analysis (5 questions)
+    { type: 'vocab', question: "ท่อนที่ว่า 'I wanna kill her' แสดงถึงอะไรในตัวผู้เล่าเรื่อง?", options: ["แผนการที่ไตร่ตรองไว้แล้ว", "ความรู้สึกอิจฉาและความคิดที่รุนแรงซึ่งไม่ผ่านการขัดเกลา", "เรื่องตลกที่พูดเล่นๆ", "ความเข้าใจผิด"], answer: 1 },
+    { type: 'vocab', question: "การใช้คำว่า 'clean' ในท่อนของ Post Malone เชื่อมโยงกับแนวคิดเรื่องใด?", options: ["การทำความสะอาดบ้าน", "การเริ่มต้นใหม่", "การเลิกยาเสพติดหรือการถอนตัวจากการเสพติดทางอารมณ์", "ความบริสุทธิ์ใจ"], answer: 2 },
+    { type: 'vocab', question: "คำว่า 'miracle drug' ในเพลงนี้คืออะไร?", options: ["ยาที่ใช้รักษาโรค", "ความรักที่ให้ความสุขเพียงชั่วคราวแต่มีผลข้างเคียงที่เลวร้าย", "วิตามินบำรุง", "ยาหลอก"], answer: 1 },
+    { type: 'vocab', question: "ท่อน 'I'll be knockin' on your wall' เป็นการใช้ภาษาแบบใด?", options: ["การพูดเกินจริง", "การเปรียบเทียบ (อุปลักษณ์) ว่าจะเป็นเหมือนผีที่คอยหลอกหลอน", "การพูดตรงไปตรงมา", "การใช้คำถามเชิงวาทศิลป์"], answer: 1 },
+    { type: 'vocab', question: "ต้นแบบ 'The Tortured Poet' ที่เป็นธีมของอัลบั้ม หมายถึงอะไร?", options: ["กวีที่ถูกทรมานจริงๆ", "ศิลปินที่เปลี่ยนความเจ็บปวดส่วนตัวให้เป็นงานศิลปะ", "คนที่ชอบเขียนบทกวีเศร้าๆ", "นักแสดงที่รับบทเป็นกวี"], answer: 1 },
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`nav-${sectionId}`).classList.add('active');
+}
+
+function openModal(index) {
+    const data = lyricData[index];
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <p class="text-2xl font-bold text-[#1a1a1a] mb-4">"${data.lyric}"</p>
+        <div class="space-y-4">
+            <div>
+                <h3 class="font-semibold text-lg text-[#363636] font-serif">คำแปล:</h3>
+                <p class="text-[#363636]">${data.translation}</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg text-[#363636] font-serif">คำอธิบายความหมาย:</h3>
+                <p class="text-[#363636]">${data.explanation}</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('lyric-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('lyric-modal').classList.add('hidden');
+}
+
+function createLyrics() {
+    const container = document.getElementById('lyrics-container');
+    container.innerHTML = lyricData.map((line, index) => `
+        <div class="lyric-line cursor-pointer p-4 rounded-lg" onclick="openModal(${index})">
+            <p class="text-lg text-[#363636]">"${line.lyric}"</p>
+        </div>
+    `).join('');
+}
+
+function createAnalysisCards() {
+    const container = document.getElementById('analysis-cards-container');
+    container.innerHTML = analysisCardsData.map(cardData => `
+        <div class="card h-56 [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-face absolute w-full h-full flex items-center justify-center p-4 bg-white/70 rounded-lg shadow-sm border border-[#D1D1D1]">
+                <p class="text-xl font-semibold text-center text-[#1a1a1a] font-serif">${cardData.term}</p>
+            </div>
+            <div class="card-back absolute w-full h-full flex flex-col items-center justify-center p-4 bg-[#363636] text-white rounded-lg shadow-sm">
+                <p class="text-sm text-center font-light">${cardData.definition}</p>
+                <p class="text-xs text-center italic mt-2 opacity-80">e.g., "${cardData.example}"</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function createAnalysisChart() {
+    const ctx = document.getElementById('analysisChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['ผลกระทบในปัจจุบัน (Present Haunting)', 'ความทรงจำถึงความสัมพันธ์ (Memory of Affair)'],
+            datasets: [{
+                label: 'โครงสร้างทางอารมณ์',
+                data: [60, 40], // Approximate percentage
+                backgroundColor: [ '#363636', '#B1A89B' ],
+                borderColor: '#F3F1ED',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#363636', font: { size: 14 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                label += context.parsed + '% ของอารมณ์เพลง';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    showQuestion();
+}
+
+function showQuestion() {
+    const quizContainer = document.getElementById('quiz-container');
+    if (currentQuestionIndex < quizData.length) {
+        const question = quizData[currentQuestionIndex];
+        let questionTitle = '';
+        if (currentQuestionIndex < 10) {
+            questionTitle = `เติมคำในช่องว่าง (${currentQuestionIndex + 1}/10)`;
+        } else if (currentQuestionIndex < 15) {
+            questionTitle = `ความเข้าใจในความหมาย (${currentQuestionIndex - 9}/5)`;
+        } else {
+            questionTitle = `การวิเคราะห์และสัญลักษณ์ (${currentQuestionIndex - 14}/5)`;
+        }
+
+        quizContainer.innerHTML = `
+            <div class="mb-4">
+                <p class="text-lg font-semibold mb-1 text-[#6B6B6B]">${questionTitle}</p>
+                <p class="text-xl">${question.question}</p>
+            </div>
+            <div id="options-container" class="space-y-3">
+                ${question.options.map((option, index) => `
+                    <button class="quiz-option w-full text-left p-3 border-2 rounded-lg" onclick="checkAnswer(${index})">
+                        ${String.fromCharCode(97 + index)}. ${option}
+                    </button>
+                `).join('')}
+            </div>
+            <div id="feedback-container" class="mt-4"></div>
+        `;
+    } else {
+        showFinalScore();
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    const question = quizData[currentQuestionIndex];
+    const options = document.querySelectorAll('.quiz-option');
+    const feedbackContainer = document.getElementById('feedback-container');
+
+    options.forEach(button => button.disabled = true);
+    
+    if (selectedIndex === question.answer) {
+        score++;
+        options[selectedIndex].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-green-800 font-semibold">ถูกต้อง!</p>`;
+    } else {
+        options[selectedIndex].classList.add('incorrect');
+        options[question.answer].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-red-800 font-semibold">ผิด! คำตอบที่ถูกต้องคือ: ${String.fromCharCode(97 + question.answer)}</p>`;
+    }
+
+    feedbackContainer.innerHTML += `<button class="mt-4 bg-[#363636] text-white py-2 px-6 rounded-lg hover:bg-opacity-80" onclick="nextQuestion()">คำถามถัดไป</button>`;
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+function showFinalScore() {
+    const quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = `
+        <div class="text-center">
+            <h2 class="text-2xl font-bold mb-4 font-serif">จบแบบทดสอบ!</h2>
+            <p class="text-xl mb-4">คุณได้ ${score} จาก ${quizData.length} คะแนน</p>
+            <button class="bg-[#363636] text-white py-2 px-6 rounded-lg hover:bg-opacity-80" onclick="createQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+        </div>
+    `;
+}
+
+window.onload = function() {
+    createLyrics();
+    createAnalysisCards();
+    createAnalysisChart();
+    createQuiz();
+    showSection('intro'); 
+
+    document.getElementById('lyric-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'lyric-modal') {
+            closeModal();
+        }
+    });
+};
+</script>
+
+</body>
+</html>

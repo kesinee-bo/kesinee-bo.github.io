@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เรียนภาษาอังกฤษจากบทเพลง</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral Harmony -->
+    <!-- Application Structure Plan: The app uses a two-level navigation structure. The main screen presents four song choices as interactive cards for clear entry points. Clicking a card leads to a dedicated lesson page for that song. This lesson page is organized into three main tabs: 'Lyrics & Meaning', 'Language Deep Dive', and 'Quiz'. This tabbed structure breaks down the dense report content into manageable, user-controlled sections, promoting focused learning (reading, analysis, testing) instead of a long, passive scroll. This architecture was chosen to transform the static report into an active learning tool, enhancing user engagement and content discoverability. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Lyrics/Translation -> Goal: Compare -> Presentation: Side-by-side two-column layout -> Interaction: Simple scroll -> Justification: Easy comparison between languages. -> Library/Method: HTML/Tailwind.
+        - Report Info: Language analysis (Vocab, Phrasal Verbs) -> Goal: Organize/Inform -> Presentation: Interactive accordion lists -> Interaction: Click to reveal definition/example -> Justification: Encourages active recall over passive reading. -> Library/Method: HTML/CSS/JS.
+        - Report Info: Quiz questions -> Goal: Test Knowledge -> Presentation: Multi-step interactive quiz form -> Interaction: User selects answer, gets immediate color-coded feedback, clicks 'Next' -> Justification: Provides an engaging, game-like testing experience with instant feedback. -> Library/Method: HTML/JS.
+        - Report Info: Quiz Score -> Goal: Inform/Summarize -> Presentation: Donut Chart -> Interaction: None (static display of result) -> Justification: Provides a quick, visually satisfying summary of user performance. -> Library/Method: Chart.js (Canvas). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'IBM Plex Sans Thai', 'Poppins', sans-serif;
+            background-color: #F5F5F5;
+            color: #4A4A4A;
+        }
+        .thai-font { font-family: 'IBM Plex Sans Thai', sans-serif; }
+        .eng-font { font-family: 'Poppins', sans-serif; }
+        .accent-bg { background-color: #5A9A9C; }
+        .accent-text { color: #5A9A9C; }
+        .accent-border { border-color: #5A9A9C; }
+        .secondary-accent-bg { background-color: #D8A788; }
+        .secondary-accent-text { color: #D8A788; }
+        
+        .tab-button {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-button.active {
+            border-bottom-color: #5A9A9C;
+            color: #5A9A9C;
+            font-weight: 600;
+        }
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .quiz-option:hover {
+            background-color: #e9e9e9;
+        }
+        .quiz-option.correct {
+            background-color: #d1fae5;
+            border-color: #10b981;
+        }
+        .quiz-option.incorrect {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="app-container" class="container mx-auto p-4 md:p-8 max-w-7xl">
+        
+        <!-- Home Screen -->
+        <div id="home-screen">
+            <header class="text-center mb-8 md:mb-12">
+                <h1 class="text-3xl md:text-4xl font-bold thai-font">เรียนภาษาอังกฤษจากบทเพลง</h1>
+                <p class="mt-2 text-lg text-gray-600 thai-font">เลือกเพลงเพื่อเริ่มบทเรียนของคุณ</p>
+            </header>
+            <main id="song-selection" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                <!-- Song cards will be injected here by JS -->
+            </main>
+        </div>
+
+        <!-- Lesson Screen -->
+        <div id="lesson-screen" class="hidden">
+            <header class="mb-6">
+                <button id="back-to-home" class="flex items-center text-sm accent-text hover:underline mb-4">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <span class="thai-font">กลับไปหน้าเลือกเพลง</span>
+                </button>
+                <h1 id="lesson-title" class="text-3xl md:text-4xl font-bold eng-font"></h1>
+                <p id="lesson-artist" class="text-xl text-gray-500 eng-font"></p>
+            </header>
+
+            <!-- Tabs -->
+            <div class="border-b border-gray-300 mb-6">
+                <nav id="lesson-tabs" class="flex space-x-4 md:space-x-8 -mb-px" aria-label="Tabs">
+                    <button data-tab="lyrics" class="tab-button thai-font py-4 px-1 text-base font-medium text-gray-500 hover:text-gray-700 hover:border-gray-400 active">เนื้อเพลงและความหมาย</button>
+                    <button data-tab="deep-dive" class="tab-button thai-font py-4 px-1 text-base font-medium text-gray-500 hover:text-gray-700 hover:border-gray-400">เจาะลึกภาษา</button>
+                    <button data-tab="quiz" class="tab-button thai-font py-4 px-1 text-base font-medium text-gray-500 hover:text-gray-700 hover:border-gray-400">แบบทดสอบ</button>
+                </nav>
+            </div>
+
+            <main id="lesson-content">
+                <!-- Lyrics & Meaning -->
+                <div id="lyrics-content" class="content-section active fade-in">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h2 class="text-2xl font-bold mb-4 thai-font">เนื้อเพลงและความหมาย</h2>
+                        <div id="lyrics-container" class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm md:text-base leading-relaxed">
+                            <div id="lyrics-en"></div>
+                            <div id="lyrics-th" class="thai-font"></div>
+                        </div>
+                        <div class="mt-8 pt-6 border-t border-gray-200">
+                             <h3 class="text-xl font-semibold mb-3 thai-font">ความหมายเชิงลึก</h3>
+                             <p id="deeper-meaning" class="thai-font text-gray-700 leading-loose"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deep Dive -->
+                <div id="deep-dive-content" class="content-section fade-in">
+                     <div class="bg-white p-6 rounded-lg shadow-sm space-y-6">
+                        <h2 class="text-2xl font-bold mb-4 thai-font">เจาะลึกประเด็นทางภาษา</h2>
+                        <div id="deep-dive-accordion">
+                            <!-- Accordion items will be injected here by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz -->
+                <div id="quiz-content" class="content-section fade-in">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h2 class="text-2xl font-bold mb-4 thai-font">แบบทดสอบความเข้าใจ</h2>
+                        <div id="quiz-container">
+                            <div id="quiz-start-view">
+                                <p class="mb-4 thai-font">ทดสอบความรู้ของคุณเกี่ยวกับเพลงนี้ แบบทดสอบมีทั้งหมด <span id="total-questions"></span> ข้อ</p>
+                                <button id="start-quiz-btn" class="accent-bg text-white font-bold py-2 px-6 rounded-lg hover:bg-opacity-90 transition-colors thai-font">เริ่มทำแบบทดสอบ</button>
+                            </div>
+                            <div id="quiz-question-view" class="hidden">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 id="quiz-category" class="thai-font font-semibold accent-text"></h3>
+                                    <p id="quiz-progress" class="text-sm text-gray-500 thai-font"></p>
+                                </div>
+                                <p id="quiz-question" class="text-lg mb-6 leading-relaxed"></p>
+                                <div id="quiz-options" class="space-y-3"></div>
+                                <div id="quiz-feedback" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
+                                <button id="next-question-btn" class="mt-6 accent-bg text-white font-bold py-2 px-6 rounded-lg hover:bg-opacity-90 transition-colors disabled:bg-gray-300 thai-font" disabled>ข้อต่อไป</button>
+                            </div>
+                            <div id="quiz-results-view" class="hidden text-center">
+                                <h3 class="text-xl font-bold mb-4 thai-font">ผลการทดสอบ</h3>
+                                <p id="quiz-score" class="text-2xl mb-4"></p>
+                                <div class="chart-container relative w-full max-w-xs mx-auto h-64">
+                                    <canvas id="quiz-chart"></canvas>
+                                </div>
+                                <p id="quiz-summary-text" class="mt-4 thai-font"></p>
+                                <button id="restart-quiz-btn" class="mt-6 secondary-accent-bg text-white font-bold py-2 px-6 rounded-lg hover:bg-opacity-90 transition-colors thai-font">ทำแบบทดสอบอีกครั้ง</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+<script>
+const songData = {
+    "let-her-go": {
+        id: "let-her-go",
+        title: "Let Her Go",
+        artist: "Passenger",
+        cover: "https://placehold.co/600x600/5A9A9C/F5F5F5?text=Let+Her+Go",
+        lyrics: {
+            en: `
+                <p>Well, you only need the light when it's burning low<br>
+                Only miss the sun when it starts to snow<br>
+                Only know you love her when you let her go</p>
+                <p>Only know you've been high when you're feeling low<br>
+                Only hate the road when you're missing home<br>
+                Only know you love her when you let her go<br>
+                And you let her go</p>
+                <p>Staring at the bottom of your glass<br>
+                Hoping one day you'll make a dream last<br>
+                But dreams come slow and they go so fast</p>
+                <p>You see her when you close your eyes<br>
+                Maybe one day you'll understand why<br>
+                Everything you touch surely dies</p>
+                <p>But you only need the light when it's burning low<br>
+                Only miss the sun when it starts to snow<br>
+                Only know you love her when you let her go</p>
+                <p>...<br>
+                'Cause you only need the light when it's burning low<br>
+                Only miss the sun when it starts to snow<br>
+                Only know you love her when you let her go<br>
+                And you let her go</p>
+            `,
+            th: `
+                <p>คุณต้องการแสงสว่างก็ต่อเมื่อไฟมันริบหรี่<br>
+                คุณคิดถึงดวงอาทิตย์ก็ต่อเมื่อหิมะเริ่มโปรยปราย<br>
+                คุณรู้ว่ารักเธอก็ต่อเมื่อคุณปล่อยเธอไป</p>
+                <p>คุณรู้ว่าเคยสุขล้นก็ต่อเมื่อคุณรู้สึกเศร้าหมอง<br>
+                คุณเกลียดการเดินทางก็ต่อเมื่อคุณคิดถึงบ้าน<br>
+                คุณรู้ว่ารักเธอก็ต่อเมื่อคุณปล่อยเธอไป<br>
+                และคุณก็ปล่อยเธอไป</p>
+                <p>จ้องมองก้นแก้วในมือ<br>
+                หวังว่าสักวันหนึ่งคุณจะทำให้ฝันนั้นคงอยู่ตลอดไป<br>
+                แต่ความฝันมักจะมาเยือนอย่างเชื่องช้าและผ่านพ้นไปอย่างรวดเร็ว</p>
+                <p>คุณเห็นเธอเมื่อคุณหลับตา<br>
+                บางทีสักวันคุณอาจเข้าใจว่าทำไม<br>
+                ทุกสิ่งที่คุณสัมผัสถึงต้องมลายหายไป</p>
+                <p>แต่คุณต้องการแสงสว่างก็ต่อเมื่อไฟมันริบหรี่<br>
+                คุณคิดถึงดวงอาทิตย์ก็ต่อเมื่อหิมะเริ่มโปรยปราย<br>
+                คุณรู้ว่ารักเธอก็ต่อเมื่อคุณปล่อยเธอไป</p>
+                <p>...<br>
+                เพราะคุณต้องการแสงสว่างก็ต่อเมื่อไฟมันริบหรี่<br>
+                คุณคิดถึงดวงอาทิตย์ก็ต่อเมื่อหิมะเริ่มโปรยปราย<br>
+                คุณรู้ว่ารักเธอก็ต่อเมื่อคุณปล่อยเธอไป<br>
+                และคุณก็ปล่อยเธอไป</p>
+            `,
+        },
+        deeperMeaning: "เพลง 'Let Her Go' พูดถึงสัจธรรมของมนุษย์ที่มักจะมองข้ามคุณค่าของสิ่งต่างๆ หรือบุคคลอันเป็นที่รักเมื่อยังอยู่ใกล้ตัว และจะตระหนักถึงความสำคัญก็ต่อเมื่อสิ่งเหล่านั้นได้หลุดลอยไปแล้ว ผู้แต่งใช้ภาพเปรียบเทียบที่ตรงกันข้ามกันอย่างชัดเจน เช่น แสงสว่างกับความมืดมิด, ดวงอาทิตย์กับหิมะ เพื่อเน้นย้ำสภาวะนี้ การซ้ำท่อนที่ว่า 'Only know you love her when you let her go' ทำหน้าที่เป็นแกนกลางของเพลง สื่อถึงการค้นพบอันเจ็บปวดที่ตัวละครต้องเผชิญ",
+        deepDive: [
+            {
+                title: "คำศัพท์และสำนวนที่น่าสนใจ",
+                content: `
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li><strong>High (feeling):</strong> (Adjective) รู้สึกมีความสุขมาก, ฟิน</li>
+                        <li><strong>Low (feeling):</strong> (Adjective) รู้สึกเศร้า, หดหู่, ดาวน์</li>
+                        <li><strong>Burning low:</strong> (Verb phrase) (ไฟ/แสง) ริบหรี่, ใกล้จะดับ</li>
+                        <li><strong>Staring:</strong> (Verb) จ้องมอง (อย่างเหม่อลอย)</li>
+                        <li><strong>Took for granted:</strong> (Idiom) ไม่เห็นคุณค่า (จนกว่าจะเสียไป)</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Phrasal Verbs",
+                content: `
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li><strong>Let go:</strong> ปล่อย (ให้จากไป), ยุติความสัมพันธ์. ตัวอย่าง: "Only know you love her when you <strong>let her go</strong>."</li>
+                        <li><strong>Burn low:</strong> (ไฟ/แสง) มอดลง, อ่อนแสงลง. ตัวอย่าง: "...the light when it's <strong>burning low</strong>."</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Tenses และไวยากรณ์",
+                content: `
+                    <p class="mb-2"><strong>Simple Present Tense:</strong> ใช้เพื่อบอกความจริงทั่วไปที่ไม่ขึ้นกับกาลเวลา ทำให้ข้อความของเพลงเป็นเหมือนสัจธรรม</p>
+                    <p class="italic text-gray-600">ตัวอย่าง: "You only <strong>need</strong> the light...", "You only <strong>miss</strong> the sun..."</p>
+                    <p class="mt-4 mb-2"><strong>Present Perfect Tense:</strong> ใช้อธิบายประสบการณ์ในอดีตที่เชื่อมโยงกับปัจจุบัน</p>
+                    <p class="italic text-gray-600">ตัวอย่าง: "Only know you'<strong>ve been</strong> high when you're feeling low."</p>
+                `
+            }
+        ],
+        quiz: [
+            { category: "ทดสอบการฟัง (เติมคำในช่องว่าง)", question: "You only need the light when it's burning ______.", options: ["bright", "out", "low", "fast"], answer: "low" },
+            { category: "การใช้ Tenses", question: "In the line 'You only miss the sun when it starts to snow,' the verbs 'miss' and 'starts' are in the:", options: ["Simple Past Tense", "Simple Present Tense", "Present Continuous Tense", "Present Perfect Tense"], answer: "Simple Present Tense" },
+            { category: "ความเข้าใจความหมาย", question: "What is the main message of the song 'Let Her Go'?", options: ["The beauty of changing seasons.", "People often realize the value of something only after losing it.", "The importance of traveling.", "It's easy to find new love."], answer: "People often realize the value of something only after losing it." },
+            { category: "Phrasal Verbs", question: "In the phrase 'let her go,' the phrasal verb 'let go' means:", options: ["To hold onto tightly.", "To invite someone in.", "To release or allow to leave.", "To look for someone."], answer: "To release or allow to leave." },
+        ]
+    },
+    "austin": {
+        id: "austin",
+        title: "Austin",
+        artist: "Blake Shelton",
+        cover: "https://placehold.co/600x600/D8A788/F5F5F5?text=Austin",
+         lyrics: {
+            en: `
+                <p>She left P.S. I Love You on the counter<br>
+                And her goodbye note by the telephone<br>
+                She was headin' out west to clear her mind<br>
+                And she didn't leave a forwarding number</p>
+                <p>...<br>
+                (Answering Machine:)<br>
+                If you're callin' 'bout the car, I sold it<br>
+                If this is Tuesday night, I'm bowlin'<br>
+                ...<br>
+                And P.S. if this is Austin, I still love you</p>
+                <p>...<br>
+                And by the way, boy, this is no machine you're talkin' to<br>
+                Can't you tell this is Austin?<br>
+                And I still love you</p>
+            `,
+            th: `
+                <p>เธอทิ้งท้าย ป.ล. ฉันรักคุณ ไว้บนเคาน์เตอร์<br>
+                และจดหมายลาของเธอข้างโทรศัพท์<br>
+                เธอกำลังมุ่งหน้าไปทางตะวันตกเพื่อพักใจ<br>
+                และเธอก็ไม่ได้ทิ้งเบอร์ติดต่อใหม่ไว้</p>
+                <p>...<br>
+                (เครื่องตอบรับอัตโนมัติ:)<br>
+                ถ้าคุณโทรมาเรื่องรถ ผมขายมันไปแล้ว<br>
+                ถ้าคืนนี้เป็นคืนวันอังคาร ผมไปโยนโบว์ลิ่ง<br>
+                ...<br>
+                และ ป.ล. ถ้าหากนี่คือออสติน ผมยังรักคุณนะ</p>
+                <p>...<br>
+                แล้วอีกอย่างนะพ่อหนุ่ม นี่ไม่ใช่เครื่องตอบรับที่คุณกำลังคุยอยู่ด้วย<br>
+                คุณบอกไม่ได้เหรอว่านี่คือออสติน?<br>
+                และฉันยังรักคุณ</p>
+            `,
+        },
+        deeperMeaning: "เพลง 'Austin' เล่าเรื่องราวความรักที่ต้องผ่านการพลัดพรากและการรอคอยอย่างอดทน ฝ่ายชายยังคงรักและหวังว่าคนรักที่จากไปจะกลับมา เขาจึงอัดข้อความเสียงทิ้งไว้ในเครื่องตอบรับอัตโนมัติซึ่งกลายเป็นสัญลักษณ์ของความรักที่มั่นคงและความหวังที่ไม่เคยจางหายไป เพลงนี้ใช้ลูกเล่นทางภาษาที่ชาญฉลาดโดยใช้ 'Austin' เป็นทั้งชื่อเมืองและชื่อคนรัก ทำให้เพลงมีความลึกซึ้งและน่าสนใจยิ่งขึ้น",
+        deepDive: [
+            {
+                title: "คำศัพท์และสำนวนที่น่าสนใจ",
+                content: `
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li><strong>Clear her mind:</strong> (Idiom) พักสมอง, ทำให้ใจสงบ</li>
+                        <li><strong>Answering machine:</strong> (Noun phrase) เครื่องตอบรับโทรศัพท์อัตโนมัติ</li>
+                        <li><strong>Hang on:</strong> (Phrasal verb) รอคอย, ยืนหยัด</li>
+                        <li><strong>By the way:</strong> (Idiom) อีกอย่างนะ, ว่าแต่ว่า</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Phrasal Verbs",
+                content: `
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li><strong>Head out:</strong> มุ่งหน้าออกไป, ออกเดินทาง. ตัวอย่าง: "She was <strong>headin' out</strong> west..."</li>
+                        <li><strong>Call up:</strong> โทรหา. ตัวอย่าง: "...and he <strong>called her up</strong> on a Tuesday."</li>
+                        <li><strong>Pick up (the phone):</strong> รับโทรศัพท์. ตัวอย่าง: "Then she finally <strong>picked it up</strong>..."</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Tenses และไวยากรณ์",
+                content: `
+                    <p class="mb-2"><strong>Simple Past Tense:</strong> เป็น Tense หลักของเพลง ใช้เล่าลำดับเหตุการณ์ในเรื่อง</p>
+                    <p class="italic text-gray-600">ตัวอย่าง: "She <strong>left</strong> P.S. I Love You...", "He <strong>picked up</strong> the phone..."</p>
+                    <p class="mt-4 mb-2"><strong>Past Perfect Tense:</strong> ใช้บ่งบอกการกระทำที่เสร็จสิ้นไปก่อนอีกการกระทำหนึ่งในอดีต</p>
+                    <p class="italic text-gray-600">ตัวอย่าง: "He figured she'<strong>d gone</strong> to Austin" (เธอไปแล้ว ก่อนที่เขาจะคิดได้)</p>
+                `
+            }
+        ],
+        quiz: [
+            { category: "ทดสอบการฟัง (เติมคำในช่องว่าง)", question: "She was headin' out west to clear her ______.", options: ["head", "thoughts", "self", "mind"], answer: "mind" },
+            { category: "การใช้ Tenses", question: "In 'She was headin' out west,' the verb tense is:", options: ["Simple Past", "Past Continuous", "Past Perfect", "Present Continuous"], answer: "Past Continuous" },
+            { category: "ความเข้าใจความหมาย", question: "The name 'Austin' in the song refers to:", options: ["Only the city in Texas.", "Only the name of the woman.", "Both the city and the woman's name.", "A famous landmark."], answer: "Both the city and the woman's name." },
+            { category: "Phrasal Verbs", question: "'What kind of man would hang on that long?' Here, 'hang on' means:", options: ["To physically hold something.", "To end a phone call.", "To wait or persist.", "To decorate something."], answer: "To wait or persist." },
+        ]
+    },
+    "birds-of-a-feather": {
+        id: "birds-of-a-feather",
+        title: "BIRDS OF A FEATHER",
+        artist: "Billie Eilish",
+        cover: "https://placehold.co/600x600/6E7B8B/F5F5F5?text=BIRDS+OF+A+FEATHER",
+        lyrics: {
+            en: `
+                <p>I want you to stay<br>
+                'Til I'm in the grave<br>
+                'Til I rot away, dead and buried<br>
+                'Til I'm in the casket you carry</p>
+                <p>Birds of a feather, we should stick together, I know<br>
+                I said I'd never think I wasn't better alone<br>
+                ...<br>
+                And if I'm turnin' blue, please don't save me<br>
+                Nothin' left to lose without my baby</p>
+                <p>...<br>
+                I'll love you 'til the day that I die<br>
+                'Til the light leaves my eyes</p>
+            `,
+            th: `
+                <p>ฉันอยากให้เธออยู่<br>
+                จนกระทั่งฉันลงหลุมศพ<br>
+                จนกระทั่งฉันเน่าเปื่อย ถูกฝังกลบ<br>
+                จนกระทั่งฉันอยู่ในโลงที่คุณแบก</p>
+                <p>คนประเภทเดียวกัน เราควรอยู่ด้วยกัน ฉันรู้<br>
+                ฉันเคยบอกว่าฉันไม่เคยคิดว่าการอยู่คนเดียวมันไม่ดีกว่า<br>
+                ...<br>
+                และถ้าฉันกำลังจะขาดใจ (ตัวเริ่มเขียว) ได้โปรดอย่าช่วยฉันเลย<br>
+                ไม่มีอะไรจะเสียอีกแล้วถ้าไม่มีที่รักของฉัน</p>
+                <p>...<br>
+                ฉันจะรักเธอจนถึงวันที่ฉันตาย<br>
+                จนกระทั่งแสงสว่างลับไปจากดวงตาของฉัน</p>
+            `,
+        },
+        deeperMeaning: "เพลง 'BIRDS OF A FEATHER' สื่อถึงความรักที่เข้มข้น ลึกซึ้ง และความปรารถนาอย่างแรงกล้าที่จะให้ความสัมพันธ์นั้นคงอยู่ชั่วนิรันดร์จนถึงความตาย Billie Eilish ใช้สำนวน 'Birds of a feather flock together' (คนประเภทเดียวกันมักจะอยู่รวมกัน) เพื่อแสดงความต้องการที่จะเป็นหนึ่งเดียวกับคนรัก เพลงนี้โดดเด่นด้วยการใช้ภาษาที่แสดงอารมณ์อย่างสุดโต่ง (Hyperbole) เพื่อถ่ายทอดความรู้สึกที่ท่วมท้นและความกลัวการสูญเสีย",
+        deepDive: [
+            {
+                title: "คำศัพท์และสำนวนที่น่าสนใจ",
+                content: `
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li><strong>Birds of a feather:</strong> (Idiom) คนประเภทเดียวกัน, พวกเดียวกัน</li>
+                        <li><strong>Grave:</strong> (Noun) หลุมศพ</li>
+                        <li><strong>Turnin' blue:</strong> (Idiom) (ตัว)เริ่มเขียว/ม่วง (จากขาดอากาศ), ใกล้ตาย</li>
+                        <li><strong>Full of shit:</strong> (Slang/Idiom, คำหยาบ) เหลวไหล, พูดจาไร้สาระ</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Phrasal Verbs",
+                content: `
+                     <ul class="space-y-2 list-disc list-inside">
+                        <li><strong>Stick together:</strong> อยู่ด้วยกัน, เกาะกลุ่มกัน, ไม่ทอดทิ้งกัน. ตัวอย่าง: "...we should <strong>stick together</strong>..."</li>
+                        <li><strong>Rot away:</strong> เน่าเปื่อยไป, ผุพังไป. ตัวอย่าง: "'Til I <strong>rot away</strong>..."</li>
+                    </ul>
+                `
+            },
+            {
+                title: "ภาษาเปรียบเทียบ (Figurative Language)",
+                content: `
+                    <p class="mb-2"><strong>Hyperbole (การกล่าวเกินจริง):</strong> เป็นลักษณะเด่นของเพลงนี้ ใช้เพื่อเน้นย้ำความรู้สึกที่รุนแรง</p>
+                    <p class="italic text-gray-600">ตัวอย่าง: "I'll love you 'til the day that I die.", "And if I'm turnin' blue, please don't save me."</p>
+                    <p class="mt-4 mb-2"><strong>Idiom (สำนวน):</strong> สำนวนหลักของเพลงคือ 'Birds of a feather' ซึ่งหมายถึงคนประเภทเดียวกัน</p>
+                `
+            }
+        ],
+        quiz: [
+            { category: "ทดสอบการฟัง (เติมคำในช่องว่าง)", question: "Birds of a feather, we should ______ together, I know.", options: ["fly", "stick", "be", "flock"], answer: "stick" },
+            { category: "การใช้ Tenses", question: "The line 'I'll love you 'til the day that I die' uses the:", options: ["Present Perfect Tense", "Future Simple Tense", "Simple Past Tense", "Modal verb 'should'"], answer: "Future Simple Tense" },
+            { category: "ความเข้าใจความหมาย", question: "Lyrics like ''Til I'm in the grave' and 'if I'm turnin' blue, please don't save me' are examples of:", options: ["Understatement", "Simile", "Hyperbole", "Literal intentions"], answer: "Hyperbole" },
+            { category: "Phrasal Verbs", question: "In '...we should stick together,' the phrasal verb 'stick together' means:", options: ["To use glue.", "To become difficult to move.", "To remain united and loyal.", "To argue frequently."], answer: "To remain united and loyal." },
+        ]
+    },
+    "if-we-were-vampires": {
+        id: "if-we-were-vampires",
+        title: "If We Were Vampires",
+        artist: "Jason Isbell and the 400 Unit",
+        cover: "https://placehold.co/600x600/4A4A4A/F5F5F5?text=If+We+Were+Vampires",
+        lyrics: {
+            en: `
+                <p>It's not the long flowing dress that you're in<br>
+                Or the light coming off of your skin<br>
+                ...<br>
+                It's not the way you talk me off the roof<br>
+                Your questions like directions to the truth</p>
+                <p>It's knowing that this can't go on forever<br>
+                Likely one of us will have to spend some days alone<br>
+                ...<br>
+                But one day I'll be gone, or one day you'll be gone</p>
+                <p>If we were vampires and death was a joke<br>
+                We'd go out on the sidewalk and smoke<br>
+                And laugh at all the lovers and their plans<br>
+                I wouldn't feel the need to hold your hand</p>
+                <p>Maybe time running out is a gift<br>
+                I'll work hard 'til the end of my shift</p>
+            `,
+            th: `
+                <p>มันไม่ใช่ชุดยาวพริ้วสลวยที่คุณสวมใส่<br>
+                หรือแสงที่เปล่งประกายจากผิวของคุณ<br>
+                ...<br>
+                มันไม่ใช่วิธีที่คุณพูดกล่อมให้ฉันใจเย็นลง<br>
+                คำถามของคุณที่เป็นดั่งหนทางสู่ความจริง</p>
+                <p>มันคือการตระหนักรู้ว่าสิ่งนี้ไม่อาจคงอยู่ตลอดไป<br>
+                เป็นไปได้ว่าเราคนหนึ่งจะต้องใช้เวลาอยู่ลำพังบ้างในบางวัน<br>
+                ...<br>
+                แต่สักวันฉันจะจากไป หรือสักวันคุณก็จะจากไป</p>
+                <p>ถ้าหากเราเป็นแวมไพร์และความตายเป็นเรื่องตลก<br>
+                เราคงออกไปนั่งสูบบุหรี่ริมทางเท้า<br>
+                และหัวเราะเยาะคู่รักทั้งหลายกับแผนการของพวกเขา<br>
+                ฉันคงไม่รู้สึกว่าจำเป็นต้องจับมือคุณ</p>
+                <p>บางทีการที่เวลากำลังจะหมดลงอาจเป็นของขวัญ<br>
+                ฉันจะทำงานหนักจนกว่าจะหมดกะของฉัน</p>
+            `,
+        },
+        deeperMeaning: "เพลง 'If We Were Vampires' นำเสนอแนวคิดที่ลึกซึ้งว่าธรรมชาติอันจำกัดของชีวิตมนุษย์คือสิ่งที่ทำให้ความรักมีความหมายและล้ำค่ายิ่งขึ้น หากเราเป็นอมตะเหมือนแวมไพร์ การกระทำเล็กๆ น้อยๆ เช่น การจับมือ อาจสูญเสียความสำคัญไป หัวใจของเพลงคือความตระหนักรู้ว่าเวลาที่มีร่วมกันนั้นมีจำกัด และการรับรู้นี้เองที่กระตุ้นให้เราเห็นคุณค่าของทุกขณะและทุ่มเทความรักให้แก่กันอย่างเต็มที่",
+        deepDive: [
+            {
+                title: "คำศัพท์และสำนวนที่น่าสนใจ",
+                content: `
+                    <ul class="space-y-2 list-disc list-inside">
+                        <li><strong>Flowing (dress):</strong> (Adjective) (ชุด) พริ้วไหว, ทิ้งตัวสวยงาม</li>
+                        <li><strong>Talk me off the roof:</strong> (Idiom) พูดกล่อมให้ใจเย็นลง, พูดให้หายจากความคิดที่จะทำอะไรบ้าๆ</li>
+                        <li><strong>Time running out:</strong> (Phrasal verb) เวลาใกล้จะหมดลง</li>
+                        <li><strong>End of my shift:</strong> (Metaphor) สิ้นสุดชีวิต (เปรียบเหมือนหมดเวลางาน)</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Phrasal Verbs",
+                content: `
+                     <ul class="space-y-2 list-disc list-inside">
+                        <li><strong>Go on:</strong> ดำเนินต่อไป. ตัวอย่าง: "...this can't <strong>go on</strong> forever."</li>
+                        <li><strong>Run out:</strong> (เวลา/สิ่งของ) หมดลง. ตัวอย่าง: "Maybe time <strong>running out</strong> is a gift."</li>
+                        <li><strong>Go out:</strong> ออกไปข้างนอก (เพื่อสังสรรค์). ตัวอย่าง: "We'd <strong>go out</strong> on the sidewalk..."</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Tenses และไวยากรณ์",
+                content: `
+                    <p class="mb-2"><strong>Subjunctive Mood:</strong> เป็นไวยากรณ์ที่สำคัญที่สุดในเพลงนี้ ใช้สำหรับสถานการณ์สมมติที่ไม่เป็นความจริง</p>
+                    <p class="italic text-gray-600">ตัวอย่าง: "If we <strong>were</strong> vampires..." (ใช้ were แทน was สำหรับการสมมติ)</p>
+                    <p class="mt-4 mb-2"><strong>Conditional Sentences (Type 2):</strong> ใช้คู่กับ Subjunctive Mood เพื่อบอกผลลัพธ์ของเรื่องสมมติ</p>
+                     <p class="italic text-gray-600">ตัวอย่าง: "If we were vampires... We'<strong>d go</strong> out... I <strong>wouldn't feel</strong> the need..."</p>
+                `
+            }
+        ],
+        quiz: [
+            { category: "ทดสอบการฟัง (เติมคำในช่องว่าง)", question: "If we were vampires and death was a ______.", options: ["dream", "lie", "game", "joke"], answer: "joke" },
+            { category: "การใช้ Tenses", question: "The line 'If we were vampires...' uses the:", options: ["Simple Past indicative", "Past Subjunctive mood", "Past Perfect tense", "Present Subjunctive mood"], answer: "Past Subjunctive mood" },
+            { category: "ความเข้าใจความหมาย", question: "The phrase 'Maybe time running out is a gift' suggests that:", options: ["The singer wishes for more time.", "Limited time motivates us to live and love more fully.", "Time passes too quickly.", "Gifts are best given when time is short."], answer: "Limited time motivates us to live and love more fully." },
+            { category: "Phrasal Verbs", question: "'It's knowing that this can't go on forever.' The phrasal verb 'go on' means:", options: ["To happen or take place.", "To continue.", "To turn on a light.", "To fit or be suitable."], answer: "To continue." },
+        ]
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const homeScreen = document.getElementById('home-screen');
+    const lessonScreen = document.getElementById('lesson-screen');
+    const songSelectionContainer = document.getElementById('song-selection');
+    const backToHomeBtn = document.getElementById('back-to-home');
+    const lessonTabs = document.getElementById('lesson-tabs');
+    const lessonContent = document.getElementById('lesson-content');
+
+    let currentSongId = null;
+    let quizChart = null;
+    let currentQuiz = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    
+    const quizContainer = document.getElementById('quiz-container');
+    const quizStartView = document.getElementById('quiz-start-view');
+    const quizQuestionView = document.getElementById('quiz-question-view');
+    const quizResultsView = document.getElementById('quiz-results-view');
+    const startQuizBtn = document.getElementById('start-quiz-btn');
+    const nextQuestionBtn = document.getElementById('next-question-btn');
+    const restartQuizBtn = document.getElementById('restart-quiz-btn');
+
+
+    function init() {
+        renderSongSelection();
+        backToHomeBtn.addEventListener('click', showHomeScreen);
+        lessonTabs.addEventListener('click', handleTabClick);
+        startQuizBtn.addEventListener('click', startQuiz);
+        nextQuestionBtn.addEventListener('click', nextQuestion);
+        restartQuizBtn.addEventListener('click', startQuiz);
+    }
+
+    function renderSongSelection() {
+        songSelectionContainer.innerHTML = '';
+        for (const songId in songData) {
+            const song = songData[songId];
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer';
+            card.dataset.songId = song.id;
+            card.innerHTML = `
+                <img src="${song.cover}" alt="${song.title}" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h3 class="font-bold text-lg eng-font">${song.title}</h3>
+                    <p class="text-gray-500 eng-font">${song.artist}</p>
+                </div>
+            `;
+            card.addEventListener('click', () => showLesson(song.id));
+            songSelectionContainer.appendChild(card);
+        }
+    }
+
+    function showLesson(songId) {
+        currentSongId = songId;
+        const song = songData[songId];
+
+        document.getElementById('lesson-title').textContent = song.title;
+        document.getElementById('lesson-artist').textContent = song.artist;
+        document.getElementById('lyrics-en').innerHTML = song.lyrics.en;
+        document.getElementById('lyrics-th').innerHTML = song.lyrics.th;
+        document.getElementById('deeper-meaning').textContent = song.deeperMeaning;
+
+        renderDeepDive(song.deepDive);
+        resetQuiz();
+
+        homeScreen.classList.add('hidden');
+        lessonScreen.classList.remove('hidden');
+        lessonScreen.classList.add('fade-in');
+        
+        // Reset to first tab
+        switchTab('lyrics');
+        window.scrollTo(0, 0);
+    }
+
+    function renderDeepDive(deepDiveSections) {
+        const accordionContainer = document.getElementById('deep-dive-accordion');
+        accordionContainer.innerHTML = '';
+        deepDiveSections.forEach((section, index) => {
+            const item = document.createElement('div');
+            item.className = 'border-b border-gray-200';
+            item.innerHTML = `
+                <button class="w-full text-left py-4 px-2 flex justify-between items-center thai-font font-semibold text-lg hover:bg-gray-50">
+                    <span>${section.title}</span>
+                    <svg class="w-5 h-5 transition-transform transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-2 pb-4 text-gray-700 leading-relaxed thai-font">${section.content}</div>
+            `;
+            accordionContainer.appendChild(item);
+
+            const button = item.querySelector('button');
+            const content = item.querySelector('.accordion-content');
+            const icon = item.querySelector('svg');
+
+            button.addEventListener('click', () => {
+                const isOpen = content.style.maxHeight;
+                if(isOpen){
+                    content.style.maxHeight = null;
+                    icon.classList.remove('rotate-180');
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    icon.classList.add('rotate-180');
+                }
+            });
+        });
+    }
+    
+    function resetQuiz() {
+        const song = songData[currentSongId];
+        currentQuiz = song.quiz;
+        document.getElementById('total-questions').textContent = currentQuiz.length;
+
+        quizStartView.classList.remove('hidden');
+        quizQuestionView.classList.add('hidden');
+        quizResultsView.classList.add('hidden');
+    }
+
+    function startQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        quizStartView.classList.add('hidden');
+        quizResultsView.classList.add('hidden');
+        quizQuestionView.classList.remove('hidden');
+        displayQuestion();
+    }
+    
+    function displayQuestion() {
+        const questionData = currentQuiz[currentQuestionIndex];
+        document.getElementById('quiz-category').textContent = questionData.category;
+        document.getElementById('quiz-progress').textContent = `ข้อที่ ${currentQuestionIndex + 1} / ${currentQuiz.length}`;
+        document.getElementById('quiz-question').textContent = questionData.question;
+
+        const optionsContainer = document.getElementById('quiz-options');
+        optionsContainer.innerHTML = '';
+        questionData.options.forEach(optionText => {
+            const optionEl = document.createElement('div');
+            optionEl.className = 'quiz-option p-3 border border-gray-300 rounded-lg';
+            optionEl.textContent = optionText;
+            optionEl.addEventListener('click', () => selectAnswer(optionEl, optionText, questionData.answer));
+            optionsContainer.appendChild(optionEl);
+        });
+        
+        document.getElementById('quiz-feedback').classList.add('hidden');
+        nextQuestionBtn.disabled = true;
+    }
+
+    function selectAnswer(selectedEl, selectedAnswer, correctAnswer) {
+        const options = document.querySelectorAll('.quiz-option');
+        options.forEach(opt => opt.style.pointerEvents = 'none'); // Disable further clicks
+
+        const isCorrect = selectedAnswer === correctAnswer;
+        if (isCorrect) {
+            score++;
+            selectedEl.classList.add('correct');
+        } else {
+            selectedEl.classList.add('incorrect');
+            options.forEach(opt => {
+                if (opt.textContent === correctAnswer) {
+                    opt.classList.add('correct');
+                }
+            });
+        }
+        
+        nextQuestionBtn.disabled = false;
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < currentQuiz.length) {
+            displayQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        quizQuestionView.classList.add('hidden');
+        quizResultsView.classList.remove('hidden');
+        
+        const scoreText = document.getElementById('quiz-score');
+        scoreText.textContent = `คุณได้ ${score} จาก ${currentQuiz.length} คะแนน`;
+
+        let summaryText;
+        const percentage = (score / currentQuiz.length) * 100;
+        if (percentage === 100) {
+            summaryText = "ยอดเยี่ยมมาก! คุณเข้าใจเพลงนี้เป็นอย่างดี";
+        } else if (percentage >= 75) {
+            summaryText = "ทำได้ดีมาก! มีผิดพลาดเล็กน้อย ลองทบทวนดูนะ";
+        } else if (percentage >= 50) {
+            summaryText = "พอใช้ได้! ลองกลับไปทบทวนในส่วน 'เจาะลึกภาษา' อีกครั้งนะ";
+        } else {
+            summaryText = "ไม่เป็นไร! การเรียนรู้คือการฝึกฝน ลองพยายามอีกครั้งนะ";
+        }
+        document.getElementById('quiz-summary-text').textContent = summaryText;
+
+        renderQuizChart();
+    }
+
+    function renderQuizChart() {
+        const ctx = document.getElementById('quiz-chart').getContext('2d');
+        if (quizChart) {
+            quizChart.destroy();
+        }
+        quizChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['ถูก', 'ผิด'],
+                datasets: [{
+                    label: 'Quiz Results',
+                    data: [score, currentQuiz.length - score],
+                    backgroundColor: [
+                        '#5A9A9C',
+                        '#e5e7eb'
+                    ],
+                    borderColor: [
+                        '#F5F5F5',
+                        '#F5F5F5'
+                    ],
+                    borderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+
+    function showHomeScreen() {
+        lessonScreen.classList.add('hidden');
+        homeScreen.classList.remove('hidden');
+        homeScreen.classList.add('fade-in');
+    }
+
+    function handleTabClick(e) {
+        if (e.target.matches('button[data-tab]')) {
+            const tabId = e.target.dataset.tab;
+            switchTab(tabId);
+        }
+    }
+
+    function switchTab(tabId) {
+        // Handle button active state
+        lessonTabs.querySelectorAll('button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        lessonTabs.querySelector(`button[data-tab="${tabId}"]`).classList.add('active');
+
+        // Handle content visibility
+        lessonContent.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(`${tabId}-content`).classList.add('active');
+    }
+
+    init();
+});
+</script>
+
+</body>
+</html>

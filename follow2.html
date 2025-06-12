@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง "I Will Follow You into the Dark" - Death Cab for Cutie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Muted Twilight -->
+    <!-- Application Structure Plan: Using the consistent 4-tab SPA model (Intro, Lyrics, Analysis, Quiz). The design focuses on the song's core theme: love confronting mortality from a skeptical viewpoint. The interactive elements are tailored to explore this unique perspective. -->
+    <!-- Visualization & Content Choices: 1. Lyrics: Report Info -> Lyrics, translation, analysis of religious vs. secular love. Goal -> Explore/Inform. Viz -> Clickable list with modals. Interaction -> Click-to-reveal. Justification -> Perfect for dissecting the song's simple yet profound verses. Library -> HTML/CSS/JS. 2. Emotional Analysis: Report Info -> The song's complex emotional landscape. Goal -> Analyze/Inform. Viz -> A radar chart titled "Emotional Compass" to map out Love, Fear, Skepticism, and Commitment. Justification -> Offers a more nuanced emotional visualization than a simple bar or pie chart. Library -> Chart.js. 3. Key Concepts: Report Info -> Agnostic love song, "the dark" metaphor, juxtaposition of imagery. Goal -> Organize/Learn. Viz -> Flip cards. Interaction -> Click-to-flip. Justification -> Best for explaining the abstract philosophical and literary concepts. Library -> HTML/CSS/JS. 4. Quiz: Report Info -> Comprehension and lyric recall questions. Goal -> Test/Reinforce. Note: Implemented user's request for 10 fill-in-the-blank questions for a total of 20 quiz items. Library -> HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #EAEAEA; /* Light Gray */
+            color: #2C3E50; /* Slate Gray */
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            color: #7F8C8D; /* Gray */
+        }
+        .nav-btn.active, .nav-btn:hover {
+            color: #34495E; /* Dark Slate */
+            border-bottom-color: #34495E;
+        }
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .lyric-line:hover {
+            background-color: #ECF0F1;
+        }
+        .quiz-option {
+            transition: background-color 0.2s ease-in-out;
+            border-color: #BDC3C7;
+        }
+        .quiz-option:hover {
+            background-color: #ECF0F1;
+        }
+        .quiz-option.correct {
+            background-color: #D4EDDA;
+            border-color: #A3C9A8;
+        }
+        .quiz-option.incorrect {
+            background-color: #F8D7DA;
+            border-color: #D9A0A7;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal-bg {
+             background-color: rgba(44, 62, 80, 0.7);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="lyric-modal" class="fixed inset-0 modal-bg flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-[#EAEAEA] rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 md:p-8 relative border border-[#BDC3C7]">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl">&times;</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#2C3E50]">I Will Follow You into the Dark</h1>
+            <p class="text-xl text-[#34495E] mt-2">โดย Death Cab for Cutie</p>
+            <p class="mt-4 text-lg text-[#7F8C8D]">แอปพลิเคชันวิเคราะห์เพลงเชิงโต้ตอบ</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-[#BDC3C7] mb-10 space-x-4 md:space-x-8">
+            <button id="nav-intro" class="nav-btn py-2 px-1 md:px-4 text-lg active" onclick="showSection('intro')">บทนำ</button>
+            <button id="nav-lyrics" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('lyrics')">เนื้อเพลง</button>
+            <button id="nav-analysis" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('analysis')">วิเคราะห์</button>
+            <button id="nav-quiz" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('quiz')">แบบทดสอบ</button>
+        </nav>
+
+        <main>
+            <section id="intro" class="content-section space-y-6 leading-relaxed">
+                <p class="text-lg text-[#2C3E50]">ยินดีต้อนรับสู่การสำรวจ "I Will Follow You into the Dark" ผลงานเพลงอะคูสติกที่เรียบง่ายแต่ทรงพลังและเป็นที่จดจำมากที่สุดเพลงหนึ่งของ Death Cab for Cutie แอปพลิเคชันนี้จะนำทางคุณไปสู่หัวใจของบทเพลง ที่ซึ่งความรักเผชิญหน้ากับความตายและความไม่แน่นอนของชีวิตหลังความตาย ส่วนนี้จะให้ภาพรวมของเพลงและแก่นเรื่องหลัก เพื่อให้คุณเข้าใจว่าทำไมเพลงรักบทนี้ถึงแตกต่างและสัมผัสหัวใจผู้คนมากมาย</p>
+                <div class="bg-white/50 p-6 rounded-lg shadow-md border border-[#BDC3C7]">
+                    <h2 class="text-2xl font-bold text-[#34495E] mb-4">แก่นเรื่องหลัก: รักแท้ในความมืดมิด</h2>
+                    <p class="text-[#2C3E50]">หัวใจของเพลงนี้คือคำมั่นสัญญาที่อยู่เหนือความเชื่อทางศาสนาและความกลัวความตาย Ben Gibbard ผู้แต่งเพลง ไม่ได้เสนอภาพสวรรค์ที่สวยงามหรือนรกที่น่าสะพรึงกลัว แต่เขากลับนำเสนอ "ความมืดมิด" (the dark) ซึ่งเป็นสภาวะของความว่างเปล่าและสิ่งที่ไม่รู้จัก เพลงนี้ไม่ได้ยืนยันว่ารักจะเอาชนะความตายได้ แต่เป็นการประกาศอย่างแน่วแน่ว่าจะไม่ยอมปล่อยให้คนรักต้องเผชิญหน้ากับความว่างเปล่านั้นเพียงลำพัง มันคือเพลงรักของผู้ไม่เชื่อในพระเจ้า (Agnostic Love Song) ที่ให้คุณค่ากับการมีกันและกันในวาระสุดท้าย มากกว่าความหวังลมๆ แล้งๆ ในชีวิตหลังความตาย</p>
+                </div>
+            </section>
+
+            <section id="lyrics" class="content-section hidden">
+                 <p class="text-lg mb-6 text-center text-[#2C3E50]">สำรวจคำมั่นสัญญาที่จะติดตามกันไปสู่ความมืดมิด คลิกที่แต่ละท่อนเพื่อดูคำแปลและความหมายเบื้องหลังมุมมองความรักและความตายอันเป็นเอกลักษณ์ของเพลงนี้</p>
+                <div id="lyrics-container" class="space-y-4 bg-white/50 p-6 rounded-lg shadow-md border border-[#BDC3C7]">
+                </div>
+            </section>
+
+            <section id="analysis" class="content-section hidden space-y-12">
+                <p class="text-lg mb-6 text-[#2C3E50]">ในส่วนนี้ เราจะมาวิเคราะห์องค์ประกอบทางวรรณกรรมและอารมณ์ที่ทำให้เพลงนี้ลึกซึ้งและกินใจ ตั้งแต่การสำรวจมิติทางอารมณ์ผ่านแผนภูมิเรดาร์ ไปจนถึงการทำความเข้าใจสัญลักษณ์และแนวคิดสำคัญที่ซ่อนอยู่</p>
+                
+                <div>
+                    <h2 class="text-2xl font-bold text-[#2C3E50] mb-4 text-center">เข็มทิศทางอารมณ์ของเพลง</h2>
+                    <div class="chart-container">
+                        <canvas id="analysisChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-[#7F8C8D]">แผนภูมิเรดาร์นี้แสดงภาพองค์ประกอบทางอารมณ์ที่สำคัญของเพลง ซึ่งผสมผสานกันอย่างลงตัวระหว่างความรัก ความกลัว ความไม่เชื่อ และความมุ่งมั่น</p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-[#2C3E50] mb-4 text-center">แนวคิดและสัญลักษณ์สำคัญ</h2>
+                    <p class="text-center mb-6 text-[#7F8C8D]">คลิกที่การ์ดเพื่อพลิกดูความหมายและบทบาทในเพลง</p>
+                    <div id="analysis-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="quiz" class="content-section hidden">
+                <p class="text-lg mb-6 text-center text-[#2C3E50]">ทดสอบความเข้าใจของคุณในบทเพลงแห่งคำมั่นสัญญานี้ คำถามจะครอบคลุมตั้งแต่ความหมายในเนื้อเพลงไปจนถึงการตีความสัญลักษณ์ต่างๆ</p>
+                <div id="quiz-container" class="bg-white/50 p-6 rounded-lg shadow-md border border-[#BDC3C7]">
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+const lyricData = [
+    { lyric: "Love of mine, someday you will die / But I'll be on your tail to get you back", translation: "ที่รักของฉัน สักวันหนึ่งคุณจะตาย / แต่ฉันจะตามติดคุณไปเพื่อพาคุณกลับมา", explanation: "ท่อนเปิดที่ตรงไปตรงมาและน่าตกใจ ยอมรับความจริงเรื่องความตายอย่างไม่ปิดบัง แต่ตามมาด้วยคำมั่นสัญญาที่จะติดตามไปในทันที เป็นการกำหนดแก่นเรื่องของเพลงตั้งแต่ต้น" },
+    { lyric: "In Catholic school, as vicious as Roman rule / I got my knuckles bruised by a lady in black", translation: "ในโรงเรียนคาทอลิก ที่โหดร้ายดั่งการปกครองของโรมัน / ข้อมือฉันเคยโดนตีจนช้ำโดยสุภาพสตรีในชุดดำ", explanation: "การอ้างถึงประสบการณ์ในโรงเรียนคาทอลิกเพื่อสร้างพื้นฐานของความไม่เชื่อ (skepticism) ต่อศาสนาที่เป็นระบบ ภาพของ 'สุภาพสตรีในชุดดำ' (แม่ชี) และการลงโทษ สร้างบรรยากาศของความกลัวมากกว่าความศรัทธา" },
+    { lyric: "And I held my tongue as she told me / 'Son, fear is the heart of love' / So I never went back", translation: "และฉันก็เงียบปากขณะที่เธอบอกฉันว่า / 'ลูกเอ๋ย ความกลัวคือหัวใจของความรัก' / ดังนั้นฉันจึงไม่เคยกลับไปอีกเลย", explanation: "คำสอนที่ว่า 'ความกลัวคือหัวใจของความรัก' เป็นจุดที่ทำให้ผู้เล่าเรื่องปฏิเสธศาสนาที่เป็นระบบ เขามองว่าความรักควรมาจากความรู้สึกอื่นที่ไม่ใช่ความกลัว" },
+    { lyric: "You and me, we've seen everything to see / From Bangkok to Calgary / And the soles of your shoes are all worn down", translation: "เธอกับฉัน เราได้เห็นทุกอย่างที่ควรจะเห็นแล้ว / จากกรุงเทพฯ ถึงคาลการี / และพื้นรองเท้าของเธอก็สึกหมดแล้ว", explanation: "ท่อนนี้เปลี่ยนจากเรื่องปรัชญามาสู่ความสัมพันธ์ที่เป็นรูปธรรม การเดินทางร่วมกัน ('จากกรุงเทพฯ ถึงคาลการี') และ 'พื้นรองเท้าที่สึก' เป็นสัญลักษณ์ของชีวิตที่ใช้ร่วมกันมาอย่างยาวนานและเต็มไปด้วยประสบการณ์" },
+    { lyric: "The time for sleep is now / It's nothing to cry about / 'Cause we'll hold each other soon / In the blackest of rooms", translation: "ถึงเวลานอนแล้วล่ะ / มันไม่มีอะไรต้องร้องไห้ / เพราะอีกไม่นานเราจะได้กอดกัน / ในห้องที่มืดมิดที่สุด", explanation: "'การนอน' เป็นอุปลักษณ์ของความตาย แต่ถูกนำเสนออย่างอ่อนโยน คำมั่นสัญญาว่าจะได้ 'กอดกันในห้องที่มืดมิดที่สุด' เป็นการให้ความมั่นใจว่าจะไม่ปล่อยให้อยู่คนเดียว แม้ในความว่างเปล่า" },
+    { lyric: "If Heaven and Hell decide that they both are satisfied / And illuminate the 'No's on their vacancy signs", translation: "ถ้าสวรรค์และนรกตัดสินใจว่าพวกเขาพอใจแล้วทั้งคู่ / และเปิดไฟป้าย 'ไม่' บนป้ายห้องว่างของพวกเขา", explanation: "ภาพเปรียบเทียบที่แยบยลและทันสมัย สวรรค์และนรกถูกเปรียบเหมือนโรงแรมที่มี 'ป้ายห้องว่าง' (vacancy signs) และปฏิเสธที่จะรับเขาเข้าไป แสดงถึงความรู้สึกว่าตนเองไม่คู่ควรหรือไม่มีที่ไปในชีวิตหลังความตายตามความเชื่อ" },
+    { lyric: "If there's no one beside you when your soul embarks / Then I'll follow you into the dark", translation: "ถ้าไม่มีใครอยู่ข้างกายเธอในตอนที่วิญญาณของเธอออกเดินทาง / ฉันก็จะตามเธอไปในความมืดมิดนั้น", explanation: "นี่คือคำมั่นสัญญาที่เป็นหัวใจของเพลงทั้งหมด ไม่ว่าชีวิตหลังความตายจะมีอยู่จริงหรือไม่ สิ่งที่สำคัญที่สุดคือการได้อยู่เคียงข้างกัน ความรักที่แท้จริงคือการร่วมทางไปในที่ที่ไม่รู้จัก เพื่อไม่ให้อีกฝ่ายต้องโดดเดี่ยว" }
+];
+
+const analysisCardsData = [
+    { term: "Agnostic Love Song (เพลงรักของผู้ไม่เชื่อ)", definition: "เพลงที่แสดงความรักและความภักดีอย่างสุดซึ้ง โดยไม่อาศัยคำมั่นสัญญาของชีวิตหลังความตายหรือการมีอยู่ของพระเจ้า ความรักนั้นมีคุณค่าในตัวเองและเป็นสิ่งยึดเหนี่ยวเดียวในวาระสุดท้าย", example: "If Heaven and Hell decide that they both are satisfied..." },
+    { term: "The Dark (ความมืดมิด)", definition: "อุปลักษณ์ (Metaphor) ที่สำคัญที่สุดในเพลง หมายถึงความตาย ความว่างเปล่า และสิ่งที่ไม่รู้จักหลังความตาย ไม่ใช่สถานที่น่ากลัว แต่เป็นสภาวะของความไม่มีอะไร ซึ่งความรักและการมีอยู่ของอีกคนจะกลายเป็นแสงสว่างเดียว", example: "I'll follow you into the dark" },
+    { term: "Juxtaposition (การวางคู่กัน)", definition: "เพลงนี้ใช้เทคนิคการวางภาพที่ขัดแย้งกัน เช่น ภาพทางศาสนาที่เคร่งครัด (Catholic school, lady in black) กับความรักที่เรียบง่ายและเป็นส่วนตัว หรือภาพการเดินทางทั่วโลก (Bangkok to Calgary) กับจุดจบในห้องที่มืดมิด", example: "In Catholic school... / You and me, we've seen everything..." },
+    { term: "Simplicity as Power (ความเรียบง่ายคือพลัง)", definition: "เพลงนี้ใช้เพียงกีตาร์โปร่งหนึ่งตัวและเสียงร้องที่จริงใจ การเรียบเรียงที่เรียบง่ายนี้ช่วยขับเน้นความซื่อตรงและความเปราะบางของเนื้อหา ทำให้คำมั่นสัญญานั้นทรงพลังและเข้าถึงใจผู้ฟังได้โดยตรง", example: "(Acoustic arrangement)" },
+    { term: "Soul Embarks (การออกเดินทางของวิญญาณ)", definition: "วลีที่ใช้ภาษาเชิงกวีเพื่ออธิบายถึงช่วงเวลาแห่งความตาย เป็นการเปรียบเทียบความตายว่าเป็นการเริ่มต้นการเดินทางครั้งสุดท้ายไปยังดินแดนที่ไม่รู้จัก", example: "when your soul embarks" }
+];
+
+const quizData = [
+    // Fill-in-the-blanks (10 questions)
+    { type: 'fill', question: "Love of mine, someday you will ____.", options: ["leave", "cry", "die", "fly"], answer: 2 },
+    { type: 'fill', question: "I got my knuckles bruised by a lady in ____.", options: ["white", "blue", "red", "black"], answer: 3 },
+    { type: 'fill', question: "'Son, ____ is the heart of love'", options: ["Hope", "Fear", "Faith", "Joy"], answer: 1 },
+    { type: 'fill', question: "From Bangkok to ____.", options: ["Paris", "London", "Calgary", "Cairo"], answer: 2 },
+    { type: 'fill', question: "And the ____ of your shoes are all worn down.", options: ["soles", "laces", "heels", "tongues"], answer: 0 },
+    { type: 'fill', question: "It's nothing to ____ about.", options: ["worry", "laugh", "sing", "cry"], answer: 3 },
+    { type: 'fill', question: "'Cause we'll hold each other soon in the ____ of rooms.", options: ["brightest", "blackest", "biggest", "barest"], answer: 1 },
+    { type: 'fill', question: "And illuminate the 'No's on their ____ signs.", options: ["welcome", "exit", "vacancy", "stop"], answer: 2 },
+    { type: 'fill', question: "If there's no one ____ you when your soul embarks.", options: ["above", "behind", "with", "beside"], answer: 3 },
+    { type: 'fill', question: "Then I'll follow you into the ____.", options: ["light", "fire", "dark", "void"], answer: 2 },
+    // Comprehension (5 questions)
+    { type: 'comp', question: "แก่นเรื่องหลักของเพลง 'I Will Follow You into the Dark' คืออะไร?", options: ["ความกลัวความตายอย่างสุดซึ้ง", "ความโกรธแค้นต่อศาสนา", "คำมั่นสัญญาว่าจะอยู่เคียงข้างคนรักแม้ในความตายและความว่างเปล่า", "ความสุขของชีวิตหลังความตาย"], answer: 2 },
+    { type: 'comp', question: "ทำไมผู้เล่าเรื่องถึง 'ไม่เคยกลับไป' ที่โรงเรียนคาทอลิก?", options: ["เพราะเรียนจบแล้ว", "เพราะเขาย้ายบ้าน", "เพราะเขาไม่เห็นด้วยกับคำสอนที่ว่า 'ความกลัวคือหัวใจของความรัก'", "เพราะถูกไล่ออก"], answer: 2 },
+    { type: 'comp', question: "อุปลักษณ์ 'the dark' ในเพลงนี้สื่อถึงอะไร?", options: ["ห้องที่ไม่มีไฟ", "ความชั่วร้าย", "อนาคตที่ไม่แน่นอน", "ความตายและสิ่งที่ไม่รู้จักหลังจากนั้น"], answer: 3 },
+    { type: 'comp', question: "เพลงนี้มีมุมมองต่อชีวิตหลังความตายอย่างไร?", options: ["เชื่อมั่นว่ามีสวรรค์และนรก", "ไม่แน่ใจและไม่เชื่อว่าจะมีที่สำหรับตนเอง", "เชื่อว่าทุกคนจะได้ขึ้นสวรรค์", "ไม่สนใจเรื่องชีวิตหลังความตาย"], answer: 1 },
+    { type: 'comp', question: "ความสำคัญของท่อน 'From Bangkok to Calgary' คืออะไร?", options: ["เพื่อแสดงว่าพวกเขาชอบเที่ยวเอเชียและอเมริกาเหนือ", "เพื่อแสดงถึงชีวิตที่เต็มไปด้วยประสบการณ์ที่ใช้ร่วมกันมา", "เป็นแผนการเดินทางในอนาคต", "ไม่มีความหมายพิเศษ เป็นแค่การยกตัวอย่างเมือง"], answer: 1 },
+    // Analysis (5 questions)
+    { type: 'vocab', question: "วลี 'on your tail' ในท่อนแรกมีความหมายใกล้เคียงกับข้อใดมากที่สุด?", options: ["เหยียบหางของคุณ", "ตามติดไปอย่างใกล้ชิด", "สร้างปัญหาให้คุณ", "ปกป้องคุณจากข้างหลัง"], answer: 1 },
+    { type: 'vocab', question: "การเปรียบเทียบโรงเรียนคาทอลิกว่า 'vicious as Roman rule' มีจุดประสงค์เพื่ออะไร?", options: ["ชื่นชมสถาปัตยกรรมแบบโรมัน", "เน้นย้ำถึงความเข้มงวดและไร้ความปรานี", "บอกว่าโรงเรียนตั้งอยู่ในกรุงโรม", "เปรียบเทียบกับนักบุญในศาสนา"], answer: 1 },
+    { type: 'vocab', question: "วลี 'soul embarks' เป็นวิธีพูดถึงความตายในลักษณะใด?", options: ["น่ากลัวและรุนแรง", "เป็นเรื่องตลก", "เป็นทางการและไร้อารมณ์", "เป็นบทกวีและเปรียบเหมือนการเดินทาง"], answer: 3 },
+    { type: 'vocab', question: "การใช้กีตาร์โปร่งเพียงตัวเดียวส่งผลต่ออารมณ์เพลงอย่างไร?", options: ["ทำให้เพลงดูยิ่งใหญ่และซับซ้อน", "ทำให้เพลงดูสนุกสนานและเหมาะกับการเต้นรำ", "ทำให้เพลงมีความรู้สึกใกล้ชิด จริงใจ และเปราะบาง", "ทำให้เพลงฟังดูน่าเบื่อ"], answer: 2 },
+    { type: 'vocab', question: "เพลงนี้ถือเป็น 'Agnostic Love Song' เพราะเหตุใด?", options: ["เพราะเป็นเพลงเกี่ยวกับความรักที่ไม่เปิดเผย", "เพราะเป็นเพลงที่ปฏิเสธความรักทุกรูปแบบ", "เพราะเป็นเพลงที่แสดงความรักโดยไม่ยึดติดกับความเชื่อทางศาสนาหรือชีวิตหลังความตาย", "เพราะเป็นเพลงที่แต่งโดยคนที่ไม่เชื่อในพระเจ้าเท่านั้นที่จะเข้าใจ"], answer: 2 },
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`nav-${sectionId}`).classList.add('active');
+}
+
+function openModal(index) {
+    const data = lyricData[index];
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <p class="text-2xl font-bold text-[#2C3E50] mb-4">"${data.lyric}"</p>
+        <div class="space-y-4">
+            <div>
+                <h3 class="font-semibold text-lg text-[#34495E]">คำแปล:</h3>
+                <p class="text-[#2C3E50]">${data.translation}</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg text-[#34495E]">คำอธิบายความหมาย:</h3>
+                <p class="text-[#2C3E50]">${data.explanation}</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('lyric-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('lyric-modal').classList.add('hidden');
+}
+
+function createLyrics() {
+    const container = document.getElementById('lyrics-container');
+    container.innerHTML = lyricData.map((line, index) => `
+        <div class="lyric-line cursor-pointer p-4 rounded-lg" onclick="openModal(${index})">
+            <p class="text-lg text-[#2C3E50]">"${line.lyric}"</p>
+        </div>
+    `).join('');
+}
+
+function createAnalysisCards() {
+    const container = document.getElementById('analysis-cards-container');
+    container.innerHTML = analysisCardsData.map(cardData => `
+        <div class="card h-56 [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-face absolute w-full h-full flex items-center justify-center p-4 bg-white/70 rounded-lg shadow-sm border border-[#BDC3C7]">
+                <p class="text-xl font-semibold text-center text-[#34495E]">${cardData.term}</p>
+            </div>
+            <div class="card-back absolute w-full h-full flex flex-col items-center justify-center p-4 bg-[#34495E] text-white rounded-lg shadow-sm">
+                <p class="text-sm text-center font-light">${cardData.definition}</p>
+                <p class="text-xs text-center italic mt-2 opacity-80">e.g., "${cardData.example}"</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function createAnalysisChart() {
+    const ctx = document.getElementById('analysisChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['ความรัก (Love)', 'ความมุ่งมั่น (Commitment)', 'ความไม่เชื่อ (Skepticism)', 'ความกลัว (Fear)', 'ความใกล้ชิด (Intimacy)'],
+            datasets: [{
+                label: 'องค์ประกอบทางอารมณ์',
+                data: [9, 10, 7, 6, 8],
+                backgroundColor: 'rgba(52, 73, 94, 0.2)',
+                borderColor: '#2C3E50',
+                pointBackgroundColor: '#2C3E50',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#2C3E50'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#BDC3C7' },
+                    grid: { color: '#BDC3C7' },
+                    pointLabels: {
+                        color: '#2C3E50',
+                        font: { size: 12 }
+                    },
+                    ticks: {
+                        backdropColor: '#EAEAEA',
+                        color: '#7F8C8D'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function createQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    showQuestion();
+}
+
+function showQuestion() {
+    const quizContainer = document.getElementById('quiz-container');
+    if (currentQuestionIndex < quizData.length) {
+        const question = quizData[currentQuestionIndex];
+        let questionTitle = '';
+        if (currentQuestionIndex < 10) {
+            questionTitle = `เติมคำในช่องว่าง (${currentQuestionIndex + 1}/10)`;
+        } else if (currentQuestionIndex < 15) {
+            questionTitle = `ความเข้าใจในความหมาย (${currentQuestionIndex - 9}/5)`;
+        } else {
+            questionTitle = `การวิเคราะห์และสัญลักษณ์ (${currentQuestionIndex - 14}/5)`;
+        }
+
+        quizContainer.innerHTML = `
+            <div class="mb-4">
+                <p class="text-lg font-semibold mb-1 text-[#7F8C8D]">${questionTitle}</p>
+                <p class="text-xl">${question.question}</p>
+            </div>
+            <div id="options-container" class="space-y-3">
+                ${question.options.map((option, index) => `
+                    <button class="quiz-option w-full text-left p-3 border-2 rounded-lg" onclick="checkAnswer(${index})">
+                        ${String.fromCharCode(97 + index)}. ${option}
+                    </button>
+                `).join('')}
+            </div>
+            <div id="feedback-container" class="mt-4"></div>
+        `;
+    } else {
+        showFinalScore();
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    const question = quizData[currentQuestionIndex];
+    const options = document.querySelectorAll('.quiz-option');
+    const feedbackContainer = document.getElementById('feedback-container');
+
+    options.forEach(button => button.disabled = true);
+    
+    if (selectedIndex === question.answer) {
+        score++;
+        options[selectedIndex].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-green-800 font-semibold">ถูกต้อง!</p>`;
+    } else {
+        options[selectedIndex].classList.add('incorrect');
+        options[question.answer].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-red-800 font-semibold">ผิด! คำตอบที่ถูกต้องคือ: ${String.fromCharCode(97 + question.answer)}</p>`;
+    }
+
+    feedbackContainer.innerHTML += `<button class="mt-4 bg-[#34495E] text-white py-2 px-6 rounded-lg hover:bg-opacity-80" onclick="nextQuestion()">คำถามถัดไป</button>`;
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+function showFinalScore() {
+    const quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = `
+        <div class="text-center">
+            <h2 class="text-2xl font-bold mb-4">จบแบบทดสอบ!</h2>
+            <p class="text-xl mb-4">คุณได้ ${score} จาก ${quizData.length} คะแนน</p>
+            <button class="bg-[#34495E] text-white py-2 px-6 rounded-lg hover:bg-opacity-80" onclick="createQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+        </div>
+    `;
+}
+
+window.onload = function() {
+    createLyrics();
+    createAnalysisCards();
+    createAnalysisChart();
+    createQuiz();
+    showSection('intro'); 
+
+    document.getElementById('lyric-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'lyric-modal') {
+            closeModal();
+        }
+    });
+};
+</script>
+
+</body>
+</html>

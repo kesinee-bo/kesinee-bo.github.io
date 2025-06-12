@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง "The Nights" - Avicii</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Sunset Adventure -->
+    <!-- Application Structure Plan: Maintaining the consistent 4-tab SPA model. The design is tailored to the song's uplifting and motivational theme. The interactive elements are designed to break down the song's powerful message into digestible and memorable parts. -->
+    <!-- Visualization & Content Choices: 1. Lyrics: Report Info -> Lyrics, translation, and explanation of the father's advice. Goal -> Explore/Inform. Viz -> Clickable list with modals. Interaction -> Click-to-reveal. Justification -> Ideal for following the narrative structure of the song. Library -> HTML/CSS/JS. 2. Thematic Analysis: Report Info -> The core messages of living a full life. Goal -> Analyze/Inform. Viz -> A bar chart titled "Pillars of a Memorable Life" visualizing Adventure, Legacy, etc. Justification -> Clearly presents the core takeaways from the lyrics. Library -> Chart.js. 3. Key Concepts: Report Info -> "Carpe Diem," legacy, the story behind the song. Goal -> Organize/Learn. Viz -> Flip cards. Interaction -> Click-to-flip. Justification -> Excellent for defining the philosophical concepts behind the song. Library -> HTML/CSS/JS. 4. Quiz: Report Info -> Comprehension and lyric recall questions. Goal -> Test/Reinforce. Note: Implemented user's request for 10 fill-in-the-blank questions for a total of 20 quiz items. Library -> HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #1A2238; /* Midnight Blue */
+            color: #F4F4F9; /* Off-white */
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            color: #9DAAF2;
+        }
+        .nav-btn.active, .nav-btn:hover {
+            color: #FFC107; /* Amber */
+            border-bottom-color: #FFC107;
+        }
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .lyric-line:hover {
+            background-color: #24305E;
+        }
+        .quiz-option {
+            transition: background-color 0.2s ease-in-out;
+            border-color: #4A4E69;
+        }
+        .quiz-option:hover {
+            background-color: #24305E;
+        }
+        .quiz-option.correct {
+            background-color: #2a9d8f;
+            border-color: #264653;
+        }
+        .quiz-option.incorrect {
+            background-color: #e76f51;
+            border-color: #f4a261;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal-bg {
+             background-color: rgba(26, 34, 56, 0.8);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="lyric-modal" class="fixed inset-0 modal-bg flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-[#1A2238] rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 md:p-8 relative border border-[#4A4E69]">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-[#FFC107] text-2xl">&times;</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-white">The Nights</h1>
+            <p class="text-xl text-[#F4F4F9] mt-2">โดย Avicii</p>
+            <p class="mt-4 text-lg text-[#9DAAF2]">แอปพลิเคชันวิเคราะห์เพลงเชิงโต้ตอบ</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-[#4A4E69] mb-10 space-x-4 md:space-x-8">
+            <button id="nav-intro" class="nav-btn py-2 px-1 md:px-4 text-lg active" onclick="showSection('intro')">บทนำ</button>
+            <button id="nav-lyrics" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('lyrics')">เนื้อเพลง</button>
+            <button id="nav-analysis" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('analysis')">วิเคราะห์</button>
+            <button id="nav-quiz" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('quiz')">แบบทดสอบ</button>
+        </nav>
+
+        <main>
+            <section id="intro" class="content-section space-y-6 leading-relaxed">
+                <p class="text-lg text-[#F4F4F9]">ยินดีต้อนรับสู่การสำรวจ "The Nights" หนึ่งในบทเพลงที่สร้างแรงบันดาลใจและทรงพลังที่สุดของ Avicii แอปพลิเคชันนี้จะพาคุณไปเจาะลึกถึงคำสอนและปรัชญาการใช้ชีวิตที่ซ่อนอยู่ในบทเพลงนี้ ซึ่งเป็นเรื่องราวของคำแนะนำจากพ่อถึงลูกให้ใช้ชีวิตอย่างกล้าหาญและสร้างเรื่องราวที่น่าจดจำ ส่วนนี้จะให้ภาพรวมของเพลงและแก่นเรื่องหลัก เพื่อให้คุณเข้าใจถึงข้อความอันลึกซึ้งที่ Avicii ต้องการจะส่งต่อ</p>
+                <div class="bg-[#24305E]/70 p-6 rounded-lg shadow-lg border border-[#4A4E69]">
+                    <h2 class="text-2xl font-bold text-[#FFC107] mb-4">แก่นเรื่องหลัก: สร้างชีวิตที่คุณจะจดจำ</h2>
+                    <p class="text-[#F4F4F9]">หัวใจของ "The Nights" คือปรัชญา "Carpe Diem" หรือการใช้ชีวิตให้เต็มที่ในทุกขณะ เพลงนี้เล่าผ่านมุมมองของลูกชายที่ได้รับคำสอนจากพ่อว่า "สักวันหนึ่งลูกจะทิ้งโลกนี้ไว้เบื้องหลัง ดังนั้นจงใช้ชีวิตที่ลูกจะจดจำ" มันคือการปลุกเร้าให้ผู้ฟังกล้าที่จะออกไปผจญภัย ไล่ตามความฝัน เผชิญหน้ากับความกลัว และที่สำคัญที่สุด คือการสร้างสรรค์เรื่องราวชีวิตของตัวเองที่จะกลายเป็นมรดกที่น่าภาคภูมิใจ</p>
+                </div>
+            </section>
+
+            <section id="lyrics" class="content-section hidden">
+                 <p class="text-lg mb-6 text-center text-[#F4F4F9]">ติดตามคำสอนจากพ่อสู่ลูก คลิกที่แต่ละท่อนเพื่อดูคำแปลและความหมายเบื้องหลังปรัชญาการใช้ชีวิตให้เต็มที่ของ Avicii</p>
+                <div id="lyrics-container" class="space-y-4 bg-[#24305E]/70 p-6 rounded-lg shadow-lg border border-[#4A4E69]">
+                </div>
+            </section>
+
+            <section id="analysis" class="content-section hidden space-y-12">
+                <p class="text-lg mb-6 text-[#F4F4F9]">ในส่วนนี้ เราจะมาวิเคราะห์องค์ประกอบที่ทำให้เพลงนี้เปี่ยมไปด้วยพลังและแรงบันดาลใจ ตั้งแต่การสำรวจเสาหลักของชีวิตที่น่าจดจำผ่านแผนภูมิ ไปจนถึงการทำความเข้าใจแนวคิดและปรัชญาสำคัญที่ซ่อนอยู่</p>
+                
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4 text-center">เสาหลักของชีวิตที่น่าจดจำ</h2>
+                    <div class="chart-container">
+                        <canvas id="analysisChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-[#9DAAF2]">แผนภูมินี้แสดงภาพแนวคิดสำคัญ 4 ประการจากเนื้อเพลงที่เป็นองค์ประกอบของ "ชีวิตที่จะจดจำ"</p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-4 text-center">แนวคิดและปรัชญาสำคัญ</h2>
+                    <p class="text-center mb-6 text-[#9DAAF2]">คลิกที่การ์ดเพื่อพลิกดูความหมายและบทบาทในเพลง</p>
+                    <div id="analysis-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="quiz" class="content-section hidden">
+                <p class="text-lg mb-6 text-center text-[#F4F4F9]">ทดสอบความเข้าใจของคุณในปรัชญาการใช้ชีวิตของเพลงนี้ คำถามจะครอบคลุมตั้งแต่ความหมายในเนื้อเพลงไปจนถึงการตีความแก่นเรื่องสำคัญ</p>
+                <div id="quiz-container" class="bg-[#24305E]/70 p-6 rounded-lg shadow-lg border border-[#4A4E69]">
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+const lyricData = [
+    { lyric: "Hey, once upon a younger year / When all our shadows disappeared / The animals inside came out to play", translation: "เฮ้ ครั้งหนึ่งในวัยเยาว์ / เมื่อเงาของเราทั้งหมดจางหายไป / สัตว์ร้ายข้างในก็ออกมาวิ่งเล่น", explanation: "ท่อนเปิดที่ย้อนความทรงจำไปในวัยหนุ่มสาวที่เต็มไปด้วยความกล้าบ้าบิ่นและไร้ความกลัว 'เงาที่จางหาย' สื่อถึงการไม่มีความกังวลหรือความกลัว ส่วน 'สัตว์ร้ายข้างใน' คือสัญชาตญาณดิบและความปรารถนาที่จะผจญภัย" },
+    { lyric: "He said, 'One day you'll leave this world behind / So live a life you will remember'", translation: "เขาพูดว่า 'สักวันหนึ่งลูกจะทิ้งโลกนี้ไว้เบื้องหลัง / ดังนั้นจงใช้ชีวิตที่ลูกจะจดจำ'", explanation: "นี่คือคำสอนที่เป็นหัวใจของเพลงทั้งหมด เป็นคำพูดจากพ่อถึงลูกที่กระตุ้นให้ใช้ชีวิตอย่างมีความหมายและสร้างความทรงจำที่ดี เพื่อที่เมื่อมองย้อนกลับมาจะไม่รู้สึกเสียดาย" },
+    { lyric: "My father told me when I was just a child / These are the nights that never die", translation: "พ่อของฉันบอกฉันตอนที่ฉันยังเป็นแค่เด็ก / นี่แหละคือค่ำคืนที่จะไม่มีวันตาย", explanation: "ตอกย้ำว่าคำสอนนี้ถูกปลูกฝังมาตั้งแต่เด็ก และ 'ค่ำคืนที่จะไม่มีวันตาย' ก็คือช่วงเวลาแห่งการผจญภัยและประสบการณ์อันล้ำค่าที่จะกลายเป็นความทรงจำตลอดไป" },
+    { lyric: "He said, 'Go venture far beyond the shores / Don't forsake this life of yours / I'll guide you home no matter where you are'", translation: "เขาพูดว่า 'จงออกไปผจญภัยให้ไกลเกินกว่าชายฝั่ง / อย่าละทิ้งชีวิตนี้ของลูก / พ่อจะนำทางลูกกลับบ้านไม่ว่าลูกจะอยู่ที่ไหนก็ตาม'", explanation: "คำสอนที่สนับสนุนให้กล้าออกไปเผชิญโลกกว้างและไล่ตามความฝัน โดยมีคำมั่นสัญญาจากพ่อว่าจะคอยเป็นที่พึ่งและนำทางกลับมาเสมอ เป็นการมอบทั้งอิสระและความปลอดภัยไปพร้อมกัน" },
+    { lyric: "He said, 'One day your father's gonna die / And land in the grass where the fireflies / Make their way through the night'", translation: "เขาพูดว่า 'สักวันหนึ่งพ่อของลูกจะต้องตาย / และนอนลงบนพื้นหญ้าที่ซึ่งเหล่าหิ่งห้อย / ส่องแสงนำทางในยามค่ำคืน'", explanation: "การยอมรับความจริงเรื่องความตายของพ่ออย่างอ่อนโยนและเป็นบทกวี ภาพของ 'หิ่งห้อย' ที่ส่องแสงในความมืดอาจเป็นสัญลักษณ์ของความทรงจำและคำสอนของพ่อที่จะยังคงส่องสว่างนำทางต่อไปแม้ตัวจะจากไปแล้ว" },
+    { lyric: "When you get older / Your wild heart will live for younger days / Think of me if ever you're afraid", translation: "เมื่อลูกโตขึ้น / หัวใจอันบ้าบิ่นของลูกจะโหยหาวันวัยเยาว์ / ให้นึกถึงพ่อถ้าหากลูกรู้สึกกลัว", explanation: "คำเตือนและคำปลอบใจว่าเมื่อโตขึ้นอาจจะสูญเสียความกล้าในวัยเยาว์ไป แต่คำสอนของพ่อจะยังคงเป็นเครื่องเตือนใจและเป็นเกราะป้องกันความกลัว" },
+    { lyric: "The nights that never die, my father told me", translation: "ค่ำคืนที่จะไม่มีวันตาย พ่อของฉันบอกฉัน", explanation: "การย้ำเตือนถึงวลีสำคัญของเพลง เป็นการสรุปว่าความทรงจำจากประสบการณ์ที่กล้าหาญและมีความสุขคือสิ่งที่เป็นอมตะ" }
+];
+
+const analysisCardsData = [
+    { term: "Carpe Diem (จงฉวยวันเวลาไว้)", definition: "ปรัชญาภาษาละตินที่หมายถึง 'Seize the Day' หรือการใช้ชีวิตในปัจจุบันให้เต็มที่และมีความสุขที่สุดโดยไม่ต้องกังวลถึงอนาคตมากเกินไป ซึ่งเป็นหัวใจสำคัญของเพลงนี้", example: "So live a life you will remember" },
+    { term: "Legacy (มรดก)", definition: "ในบริบทของเพลง 'มรดก' ไม่ได้หมายถึงทรัพย์สินเงินทอง แต่หมายถึงเรื่องราว ความทรงจำ และประสบการณ์ชีวิตที่เราสร้างขึ้นและทิ้งไว้ให้คนอื่นจดจำ", example: "These are the nights that never die" },
+    { term: "Fatherly Advice (คำสอนของพ่อ)", definition: "เพลงนี้มีโครงสร้างเป็นการเล่าเรื่องโดยอิงจากคำสอนของพ่อถึงลูก ซึ่งเป็นกลไกทางวรรณกรรมที่ทำให้ปรัชญาที่ยิ่งใหญ่กลายเป็นเรื่องราวที่เข้าถึงง่ายและเป็นส่วนตัว", example: "My father told me when I was just a child" },
+    { term: "การผจญภัยและการก้าวข้ามขีดจำกัด", definition: "เพลงนี้สนับสนุนให้ผู้ฟังกล้าที่จะออกจาก 'comfort zone' หรือพื้นที่ปลอดภัยของตัวเอง ('beyond the shores') เพื่อค้นหาประสบการณ์ใหม่ๆ และใช้ชีวิตอย่างไม่เสียดาย", example: "Go venture far beyond the shores" },
+    { term: "สัญลักษณ์ของหิ่งห้อย (Fireflies Symbolism)", definition: "หิ่งห้อยที่ส่องแสงในความมืดเป็นอุปลักษณ์ของความหวัง ความทรงจำ และคำสอนที่จะยังคงส่องสว่างนำทางชีวิตต่อไป แม้ว่าบุคคลอันเป็นที่รัก (พ่อ) จะจากไปแล้วก็ตาม", example: "where the fireflies make their way" }
+];
+
+const quizData = [
+    // Fill-in-the-blanks (10 questions)
+    { type: 'fill', question: "He said, 'One day you'll leave this world ____.", options: ["alone", "behind", "with me", "someday"], answer: 1 },
+    { type: 'fill', question: "So live a life you will ____.", options: ["cherish", "create", "design", "remember"], answer: 3 },
+    { type: 'fill', question: "These are the ____ that never die.", options: ["days", "dreams", "nights", "stars"], answer: 2 },
+    { type: 'fill', question: "Go ____ far beyond the shores.", options: ["venture", "travel", "sail", "wander"], answer: 0 },
+    { type: 'fill', question: "Don't ____ this life of yours.", options: ["forget", "forsake", "waste", "lose"], answer: 1 },
+    { type: 'fill', question: "I'll guide you ____ no matter where you are.", options: ["back", "there", "now", "home"], answer: 3 },
+    { type: 'fill', question: "When you get ____ / Your wild heart will live for younger days.", options: ["tired", "wiser", "older", "richer"], answer: 2 },
+    { type: 'fill', question: "Think of me if ever you're ____.", options: ["sad", "lost", "alone", "afraid"], answer: 3 },
+    { type: 'fill', question: "The animals ____ came out to play.", options: ["outside", "inside", "around", "wild"], answer: 1 },
+    { type: 'fill', question: "When all our ____ disappeared.", options: ["fears", "doubts", "shadows", "heroes"], answer: 2 },
+    // Comprehension (5 questions)
+    { type: 'comp', question: "แก่นเรื่องหลักของเพลง 'The Nights' คืออะไร?", options: ["การหาเงินให้ได้มากที่สุด", "การสร้างชีวิตที่เต็มไปด้วยความทรงจำที่น่าจดจำ", "การแก้แค้นศัตรู", "การอยู่แต่ในบ้านเพื่อความปลอดภัย"], answer: 1 },
+    { type: 'comp', question: "ใครคือผู้ที่ให้คำสอนในเพลงนี้?", options: ["แม่", "ปู่", "เพื่อน", "พ่อ"], answer: 3 },
+    { type: 'comp', question: "วลี 'the nights that never die' หมายถึงอะไร?", options: ["ค่ำคืนที่พระอาทิตย์ไม่ตก", "ปาร์ตี้ที่ไม่มีวันเลิกรา", "ช่วงเวลาแห่งประสบการณ์และความทรงจำอันล้ำค่าที่จะคงอยู่ตลอดไป", "ฝันร้ายที่เกิดขึ้นซ้ำๆ"], answer: 2 },
+    { type: 'comp', question: "เพลงนี้ให้กำลังใจผู้ฟังให้ทำอะไรเมื่อรู้สึกกลัว?", options: ["วิ่งหนี", "ร้องไห้", "นึกถึงคำสอนของพ่อ", "ยอมแพ้"], answer: 2 },
+    { type: 'comp', question: "เพลงนี้มีมุมมองต่อความตายอย่างไร?", options: ["เป็นสิ่งที่น่ากลัวที่สุด", "เป็นสิ่งที่หลีกเลี่ยงไม่ได้ และเป็นแรงผลักดันให้ใช้ชีวิตอย่างมีความหมาย", "เป็นจุดสิ้นสุดของทุกสิ่ง", "เป็นเพียงการเริ่มต้นใหม่"], answer: 1 },
+    // Analysis (5 questions)
+    { type: 'vocab', question: "วลี 'venture far beyond the shores' เป็นการใช้ภาษาเชิงเปรียบเทียบหมายถึงอะไร?", options: ["ว่ายน้ำข้ามทะเล", "ย้ายไปอยู่ต่างประเทศ", "กล้าที่จะออกจากพื้นที่ปลอดภัยและลองทำสิ่งใหม่ๆ", "ซื้อเรือลำใหม่"], answer: 2 },
+    { type: 'vocab', question: "ปรัชญา 'Carpe Diem' ที่เป็นหัวใจของเพลงหมายถึงอะไร?", options: ["วางแผนเพื่ออนาคตเสมอ", "ทำงานหนักเพื่อความสำเร็จ", "ใช้ชีวิตในปัจจุบันให้เต็มที่", "เรียนรู้จากอดีต"], answer: 2 },
+    { type: 'vocab', question: "คำว่า 'forsake' ในท่อน 'Don't forsake this life of yours' หมายความว่าอย่างไร?", options: ["ลืมเลือน", "เกลียดชัง", "ทำลาย", "ละทิ้งหรือทอดทิ้ง"], answer: 3 },
+    { type: 'vocab', question: "สัญลักษณ์ของ 'หิ่งห้อย' (fireflies) ในเพลงนี้คืออะไร?", options: ["แมลงที่น่ารำคาญ", "สัญญาณของอันตราย", "ความหวังและความทรงจำที่ยังคงส่องสว่างแม้ในความมืด", "ความสับสนวุ่นวาย"], answer: 2 },
+    { type: 'vocab', question: "'Legacy' หรือ 'มรดก' ในความหมายของเพลงนี้คืออะไร?", options: ["ทรัพย์สมบัติที่ทิ้งไว้ให้ลูกหลาน", "ชื่อเสียงและเกียรติยศ", "เรื่องราวและประสบการณ์ชีวิตที่น่าจดจำ", "หนี้สินที่ต้องชดใช้"], answer: 2 },
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`nav-${sectionId}`).classList.add('active');
+}
+
+function openModal(index) {
+    const data = lyricData[index];
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <p class="text-2xl font-bold text-white mb-4">"${data.lyric}"</p>
+        <div class="space-y-4">
+            <div>
+                <h3 class="font-semibold text-lg text-[#FFC107]">คำแปล:</h3>
+                <p class="text-[#F4F4F9]">${data.translation}</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg text-[#FFC107]">คำอธิบายความหมาย:</h3>
+                <p class="text-[#F4F4F9]">${data.explanation}</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('lyric-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('lyric-modal').classList.add('hidden');
+}
+
+function createLyrics() {
+    const container = document.getElementById('lyrics-container');
+    container.innerHTML = lyricData.map((line, index) => `
+        <div class="lyric-line cursor-pointer p-4 rounded-lg" onclick="openModal(${index})">
+            <p class="text-lg text-[#F4F4F9]">"${line.lyric}"</p>
+        </div>
+    `).join('');
+}
+
+function createAnalysisCards() {
+    const container = document.getElementById('analysis-cards-container');
+    container.innerHTML = analysisCardsData.map(cardData => `
+        <div class="card h-56 [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-face absolute w-full h-full flex items-center justify-center p-4 bg-[#24305E]/70 rounded-lg shadow-lg border border-[#4A4E69]">
+                <p class="text-xl font-semibold text-center text-[#FFC107]">${cardData.term}</p>
+            </div>
+            <div class="card-back absolute w-full h-full flex flex-col items-center justify-center p-4 bg-[#FFC107] text-[#1A2238] rounded-lg shadow-lg">
+                <p class="text-sm text-center font-semibold">${cardData.definition}</p>
+                <p class="text-xs text-center italic mt-2 opacity-80">e.g., "${cardData.example}"</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function createAnalysisChart() {
+    const ctx = document.getElementById('analysisChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['การผจญภัย', 'การสร้างมรดก', 'การเอาชนะความกลัว', 'ความรัก/ครอบครัว'],
+            datasets: [{
+                label: 'ระดับความสำคัญในเพลง',
+                data: [10, 9, 8, 9],
+                backgroundColor: [
+                    '#F4A261',
+                    '#E76F51',
+                    '#2A9D8F',
+                    '#264653'
+                ],
+                borderColor: '#F4F4F9',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: { color: '#4A4E69' },
+                    ticks: { color: '#9DAAF2' }
+                },
+                y: {
+                    grid: { color: '#4A4E69' },
+                    ticks: { color: '#F4F4F9', font: { size: 12 } }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function createQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    showQuestion();
+}
+
+function showQuestion() {
+    const quizContainer = document.getElementById('quiz-container');
+    if (currentQuestionIndex < quizData.length) {
+        const question = quizData[currentQuestionIndex];
+        let questionTitle = '';
+        if (currentQuestionIndex < 10) {
+            questionTitle = `เติมคำในช่องว่าง (${currentQuestionIndex + 1}/10)`;
+        } else if (currentQuestionIndex < 15) {
+            questionTitle = `ความเข้าใจในความหมาย (${currentQuestionIndex - 9}/5)`;
+        } else {
+            questionTitle = `การวิเคราะห์และสัญลักษณ์ (${currentQuestionIndex - 14}/5)`;
+        }
+
+        quizContainer.innerHTML = `
+            <div class="mb-4">
+                <p class="text-lg font-semibold mb-1 text-[#9DAAF2]">${questionTitle}</p>
+                <p class="text-xl text-white">${question.question}</p>
+            </div>
+            <div id="options-container" class="space-y-3">
+                ${question.options.map((option, index) => `
+                    <button class="quiz-option w-full text-left p-3 border-2 rounded-lg text-white" onclick="checkAnswer(${index})">
+                        ${String.fromCharCode(97 + index)}. ${option}
+                    </button>
+                `).join('')}
+            </div>
+            <div id="feedback-container" class="mt-4"></div>
+        `;
+    } else {
+        showFinalScore();
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    const question = quizData[currentQuestionIndex];
+    const options = document.querySelectorAll('.quiz-option');
+    const feedbackContainer = document.getElementById('feedback-container');
+
+    options.forEach(button => button.disabled = true);
+    
+    if (selectedIndex === question.answer) {
+        score++;
+        options[selectedIndex].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-[#2a9d8f] font-semibold">ถูกต้อง!</p>`;
+    } else {
+        options[selectedIndex].classList.add('incorrect');
+        options[question.answer].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-[#e76f51] font-semibold">ผิด! คำตอบที่ถูกต้องคือ: ${String.fromCharCode(97 + question.answer)}</p>`;
+    }
+
+    feedbackContainer.innerHTML += `<button class="mt-4 bg-[#FFC107] text-[#1A2238] font-bold py-2 px-6 rounded-lg hover:bg-opacity-80" onclick="nextQuestion()">คำถามถัดไป</button>`;
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+function showFinalScore() {
+    const quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = `
+        <div class="text-center">
+            <h2 class="text-2xl font-bold mb-4 text-white">จบแบบทดสอบ!</h2>
+            <p class="text-xl mb-4 text-white">คุณได้ ${score} จาก ${quizData.length} คะแนน</p>
+            <button class="bg-[#FFC107] text-[#1A2238] font-bold py-2 px-6 rounded-lg hover:bg-opacity-80" onclick="createQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+        </div>
+    `;
+}
+
+window.onload = function() {
+    createLyrics();
+    createAnalysisCards();
+    createAnalysisChart();
+    createQuiz();
+    showSection('intro'); 
+
+    document.getElementById('lyric-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'lyric-modal') {
+            closeModal();
+        }
+    });
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือการเขียน Prompt ด้านการเกษตรแบบโต้ตอบ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Visualization & Content Choices: 
+        Report Info: Principles of prompting, various prompting techniques with examples (good/bad prompts and reasons), tips for agricultural research, ethics, and additional resources.
+        Goal: To educate users on how to write effective prompts for Gemini, specifically for agricultural topics, in an interactive and easily digestible format.
+        Viz/Presentation Method: Primarily structured text. Interactive accordions for the "Techniques" section to manage content display. Clear separation of good/bad prompt examples with explanations.
+        Interaction: Accordion panels for each prompting technique (click to expand/collapse). Hyperlinks for external resources.
+        Justification: Textual information is best presented with clear typography and structure. Accordions help in breaking down complex sections (like various techniques) into manageable parts. No quantitative data in the source report lends itself to charts.
+        Library/Method: HTML, Tailwind CSS for styling, Vanilla JavaScript for accordion interactivity.
+        CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. No charts are applicable from the source report content.
+    -->
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f5f5f4; /* bg-stone-100 */
+            color: #292524; /* text-stone-800 */
+        }
+        .content-section {
+            background-color: #ffffff; /* bg-white */
+            padding: 1.5rem; /* p-6 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            margin-bottom: 2rem; /* mb-8 */
+        }
+        .section-title {
+            color: #059669; /* text-green-700 */
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 1rem; /* mb-4 */
+            border-bottom: 2px solid #10B981; /* border-green-500 */
+            padding-bottom: 0.5rem; /* pb-2 */
+        }
+        .subsection-title {
+            color: #047857; /* text-green-600 */
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600; /* font-semibold */
+            margin-top: 1.5rem; /* mt-6 */
+            margin-bottom: 0.75rem; /* mb-3 */
+        }
+        .prompt-example {
+            border: 1px solid #e7e5e4; /* border-stone-200 */
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 1rem; /* p-4 */
+            margin-top: 0.75rem; /* mt-3 */
+        }
+        .prompt-bad {
+            background-color: #fef3c7; /* bg-amber-100 */
+            border-left: 4px solid #f59e0b; /* border-l-4 border-amber-500 */
+        }
+        .prompt-good {
+            background-color: #dcfce7; /* bg-green-100 */
+            border-left: 4px solid #22c55e; /* border-l-4 border-green-500 */
+        }
+        .accordion-button {
+            background-color: #e7e5e4; /* bg-stone-200 */
+            color: #059669; /* text-green-700 */
+            font-weight: 600; /* font-semibold */
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            width: 100%;
+            text-align: left;
+            border: none;
+            border-radius: 0.375rem; /* rounded-md */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .accordion-button:hover {
+            background-color: #d6d3d1; /* bg-stone-300 */
+        }
+        .accordion-content {
+            padding: 1rem; /* p-4 */
+            border: 1px solid #e7e5e4; /* border-stone-200 */
+            border-top: none;
+            border-radius: 0 0 0.375rem 0.375rem; /* rounded-b-md */
+            display: none; /* Hidden by default */
+        }
+        .accordion-content.open {
+            display: block;
+        }
+        .link-item a {
+            color: #1d4ed8; /* text-blue-700 */
+            text-decoration: underline;
+        }
+        .link-item a:hover {
+            color: #1e3a8a; /* text-blue-800 */
+        }
+        /* Custom scrollbar for better aesthetics if content overflows */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e7e5e4; /* bg-stone-200 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a8a29e; /* bg-stone-400 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #78716c; /* bg-stone-500 */
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-green-700 text-white p-6 shadow-lg">
+        <div class="container mx-auto max-w-4xl">
+            <h1 class="text-4xl font-bold text-center">คู่มือการเขียน Prompt ด้านการเกษตรแบบโต้ตอบ</h1>
+        </div>
+    </header>
+
+    <main class="container mx-auto max-w-4xl p-4 md:p-8 flex-grow">
+        <section id="introduction" class="content-section">
+            <h2 class="section-title">บทนำ</h2>
+            <p class="text-lg leading-relaxed">ยินดีต้อนรับสู่คู่มือการเขียน Prompt เพื่อใช้ Gemini ในการศึกษาค้นคว้าวิจัยและหาข้อมูลด้านการเกษตรอย่างมีประสิทธิภาพ! ในเอกสารนี้ คุณจะได้เรียนรู้หลักการและเทคนิคการเขียน Prompt ที่จะช่วยให้คุณดึงศักยภาพของ Gemini ออกมาได้อย่างเต็มที่ เพื่อให้ได้ข้อมูลที่แม่นยำ ลึกซึ้ง และตรงกับความต้องการของคุณมากที่สุด โดยเฉพาะอย่างยิ่งในบริบทของปัญหาและการวิจัยด้านการเกษตร</p>
+            <p class="mt-4 text-lg leading-relaxed">การเขียน Prompt ที่ดีเปรียบเสมือนการให้คำสั่งที่ชัดเจนและครบถ้วนแก่ผู้ช่วยอัจฉริยะ ยิ่งคำสั่งชัดเจนมากเท่าไหร่ ผลลัพธ์ที่ได้ก็จะยิ่งตรงใจและมีประโยชน์มากขึ้นเท่านั้น</p>
+        </section>
+
+        <section id="principles" class="content-section">
+            <h2 class="section-title">หลักการสำคัญในการเขียน Prompt ที่มีประสิทธิภาพ</h2>
+            <p class="text-lg leading-relaxed mb-6">ก่อนจะลงลึกถึงเทคนิคต่างๆ มาทำความเข้าใจหลักการพื้นฐานที่ควรยึดถือในการเขียน Prompt กันก่อน:</p>
+            <ul class="list-decimal list-inside space-y-3 text-lg">
+                <li><strong>ความชัดเจนและเฉพาะเจาะจง (Clarity & Specificity):</strong> หลีกเลี่ยงคำถามที่กว้างหรือคลุมเครือ ระบุให้ชัดเจนว่าคุณต้องการข้อมูลอะไร ใครคือกลุ่มเป้าหมาย (ถ้ามี) และผลลัพธ์ที่ต้องการเป็นอย่างไร</li>
+                <li><strong>การให้บริบท (Context):</strong> การให้ข้อมูลพื้นฐานหรือสถานการณ์ของปัญหาจะช่วยให้ Gemini เข้าใจคำถามได้ดีขึ้นและให้คำตอบที่เกี่ยวข้องมากขึ้น</li>
+                <li><strong>รูปแบบผลลัพธ์ที่ต้องการ (Desired Output Format):** ระบุว่าคุณต้องการให้ Gemini ตอบกลับมาในรูปแบบใด เช่น ข้อความ, รายการ, ตาราง, ขั้นตอน, หรือการเปรียบเทียบ</li>
+                <li><strong>การใช้คำหลักที่เหมาะสม (Relevant Keywords):** ใช้คำศัพท์เฉพาะทางด้านการเกษตรที่เกี่ยวข้องกับหัวข้อของคุณ เพื่อให้ Gemini เข้าถึงข้อมูลที่แม่นยำ</li>
+                <li><strong>การทำซ้ำและปรับปรุง (Iterative Refinement):** หากคำตอบแรกยังไม่ตรงใจ อย่าลังเลที่จะปรับปรุง Prompt และลองถามซ้ำ โดยเพิ่มรายละเอียดหรือเปลี่ยนมุมมองของคำถาม</li>
+            </ul>
+        </section>
+
+        <section id="techniques" class="content-section">
+            <h2 class="section-title">เทคนิคการเขียน Prompt และตัวอย่าง</h2>
+            <p class="text-lg leading-relaxed mb-6">มาดูเทคนิคการเขียน Prompt พร้อมตัวอย่างปัญหาด้านการเกษตร และการเปรียบเทียบระหว่าง Prompt ที่ไม่มีประสิทธิภาพกับ Prompt ที่มีประสิทธิภาพกันครับ</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <button class="accordion-button">
+                        <span>1. Standard Prompting: การถามคำถามโดยตรง</span>
+                        <span class="accordion-icon">&#x25BC;</span> </button>
+                    <div class="accordion-content">
+                        <p class="mb-3">เป็นวิธีที่ง่ายที่สุด แต่ต้องมั่นใจว่าคำถามนั้นชัดเจนและเฉพาะเจาะจงพอ</p>
+                        <div class="prompt-example prompt-bad">
+                            <p><strong>Prompt ที่ไม่มีประสิทธิภาพ:</strong> "ข้าวโพดเป็นโรคอะไร"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> กว้างเกินไป ขาดบริบท ข้าวโพดเป็นได้หลายโรค</p>
+                        </div>
+                        <div class="prompt-example prompt-good">
+                            <p><strong>Prompt ที่มีประสิทธิภาพ:</strong> "ข้าวโพดที่ปลูกในภาคอีสาน มีอาการใบเหลืองซีดจากปลายใบเข้าสู่โคนใบ และมีจุดสีน้ำตาลเล็กๆ กระจายอยู่บนใบ เกิดจากโรคอะไรได้บ้าง และมีวิธีป้องกันเบื้องต้นอย่างไร"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> ระบุอาการชัดเจน, บริบทพื้นที่, และสิ่งที่ต้องการ (โรคที่อาจเป็นไปได้ + วิธีป้องกันเบื้องต้น)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="accordion-button">
+                        <span>2. Chain of Thought (CoT): การให้ Gemini คิดทีละขั้นตอน</span>
+                        <span class="accordion-icon">&#x25BC;</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p class="mb-3">เทคนิคนี้จะบอกให้ Gemini คิดวิเคราะห์ปัญหาเป็นขั้นตอนก่อนที่จะให้คำตอบ ซึ่งเป็นประโยชน์อย่างยิ่งสำหรับปัญหาที่ซับซ้อน</p>
+                        
+                        <h4 class="subsection-title text-xl">2.1 Standard CoT: การกำหนดขั้นตอนการคิด</h4>
+                        <div class="prompt-example prompt-bad">
+                            <p><strong>Prompt ที่ไม่มีประสิทธิภาพ:</strong> "ทำไมมะม่วงผลเล็ก รสจืด และมีแมลงกินใบ"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> เป็นคำถามรวมๆ ที่ต้องการคำตอบแบบสรุปทันที อาจไม่ได้คำตอบที่วิเคราะห์สาเหตุและแนวทางแก้ไขอย่างเป็นระบบ</p>
+                        </div>
+                        <div class="prompt-example prompt-good">
+                            <p><strong>Prompt ที่มีประสิทธิภาพ:</strong></p>
+                            <pre class="bg-stone-50 p-2 rounded overflow-x-auto text-sm">เกษตรกรผู้หนึ่งกำลังประสบปัญหาผลผลิตมะม่วงตกต่ำในปีนี้ โดยพบว่ามะม่วงมีขนาดเล็ก รสชาติจืด และมีร่องรอยคล้ายถูกแมลงศัตรูพืชกัดกินที่ใบและผลบางส่วน เกษตรกรต้องการหาวิธีแก้ไขปัญหาเหล่านี้เพื่อเพิ่มผลผลิตและคุณภาพของมะม่วงในปีถัดไป
+
+**คิดทีละขั้นตอน:**
+1. ระบุสาเหตุที่เป็นไปได้ของปัญหาผลผลิตตกต่ำ
+2. เสนอแนวทางการแก้ไขสำหรับแต่ละสาเหตุ
+3. สรุปเป็นแนวทางปฏิบัติที่ชัดเจน</pre>
+                            <p class="mt-1"><em>เหตุผล:</em> กำหนดโครงสร้างการคิดให้ Gemini ทำให้คำตอบที่ได้มีการวิเคราะห์ปัญหา แยกแยะสาเหตุ เสนอแนวทางแก้ไขที่เฉพาะเจาะจง และสรุปเป็นแผนปฏิบัติการที่ชัดเจน</p>
+                        </div>
+
+                        <h4 class="subsection-title text-xl mt-6">2.2 Few-Shot CoT: การให้ตัวอย่างพร้อมคำอธิบาย</h4>
+                        <div class="prompt-example prompt-bad">
+                             <p><strong>Prompt ที่ไม่มีประสิทธิภาพ:</strong> "กล้วยมีปัญหา ช่วยแนะนำวิธีแก้"</p>
+                             <p class="mt-1"><em>เหตุผล:</em> กว้างเกินไป ไม่มีบริบทและตัวอย่างที่ชัดเจน ทำให้ Gemini ไม่รู้ว่าควรตอบในรูปแบบใด</p>
+                        </div>
+                        <div class="prompt-example prompt-good">
+                            <p><strong>Prompt ที่มีประสิทธิภาพ:</strong></p>
+                            <pre class="bg-stone-50 p-2 rounded overflow-x-auto text-sm">นี่คือตัวอย่างการแก้ปัญหาการเกษตรที่ใช้ Chain of Thought:
+
+**ปัญหา:** ผลผลิตข้าวโพดลดลง ใบเหลือง มีร่องรอยการถูกกัดกิน
+**แนวทางแก้ไข (คิดทีละขั้นตอน):**
+1. **วิเคราะห์ปัญหา:** ข้าวโพดใบเหลืองอาจเกิดจากการขาดธาตุไนโตรเจน ผลผลิตลดลงอาจเกิดจากขาดน้ำหรือธาตุอาหาร ร่องรอยกัดกินบ่งชี้ถึงแมลงศัตรูพืช เช่น หนอนกระทู้ข้าวโพด
+2. **เสนอแนวทาง:**
+    * **บำรุงดิน:** ตรวจสอบ pH ดิน ใส่ปุ๋ยยูเรียเพื่อเพิ่มไนโตรเจน
+    * **การให้น้ำ:** ให้น้ำอย่างสม่ำเสมอโดยเฉพาะช่วงออกดอกติดฝัก
+    * **ควบคุมแมลง:** ใช้สารชีวภัณฑ์ BT หรือกับดักฟีโรโมนสำหรับหนอนกระทู้
+3. **สรุป:** ตรวจสอบดิน, ให้ปุ๋ยไนโตรเจน, ให้น้ำสม่ำเสมอ, ควบคุมแมลงด้วยชีวภัณฑ์
+
+ตอนนี้ลองแก้ปัญหานี้:
+เกษตรกรผู้หนึ่งกำลังประสบปัญหาผักกาดหอมในระบบไฮโดรโปนิกส์เจริญเติบโตช้า ใบมีสีซีด และรากสั้น เกษตรกรต้องการคำแนะนำในการปรับปรุงการปลูกเพื่อเพิ่มอัตราการเจริญเติบโตและคุณภาพของผักกาดหอม
+
+**แนวทางแก้ไข (คิดทีละขั้นตอน):**</pre>
+                            <p class="mt-1"><em>เหตุผล:</em> การให้ตัวอย่างที่ชัดเจนพร้อมโครงสร้างการคิด ทำให้ Gemini เข้าใจรูปแบบคำตอบที่ต้องการและสามารถเลียนแบบโครงสร้างนั้นในการตอบคำถามใหม่ได้</p>
+                        </div>
+
+                        <h4 class="subsection-title text-xl mt-6">2.3 Self-Refine CoT: การปรับปรุงคำตอบซ้ำๆ</h4>
+                        <div class="prompt-example prompt-bad">
+                            <p><strong>Prompt ที่ไม่มีประสิทธิภาพ:</strong> "ทุเรียนใบร่วง แก้ยังไง"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> คำถามสั้นและขาดรายละเอียด ทำให้คำตอบที่ได้อาจไม่ครบถ้วนและไม่สามารถนำไปปรับปรุงต่อได้</p>
+                        </div>
+                        <div class="prompt-example prompt-good">
+                            <p><strong>Prompt ที่มีประสิทธิภาพ (ขั้นที่ 1):</strong></p>
+                            <pre class="bg-stone-50 p-2 rounded overflow-x-auto text-sm">เกษตรกรพบว่าต้นทุเรียนที่ปลูกใหม่มีอาการใบร่วงผิดปกติ ใบที่เหลือมีสีเหลืองซีด และการแตกยอดใหม่เป็นไปอย่างเชื่องช้า ทำให้ต้นทุเรียนไม่เจริญเติบโตตามที่ควร เกษตรกรต้องการคำแนะนำในการบำรุงดูแลรักษาต้นทุเรียนให้แข็งแรงและเจริญเติบโตได้ดี
+
+**คิดทีละขั้นตอนและให้คำแนะนำ:**</pre>
+                            <p class="mt-2"><strong>Prompt (ขั้นที่ 2 - เพื่อปรับปรุงคำตอบ):</strong></p>
+                            <pre class="bg-stone-50 p-2 rounded overflow-x-auto text-sm">คำตอบข้างต้นยังขาดรายละเอียดและขั้นตอนที่ชัดเจน โปรดพิจารณาจากข้อมูลเดิมและปรับปรุงคำตอบให้ละเอียดและเป็นประโยชน์มากขึ้น โดยเน้นการระบุชนิดของปัญหา การเสนอแนวทางแก้ไขที่เฉพาะเจาะจง และขั้นตอนการปฏิบัติที่ชัดเจน
+
+**คำตอบที่ปรับปรุงแล้ว (คิดทีละขั้นตอน):**</pre>
+                            <p class="mt-1"><em>เหตุผล:</em> เทคนิคนี้ช่วยให้คุณสามารถปรับปรุงคำตอบของ Gemini ได้อย่างต่อเนื่อง โดยการให้ข้อเสนอแนะเพิ่มเติม ทำให้ได้คำตอบที่ละเอียดและครอบคลุมยิ่งขึ้น</p>
+                        </div>
+                        
+                        <h4 class="subsection-title text-xl mt-6">2.4 Tree of Thought CoT: การสำรวจหลายทางเลือก</h4>
+                        <div class="prompt-example prompt-bad">
+                            <p><strong>Prompt ที่ไม่มีประสิทธิภาพ:</strong> "ส้มโอเสียหายจากการขนส่ง ควรทำยังไง"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> คำถามตรงไปตรงมา แต่ไม่ได้กระตุ้นให้ Gemini พิจารณาทางเลือกหลายๆ ทาง หรือประเมินข้อดีข้อเสีย</p>
+                        </div>
+                        <div class="prompt-example prompt-good">
+                            <p><strong>Prompt ที่มีประสิทธิภาพ:</strong></p>
+                            <pre class="bg-stone-50 p-2 rounded overflow-x-auto text-sm">เกษตรกรปลูกส้มโอเพื่อการส่งออก แต่ประสบปัญหาผลส้มโอเสียหายจากการขนส่งบ่อยครั้ง เช่น ผลช้ำ เปลือกแตก หรือเกิดโรคเน่าเสียหลังการเก็บเกี่ยว ทำให้มูลค่าผลผลิตลดลง เกษตรกรต้องการทราบแนวทางปฏิบัติที่ถูกต้องในการเก็บเกี่ยวและจัดการหลังการเก็บเกี่ยวเพื่อลดความเสียหาย
+
+**จงพิจารณาแนวทางแก้ไขที่เป็นไปได้หลายๆ ทางเลือก และประเมินข้อดีข้อเสียของแต่ละทางเลือก ก่อนที่จะสรุปแนวทางที่ดีที่สุด**</pre>
+                            <p class="mt-1"><em>เหตุผล:</em> กระตุ้นให้ Gemini แตกปัญหาออกเป็นส่วนย่อยๆ สำรวจแนวทางแก้ไขที่เป็นไปได้หลายทาง และประเมินข้อดีข้อเสียของแต่ละทางเลือก ซึ่งเหมาะสำหรับปัญหาที่ซับซ้อนและต้องการการตัดสินใจที่รอบคอบ</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="accordion-button">
+                        <span>3. Role-Playing: การกำหนดบทบาทให้ Gemini</span>
+                        <span class="accordion-icon">&#x25BC;</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p class="mb-3">การบอกให้ Gemini สวมบทบาทเป็นผู้เชี่ยวชาญเฉพาะทาง จะช่วยให้คำตอบมีความน่าเชื่อถือและใช้ภาษาที่เหมาะสมกับบริบทนั้นๆ</p>
+                        <div class="prompt-example prompt-bad">
+                            <p><strong>Prompt ที่ไม่มีประสิทธิภาพ:</strong> "ช่วยแนะนำวิธีแก้ปัญหาโรคในพืช"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> กว้างและไม่ได้กำหนดผู้ให้คำแนะนำ ทำให้คำตอบอาจเป็นข้อมูลทั่วไป</p>
+                        </div>
+                        <div class="prompt-example prompt-good">
+                            <p><strong>Prompt ที่มีประสิทธิภาพ:</strong> "ในฐานะนักวิชาการโรคพืชผู้เชี่ยวชาญ ช่วยวิเคราะห์อาการของต้นมะละกอที่มีใบด่างเหลืองผิดปกติ ลำต้นและก้านใบมีรอยช้ำ และผลเป็นปุ่มปม ว่าเป็นโรคอะไร และมีแนวทางการป้องกันและควบคุมโรคนี้อย่างไรบ้าง"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> กำหนดบทบาท "นักวิชาการโรคพืช" ทำให้ Gemini ใช้ความรู้เชิงลึกและให้คำแนะนำที่เป็นมืออาชีพมากขึ้น</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <button class="accordion-button">
+                        <span>4. Constraint-Based Prompting: การกำหนดข้อจำกัดหรือเงื่อนไข</span>
+                        <span class="accordion-icon">&#x25BC;</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p class="mb-3">การระบุข้อจำกัดหรือเงื่อนไขที่ต้องการ จะช่วยให้ Gemini กรองข้อมูลและให้คำตอบที่ตรงกับสถานการณ์ของคุณมากขึ้น</p>
+                        <div class="prompt-example prompt-bad">
+                            <p><strong>Prompt ที่ไม่มีประสิทธิภาพ:</strong> "อยากทำปุ๋ยหมัก"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> กว้างเกินไป ไม่ได้ระบุเงื่อนไขหรือทรัพยากรที่มี</p>
+                        </div>
+                        <div class="prompt-example prompt-good">
+                            <p><strong>Prompt ที่มีประสิทธิภาพ:</strong> "ฉันต้องการทำปุ๋ยหมักจากเศษอาหารในครัวเรือนและใบไม้แห้งเท่านั้น โดยไม่มีการใช้สารเคมีเร่งปฏิกิริยาใดๆ โปรดแนะนำขั้นตอนการทำปุ๋ยหมักที่เหมาะสมสำหรับครัวเรือนขนาดเล็ก พร้อมระบุอัตราส่วนของวัสดุที่ใช้ และระยะเวลาโดยประมาณ"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> กำหนดวัสดุที่ใช้, ข้อจำกัด (ไม่มีสารเคมี), ขนาด (ครัวเรือนเล็ก), และข้อมูลที่ต้องการ (ขั้นตอน, อัตราส่วน, ระยะเวลา) ทำให้ได้คำแนะนำที่ปฏิบัติได้จริง</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button class="accordion-button">
+                        <span>5. Comparative Prompting: การขอให้เปรียบเทียบ</span>
+                        <span class="accordion-icon">&#x25BC;</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p class="mb-3">เมื่อต้องการข้อมูลเพื่อประกอบการตัดสินใจ การให้ Gemini เปรียบเทียบตัวเลือกต่างๆ จะเป็นประโยชน์มาก</p>
+                        <div class="prompt-example prompt-bad">
+                            <p><strong>Prompt ที่ไม่มีประสิทธิภาพ:</strong> "ปลูกข้าวโพดกับมันสำปะหลัง อันไหนดีกว่า"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> กว้างเกินไป และไม่ได้ระบุเกณฑ์ในการเปรียบเทียบ</p>
+                        </div>
+                        <div class="prompt-example prompt-good">
+                            <p><strong>Prompt ที่มีประสิทธิภาพ:</strong> "โปรดเปรียบเทียบข้อดีและข้อเสียของการปลูกข้าวโพดเลี้ยงสัตว์กับการปลูกมันสำปะหลังในพื้นที่ภาคกลางของประเทศไทย โดยพิจารณาจากปัจจัยด้านต้นทุนการผลิต, ผลตอบแทนต่อไร่, ความต้องการน้ำ, และความเสี่ยงจากโรคและแมลง"</p>
+                            <p class="mt-1"><em>เหตุผล:</em> ระบุพืชที่ต้องการเปรียบเทียบ, บริบทพื้นที่, และปัจจัยที่ใช้ในการเปรียบเทียบอย่างชัดเจน ทำให้ได้ข้อมูลเชิงลึกสำหรับการตัดสินใจ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="additional-tips" class="content-section">
+            <h2 class="section-title">เคล็ดลับเพิ่มเติมสำหรับการศึกษาค้นคว้าวิจัยด้านการเกษตรด้วย Gemini</h2>
+            <p class="text-lg leading-relaxed mb-6">เพื่อให้การใช้ Gemini ในงานเกษตรกรรมเกิดประโยชน์สูงสุด ลองพิจารณาเคล็ดลับเหล่านี้:</p>
+            <ul class="list-decimal list-inside space-y-3 text-lg">
+                <li><strong>ใช้คำศัพท์เฉพาะทางเกษตร:</strong> หากคุณทราบคำศัพท์ทางวิชาการหรือชื่อโรค/แมลงเฉพาะ ให้ใช้คำเหล่านั้นใน Prompt เพื่อให้ได้ข้อมูลที่แม่นยำยิ่งขึ้น</li>
+                <li><strong>ระบุประเภทข้อมูลที่ต้องการ:</strong> หากต้องการข้อมูลเชิงปริมาณ (เช่น สถิติผลผลิต, อัตราการใช้ปุ๋ย) หรือข้อมูลเชิงคุณภาพ (เช่น ข้อสังเกต, แนวปฏิบัติ) ให้ระบุใน Prompt</li>
+                <li><strong>ขอคำแนะนำที่นำไปปฏิบัติได้จริง:</strong> เน้น Prompt ที่นำไปสู่คำแนะนำที่เป็นขั้นตอน หรือแผนปฏิบัติการที่เกษตรกรสามารถนำไปใช้ได้จริง</li>
+            </ul>
+        </section>
+
+        <section id="referencing" class="content-section">
+            <h2 class="section-title">การอ้างอิงแหล่งที่มาและการตรวจสอบข้อมูล</h2>
+            <p class="text-lg leading-relaxed mb-6">แม้ Gemini จะเป็นเครื่องมือที่ทรงพลังในการสร้างสรรค์และสรุปข้อมูล แต่สิ่งสำคัญอย่างยิ่งในการใช้งานเพื่อการศึกษาค้นคว้าวิจัยคือการทำความเข้าใจเรื่องแหล่งที่มาและการตรวจสอบข้อมูล</p>
+            <h3 class="subsection-title">1. การถามหาแหล่งอ้างอิง (หากจำเป็น):</h3>
+            <ul class="list-disc list-inside space-y-2 text-lg ml-4">
+                <li><strong>ข้อจำกัดของ Gemini:</strong> Gemini ไม่ได้ "ค้นหา" ข้อมูลแบบเรียลไทม์เหมือน Search Engine และไม่ได้ให้แหล่งอ้างอิงในรูปแบบ URL หรือชื่อบทความวิชาการโดยตรงในทุกกรณี</li>
+                <li><strong>วิธีการใช้งาน:</strong> คุณสามารถขอให้ Gemini "จำลอง" การอ้างอิง หรือแนะนำประเภทของแหล่งข้อมูลที่คุณควรค้นหาเพิ่มเติมได้ เช่น "โปรดแนะนำประเภทของงานวิจัยหรือหน่วยงานที่เกี่ยวข้องกับโรคนี้" หรือ "ข้อมูลนี้มักพบได้ในวารสารวิชาการด้านใด"</li>
+                <li><strong>ตัวอย่าง Prompt:</strong> "ข้อมูลเกี่ยวกับผลกระทบของภาวะโลกร้อนต่อการปลูกข้าวในประเทศไทยนี้ มักอ้างอิงจากแหล่งข้อมูลประเภทใดบ้าง (เช่น งานวิจัย, รายงานของกรมวิชาการเกษตร, องค์กรระหว่างประเทศ)?"</li>
+            </ul>
+            <h3 class="subsection-title mt-6">2. การตรวจสอบข้อมูล (Data Verification):</h3>
+            <ul class="list-disc list-inside space-y-2 text-lg ml-4">
+                <li><strong>ความสำคัญ:</strong> ข้อมูลที่ได้จาก Gemini ควรถูกนำไปตรวจสอบกับแหล่งข้อมูลที่น่าเชื่อถือเสมอ โดยเฉพาะอย่างยิ่งข้อมูลที่มีความสำคัญต่อการตัดสินใจ หรือข้อมูลเชิงตัวเลขที่ต้องการความแม่นยำสูง</li>
+                <li><strong>แหล่งข้อมูลที่น่าเชื่อถือ:</strong> หน่วยงานภาครัฐ, วารสารวิชาการ, องค์กรวิชาชีพ/สถาบันวิจัย</li>
+                <li><strong>ตัวอย่าง Prompt:</strong> "ข้อมูลเกี่ยวกับปริมาณการใช้ปุ๋ยเคมีในนาข้าวต่อไร่ในประเทศไทย มีแหล่งข้อมูลทางการใดบ้างที่ฉันสามารถตรวจสอบได้?"</li>
+            </ul>
+        </section>
+
+        <section id="ethics" class="content-section">
+            <h2 class="section-title">จริยธรรมในการใช้เครื่องมือและข้อควรระวัง</h2>
+            <p class="text-lg leading-relaxed mb-6">การใช้เครื่องมือ AI อย่างมีความรับผิดชอบเป็นสิ่งสำคัญ เพื่อให้เกิดประโยชน์สูงสุดและหลีกเลี่ยงปัญหาที่อาจเกิดขึ้น</p>
+            <ul class="list-decimal list-inside space-y-3 text-lg">
+                <li><strong>ความถูกต้องของข้อมูล (Accuracy):</strong>
+                    <ul class="list-disc list-inside ml-6 mt-1">
+                        <li><em>ข้อควรระวัง:</em> ข้อมูลที่ใช้ในการฝึกฝนอาจไม่ได้รับการอัปเดตล่าสุด หรืออาจมีอคติ</li>
+                        <li><em>แนวทางปฏิบัติ:</em> ตรวจสอบข้อมูลสำคัญกับแหล่งที่มาหลายแห่ง</li>
+                    </ul>
+                </li>
+                <li><strong>การไม่พึ่งพามากเกินไป (Avoid Over-reliance):</strong>
+                     <ul class="list-disc list-inside ml-6 mt-1">
+                        <li><em>ข้อควรระวัง:</em> อย่าใช้ Gemini เป็นแหล่งข้อมูลเดียวในการตัดสินใจสำคัญ</li>
+                        <li><em>แนวทางปฏิบัติ:</em> ใช้เป็นเครื่องมือเสริม และปรึกษาผู้เชี่ยวชาญในพื้นที่จริงเสมอ</li>
+                    </ul>
+                </li>
+                <li><strong>การละเมิดลิขสิทธิ์และทรัพย์สินทางปัญญา:</strong>
+                     <ul class="list-disc list-inside ml-6 mt-1">
+                        <li><em>ข้อควรระวัง:</em> ตรวจสอบการละเมิดลิขสิทธิ์หากใช้เนื้อหาเชิงพาณิชย์</li>
+                        <li><em>แนวทางปฏิบัติ:</em> ปรับปรุง ดัดแปลง หรือสร้างสรรค์เพิ่มเติมให้เป็นผลงานของคุณเอง</li>
+                    </ul>
+                </li>
+                <li><strong>ความเป็นส่วนตัวและความลับ:</strong>
+                     <ul class="list-disc list-inside ml-6 mt-1">
+                        <li><em>ข้อควรระวัง:</em> หลีกเลี่ยงการป้อนข้อมูลส่วนตัวหรือข้อมูลลับ</li>
+                        <li><em>แนวทางปฏิบัติ:</em> ใช้ข้อมูลที่เป็นสาธารณะ หรือได้รับอนุญาตเท่านั้น</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section id="prompting-resources" class="content-section">
+            <h2 class="section-title">แหล่งข้อมูลเพิ่มเติมเกี่ยวกับการเขียน Prompt (General Prompting Resources)</h2>
+            <p class="text-lg leading-relaxed mb-6">สำหรับผู้ที่สนใจศึกษาเทคนิคการเขียน Prompt ให้มีประสิทธิภาพมากยิ่งขึ้นในภาพรวม สามารถศึกษาได้จากแหล่งข้อมูลเหล่านี้:</p>
+            <ul class="list-disc list-inside space-y-3 text-lg link-item">
+                <li><strong>Google AI for Developers - Prompting Guide:</strong>
+                    <ul class="list-disc list-inside ml-6 mt-1">
+                        <li><a href="https://ai.google.dev/docs/prompt_guidance" target="_blank" rel="noopener noreferrer">Prompt guidance</a> (เป็นคู่มือจาก Google โดยตรง ให้แนวคิดและเทคนิคการเขียน Prompt ที่หลากหลาย)</li>
+                        <li><a href="https://ai.google.dev/docs/go_further_prompting" target="_blank" rel="noopener noreferrer">Go further with prompting</a> (เจาะลึกเทคนิคขั้นสูง เช่น Chain of Thought, Self-Consistency)</li>
+                    </ul>
+                </li>
+                <li><strong>OpenAI Prompt Engineering Guide:</strong>
+                    <ul class="list-disc list-inside ml-6 mt-1">
+                        <li><a href="https://platform.openai.com/docs/guides/prompt-engineering" target="_blank" rel="noopener noreferrer">OpenAI Prompt engineering</a> (คู่มือจาก OpenAI ที่ให้หลักการและตัวอย่างการเขียน Prompt ที่ดี)</li>
+                    </ul>
+                </li>
+                <li><strong>Learn Prompting:</strong>
+                    <ul class="list-disc list-inside ml-6 mt-1">
+                        <li><a href="https://www.learnprompting.org/" target="_blank" rel="noopener noreferrer">Learn Prompting</a> (แพลตฟอร์มการเรียนรู้ Prompt Engineering ที่ครอบคลุม มีบทเรียนและตัวอย่างมากมาย)</li>
+                    </ul>
+                </li>
+                <li><strong>Awesome Prompt Engineering (GitHub Repository):</strong>
+                    <ul class="list-disc list-inside ml-6 mt-1">
+                        <li><a href="https://github.com/dair-ai/Prompt-Engineering-Guide" target="_blank" rel="noopener noreferrer">Prompt-Engineering-Guide on GitHub</a> (แหล่งรวมข้อมูล, บทความ, เครื่องมือ, และตัวอย่าง Prompt ต่างๆ ที่เกี่ยวข้องกับ Prompt Engineering)</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section id="conclusion" class="content-section">
+            <h2 class="section-title">บทสรุป</h2>
+            <p class="text-lg leading-relaxed">การเขียน Prompt ที่มีประสิทธิภาพเป็นทักษะสำคัญที่จะช่วยให้คุณใช้ Gemini ได้อย่างเต็มศักยภาพในการศึกษาค้นคว้าและแก้ไขปัญหาด้านการเกษตร การฝึกฝนและทดลองใช้เทคนิคต่างๆ จะช่วยให้คุณคุ้นเคยกับการสื่อสารกับ AI และได้รับผลลัพธ์ที่ตรงใจมากยิ่งขึ้น อย่างไรก็ตาม การใช้เครื่องมือ AI อย่างมีความรับผิดชอบ การตรวจสอบข้อมูล และการทำความเข้าใจข้อจำกัดของเครื่องมือ เป็นสิ่งสำคัญอย่างยิ่งเพื่อให้เกิดประโยชน์สูงสุดและหลีกเลี่ยงข้อผิดพลาดที่อาจเกิดขึ้น ขอให้คุณสนุกกับการเรียนรู้และนำความรู้ที่ได้ไปประยุกต์ใช้เพื่อพัฒนาการเกษตรให้ก้าวหน้ายิ่งขึ้นครับ!</p>
+        </section>
+    </main>
+
+    <footer class="bg-green-800 text-green-100 p-6 mt-auto">
+        <div class="container mx-auto max-w-4xl text-center">
+            <p>&copy; 2025 คู่มือการเขียน Prompt ด้านการเกษตร</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const accordions = document.querySelectorAll('.accordion-button');
+            accordions.forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('.accordion-icon');
+                    
+                    // Close other open accordions in the same section (optional)
+                    // button.closest('.space-y-4').querySelectorAll('.accordion-content.open').forEach(openContent => {
+                    //     if (openContent !== content) {
+                    //         openContent.classList.remove('open');
+                    //         openContent.previousElementSibling.querySelector('.accordion-icon').innerHTML = '&#x25BC;'; // Down arrow
+                    //     }
+                    // });
+
+                    content.classList.toggle('open');
+                    if (content.classList.contains('open')) {
+                        icon.innerHTML = '&#x25B2;'; // Up arrow
+                    } else {
+                        icon.innerHTML = '&#x25BC;'; // Down arrow
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง "Take Me to Your Heart" - Michael Learns to Rock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Nostalgic Romance -->
+    <!-- Application Structure Plan: Maintaining the successful 4-tab SPA model. The design is tailored to the song's classic soft-rock ballad feel. The interactive elements are focused on breaking down the simple, heartfelt lyrics and the song's interesting cross-cultural origin. -->
+    <!-- Visualization & Content Choices: 1. Lyrics: Report Info -> Lyrics, translation, and explanation of the romantic plea. Goal -> Explore/Inform. Viz -> Clickable list with modals. Interaction -> Click-to-reveal. Justification -> Ideal for dissecting the straightforward, emotional lyrics. Library -> HTML/CSS/JS. 2. Emotional Analysis: Report Info -> The core emotions of the song (love, loneliness, hope). Goal -> Analyze/Inform. Viz -> A simple bar chart titled "Emotional Components" to visualize the key feelings expressed. Justification -> Clearly presents the song's emotional makeup. Library -> Chart.js. 3. Key Concepts: Report Info -> The song's origin as a cover of "Goodbye Kiss" by Jacky Cheung, the meaning of vulnerability, and MLTR's signature sound. Goal -> Organize/Learn. Viz -> Flip cards. Interaction -> Click-to-flip. Justification -> Perfect for providing contextual information and defining thematic concepts. Library -> HTML/CSS/JS. 4. Quiz: Report Info -> Comprehension and lyric recall questions. Goal -> Test/Reinforce. Note: Implemented user's request for 10 fill-in-the-blank questions for a total of 20 quiz items. Library -> HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #E6E6FA; /* Lavender */
+            color: #363636; /* Dark Gray */
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            color: #483D8B; /* Dark Slate Blue */
+        }
+        .nav-btn.active, .nav-btn:hover {
+            color: #6A5ACD; /* Slate Blue */
+            border-bottom-color: #6A5ACD;
+        }
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .lyric-line:hover {
+            background-color: #F0F0FF;
+        }
+        .quiz-option {
+            transition: background-color 0.2s ease-in-out;
+            border-color: #B0C4DE; /* Light Steel Blue */
+        }
+        .quiz-option:hover {
+            background-color: #F0F0FF;
+        }
+        .quiz-option.correct {
+            background-color: #D4EDDA;
+            border-color: #A3C9A8;
+        }
+        .quiz-option.incorrect {
+            background-color: #F8D7DA;
+            border-color: #D9A0A7;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal-bg {
+             background-color: rgba(72, 61, 139, 0.7);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="lyric-modal" class="fixed inset-0 modal-bg flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-[#E6E6FA] rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 md:p-8 relative border border-[#B0C4DE]">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl">&times;</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#363636]">Take Me to Your Heart</h1>
+            <p class="text-xl text-[#483D8B] mt-2">โดย Michael Learns to Rock</p>
+            <p class="mt-4 text-lg text-[#6A5ACD]">แอปพลิเคชันวิเคราะห์เพลงเชิงโต้ตอบ</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-[#B0C4DE] mb-10 space-x-4 md:space-x-8">
+            <button id="nav-intro" class="nav-btn py-2 px-1 md:px-4 text-lg active" onclick="showSection('intro')">บทนำ</button>
+            <button id="nav-lyrics" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('lyrics')">เนื้อเพลง</button>
+            <button id="nav-analysis" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('analysis')">วิเคราะห์</button>
+            <button id="nav-quiz" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('quiz')">แบบทดสอบ</button>
+        </nav>
+
+        <main>
+            <section id="intro" class="content-section space-y-6 leading-relaxed">
+                <p class="text-lg text-[#363636]">ยินดีต้อนรับสู่การสำรวจ "Take Me to Your Heart" บทเพลงบัลลาดระดับตำนานจาก Michael Learns to Rock ที่ครองใจผู้ฟังทั่วโลก แอปพลิเคชันนี้จะพาคุณไปพบกับเบื้องหลังที่น่าสนใจและเจาะลึกถึงความหมายของคำวิงวอนอันเปี่ยมด้วยความหวังและความเปราะบางนี้ พร้อมทั้งทำความเข้าใจว่าทำไมเพลงนี้ถึงกลายเป็นเพลงรักอมตะ</p>
+                <div class="bg-white/50 p-6 rounded-lg shadow-md border border-[#B0C4DE]">
+                    <h2 class="text-2xl font-bold text-[#6A5ACD] mb-4">แก่นเรื่องหลัก: คำวิงวอนเพื่อความรัก</h2>
+                    <p class="text-[#363636]">หัวใจของ "Take Me to Your Heart" คือการแสดงออกถึงความเปราะบางและความปรารถนาในความรักอย่างตรงไปตรงมา ผู้ร้องเปรียบตัวเองเป็นคนหลงทางและโดดเดี่ยวที่กำลังมองหาที่พักพิงทางใจ เพลงนี้เป็นเรื่องราวสากลเกี่ยวกับการแสวงหาความรักและการยอมรับจากใครสักคน และที่น่าสนใจคือ เพลงนี้เป็นการนำทำนองเพลงจีนสุดฮิต "Goodbye Kiss" (吻别) ของ Jacky Cheung มาใส่เนื้อร้องภาษาอังกฤษใหม่ ซึ่งเป็นการผสมผสานวัฒนธรรมดนตรีตะวันออกและตะวันตกได้อย่างลงตัว</p>
+                </div>
+            </section>
+
+            <section id="lyrics" class="content-section hidden">
+                 <p class="text-lg mb-6 text-center text-[#363636]">ติดตามคำวิงวอนที่เปี่ยมด้วยความหวัง คลิกที่แต่ละท่อนเพื่อดูคำแปลและความหมายเบื้องหลังคำสารภาพรักที่เรียบง่ายแต่จริงใจ</p>
+                <div id="lyrics-container" class="space-y-4 bg-white/50 p-6 rounded-lg shadow-md border border-[#B0C4DE]">
+                </div>
+            </section>
+
+            <section id="analysis" class="content-section hidden space-y-12">
+                <p class="text-lg mb-6 text-[#363636]">ในส่วนนี้ เราจะมาวิเคราะห์องค์ประกอบที่ทำให้เพลงนี้เข้าถึงใจผู้ฟังทั่วโลก ตั้งแต่การสำรวจอารมณ์หลักของเพลงผ่านแผนภูมิ ไปจนถึงการทำความเข้าใจแนวคิดและที่มาอันเป็นเอกลักษณ์ของเพลง</p>
+                
+                <div>
+                    <h2 class="text-2xl font-bold text-[#363636] mb-4 text-center">ส่วนประกอบทางอารมณ์ของเพลง</h2>
+                    <div class="chart-container">
+                        <canvas id="analysisChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-[#483D8B]">แผนภูมินี้แสดงภาพอารมณ์หลัก 4 ประการที่ประกอบขึ้นเป็นเพลงนี้</p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-[#363636] mb-4 text-center">แนวคิดและเกร็ดน่ารู้</h2>
+                    <p class="text-center mb-6 text-[#483D8B]">คลิกที่การ์ดเพื่อพลิกดูความหมายและเรื่องราวเบื้องหลัง</p>
+                    <div id="analysis-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="quiz" class="content-section hidden">
+                <p class="text-lg mb-6 text-center text-[#363636]">ทดสอบความเข้าใจของคุณในบทเพลงรักอมตะนี้ คำถามจะครอบคลุมตั้งแต่ความหมายในเนื้อเพลงไปจนถึงที่มาของเพลง</p>
+                <div id="quiz-container" class="bg-white/50 p-6 rounded-lg shadow-md border border-[#B0C4DE]">
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+const lyricData = [
+    { lyric: "Hiding from the rain and snow / Trying to forget but I won't let go", translation: "หลบซ่อนจากสายฝนและหิมะ / พยายามที่จะลืมแต่ฉันก็ไม่ยอมปล่อยไป", explanation: "ท่อนเปิดที่ใช้สภาพอากาศ (ฝนและหิมะ) เป็นอุปลักษณ์ของความเศร้าและความยากลำบาก ผู้ร้องกำลังหลบหนีจากความเจ็บปวด แต่ในขณะเดียวกันก็ยังยึดติดกับความทรงจำ ไม่สามารถปล่อยวางได้" },
+    { lyric: "Looking at a crowded street / Listening to my own heart beat", translation: "มองไปยังถนนที่ผู้คนพลุกพล่าน / ฟังเสียงหัวใจของตัวเองเต้น", explanation: "ภาพของความโดดเดี่ยวท่ามกลางฝูงชน (lonely in a crowd) เป็นความรู้สึกที่หลายคนเข้าถึงได้ แม้จะอยู่ท่ามกลางผู้คนมากมาย แต่กลับรู้สึกอ้างว้างและได้ยินเพียงเสียงหัวใจของตนเอง" },
+    { lyric: "So many people all around the world / Tell me where do I find someone like you girl", translation: "ผู้คนมากมายทั่วทั้งโลก / บอกฉันทีว่าฉันจะไปหาคนอย่างเธอได้ที่ไหน", explanation: "คำถามที่สะท้อนความรู้สึกว่าคนที่รักนั้นพิเศษและหาใครมาแทนไม่ได้ แม้โลกนี้จะมีผู้คนมากมาย แต่ใจก็ยังคงมองหาเพียงคนเดียว" },
+    { lyric: "Take me to your heart, take me to your soul / Give me your hand before I'm old", translation: "พาฉันไปสู่หัวใจของเธอ พาฉันไปสู่จิตวิญญาณของเธอ / มอบมือของเธอให้ฉันก่อนที่ฉันจะแก่ชรา", explanation: "ท่อนคอรัสที่เป็นหัวใจของเพลง เป็นคำวิงวอนโดยตรงเพื่อขอความรักและการยอมรับ ไม่ใช่แค่ความรักผิวเผิน แต่เป็นการเชื่อมต่อที่ลึกซึ้งถึงระดับจิตวิญญาณ และยังมีความเร่งด่วนของเวลาเข้ามาเกี่ยวข้อง" },
+    { lyric: "Show me what love is, haven't got a clue / Show me that wonders can be true", translation: "แสดงให้ฉันเห็นว่าความรักคืออะไร ฉันไม่รู้เลย / แสดงให้ฉันเห็นว่าปาฏิหาริย์นั้นเป็นจริงได้", explanation: "การยอมรับในความเปราะบางของตนเองว่าไม่เข้าใจในความรัก และหวังว่าเธอคนนั้นจะเป็นเหมือน 'ปาฏิหาริย์' ที่จะเข้ามาสอนและทำให้เขาได้พบกับความรักที่แท้จริง" },
+    { lyric: "They say nothing lasts forever / We're only here today / Love is now or never / Bring me far away", translation: "พวกเขาว่าไม่มีอะไรคงอยู่ตลอดไป / เราอยู่ที่นี่เพียงแค่วันนี้ / ความรักคือตอนนี้หรือไม่ก็ไม่มีเลย / พาฉันไปให้ไกลแสนไกล", explanation: "สะท้อนปรัชญา 'Carpe Diem' หรือการฉวยวันเวลาไว้ เพลงกระตุ้นให้รักกันในปัจจุบัน เพราะอนาคตไม่แน่นอน และความปรารถนาที่จะหนีไปให้ไกลกับคนรัก" },
+    { lyric: "Take me to your heart, take me to your soul / Give me your hand and hold me", translation: "พาฉันไปสู่หัวใจของเธอ พาฉันไปสู่จิตวิญญาณของเธอ / มอบมือของเธอให้ฉันและกอดฉันไว้", explanation: "การปรับเปลี่ยนท่อนคอรัสเล็กน้อยโดยเปลี่ยนจาก 'before I'm old' เป็น 'and hold me' เน้นย้ำความต้องการความอบอุ่นและการปกป้องทางกายในปัจจุบัน" },
+    { lyric: "Show me what love is, be my guiding star / It's easy, take me to your heart", translation: "แสดงให้ฉันเห็นว่าความรักคืออะไร โปรดเป็นดาวนำทางของฉัน / มันง่ายนิดเดียว พาฉันไปสู่หัวใจของเธอสิ", explanation: "การเปรียบเทียบคนรักเป็น 'ดาวนำทาง' (guiding star) สื่อถึงความหวังว่าเธอจะเป็นแสงสว่างนำทางชีวิตที่มืดมนของผู้ร้อง และปิดท้ายด้วยคำขอร้องที่เรียบง่ายว่าการให้ความรักนั้น 'ง่ายนิดเดียว'" }
+];
+
+const analysisCardsData = [
+    { term: "ที่มาของเพลงฮิต", definition: "เพลงนี้มีทำนองมาจากเพลงจีนกลางสุดคลาสสิก 'Goodbye Kiss' (吻别) ของศิลปินระดับตำนาน Jacky Cheung (จางเสวียโหย่ว) ซึ่ง MLTR นำมาใส่เนื้อร้องภาษาอังกฤษและทำให้โด่งดังไปทั่วโลก", example: "(The melody's origin)" },
+    { term: "เสน่ห์สากล (Universal Appeal)", definition: "ความรู้สึกโดดเดี่ยว การแสวงหาความรัก และความเปราะบาง เป็นธีมสากลที่ผู้คนทั่วโลกสามารถเข้าถึงและมีอารมณ์ร่วมได้ง่าย ซึ่งเป็นปัจจัยสำคัญที่ทำให้เพลงนี้ประสบความสำเร็จ", example: "So many people all around the world..." },
+    { term: "Pop Ballad (ป็อปบัลลาด)", definition: "แนวดนตรีที่ผสมผสานเมโลดี้ที่ไพเราะและติดหูของเพลงป็อป เข้ากับเนื้อหาที่เน้นอารมณ์ความรักและการเรียบเรียงดนตรีที่นุ่มนวล ซึ่งเป็นแนวทางที่เป็นลายเซ็นของวง MLTR", example: "(The song's genre)" },
+    { term: "Guiding Star (ดาวนำทาง)", definition: "อุปลักษณ์ (Metaphor) ที่ใช้เปรียบเทียบคนรักกับดวงดาวที่ส่องสว่างนำทางในความมืด สื่อถึงความหวังและบทบาทของคนรักในการเป็นแสงสว่างชี้นำชีวิต", example: "be my guiding star" },
+    { term: "Haven't Got a Clue", definition: "สำนวนที่หมายถึง 'ไม่รู้เลยแม้แต่น้อย' หรือ 'ไม่มีความคิดเลย' ในเพลงนี้ใช้เพื่อเน้นย้ำความไร้เดียงสาและความไม่เข้าใจในเรื่องความรักของผู้ร้อง", example: "Show me what love is, haven't got a clue" }
+];
+
+const quizData = [
+    // Fill-in-the-blanks (10 questions)
+    { type: 'fill', question: "Hiding from the rain and ____.", options: ["sun", "wind", "snow", "fog"], answer: 2 },
+    { type: 'fill', question: "Trying to forget but I won't let ____.", options: ["go", "be", "you", "down"], answer: 0 },
+    { type: 'fill', question: "Listening to my own heart ____.", options: ["sing", "break", "stop", "beat"], answer: 3 },
+    { type: 'fill', question: "Take me to your heart, take me to your ____.", options: ["mind", "home", "soul", "side"], answer: 2 },
+    { type: 'fill', question: "Give me your hand before I'm ____.", options: ["gone", "sad", "cold", "old"], answer: 3 },
+    { type: 'fill', question: "Show me what love is, haven't got a ____.", options: ["chance", "clue", "reason", "friend"], answer: 1 },
+    { type: 'fill', question: "They say nothing lasts ____.", options: ["tonight", "for long", "forever", "for us"], answer: 2 },
+    { type: 'fill', question: "Love is now or ____.", options: ["never", "later", "always", "maybe"], answer: 0 },
+    { type: 'fill', question: "Bring me far ____.", options: ["home", "from here", "away", "to you"], answer: 2 },
+    { type: 'fill', question: "Show me that ____ can be true.", options: ["dreams", "wonders", "stories", "magic"], answer: 1 },
+    // Comprehension (5 questions)
+    { type: 'comp', question: "แก่นเรื่องหลักของเพลง 'Take Me to Your Heart' คืออะไร?", options: ["การเฉลิมฉลองอิสรภาพ", "การแสวงหาความรักและการยอมรับ", "ความโกรธแค้นจากการถูกทอดทิ้ง", "ความสุขของการเดินทาง"], answer: 1 },
+    { type: 'comp', question: "เพลงนี้มีที่มาที่น่าสนใจอย่างไร?", options: ["เป็นเพลงประกอบภาพยนตร์", "แต่งขึ้นจากเรื่องจริงของนักร้องนำ", "เป็นเพลงแรกที่วงแต่งขึ้น", "มีทำนองมาจากเพลงจีนชื่อดัง"], answer: 3 },
+    { type: 'comp', question: "ท่อน 'Listening to my own heart beat' ท่ามกลางถนนที่พลุกพล่าน สื่อถึงความรู้สึกใด?", options: ["ความตื่นเต้น", "ความหวาดกลัว", "ความสุข", "ความโดดเดี่ยวอ้างว้าง"], answer: 3 },
+    { type: 'comp', question: "ผู้ร้องขออะไรจากคนรักในท่อนคอรัส?", options: ["เงินทอง", "การให้อภัย", "การยอมรับความรักและการเชื่อมต่อทางจิตวิญญาณ", "การแก้แค้น"], answer: 2 },
+    { type: 'comp', question: "เพลงนี้มีมุมมองต่อความรักและเวลาอย่างไร?", options: ["ความรักต้องใช้เวลาพิสูจน์", "ควรรักกันในปัจจุบันเพราะชีวิตไม่แน่นอน", "ความรักที่แท้จริงจะคงอยู่ตลอดไป", "ไม่ควรรีบร้อนในความรัก"], answer: 1 },
+    // Analysis (5 questions)
+    { type: 'vocab', question: "สำนวน 'haven't got a clue' หมายความว่าอย่างไร?", options: ["ไม่มีหลักฐาน", "ไม่รู้เรื่องเลย", "ไม่มีโอกาส", "ไม่สนใจ"], answer: 1 },
+    { type: 'vocab', question: "การเปรียบเทียบคนรักเป็น 'guiding star' มีความหมายว่าอย่างไร?", options: ["เธอเป็นนักดาราศาสตร์", "เธอสวยงามเหมือนดวงดาว", "เธอเป็นคนดัง", "เธอเป็นแสงสว่างและความหวังที่ชี้นำทางชีวิต"], answer: 3 },
+    { type: 'vocab', question: "เพลง 'Take Me to Your Heart' จัดอยู่ในแนวดนตรีประเภทใด?", options: ["Heavy Metal", "Hip Hop", "Pop Ballad", "Country"], answer: 2 },
+    { type: 'vocab', question: "ท่อน 'Hiding from the rain and snow' เป็นการใช้ภาษาเชิงเปรียบเทียบถึงอะไร?", options: ["การเล่นซ่อนหา", "การหลบหนีจากสภาพอากาศเลวร้าย", "การหลบเลี่ยงจากปัญหาและความเศร้า", "การเตรียมตัวสำหรับฤดูหนาว"], answer: 2 },
+    { type: 'vocab', question: "ทำนองเพลงนี้มาจากเพลงของศิลปินท่านใด?", options: ["Teresa Teng", "Andy Lau", "Jay Chou", "Jacky Cheung"], answer: 3 },
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`nav-${sectionId}`).classList.add('active');
+}
+
+function openModal(index) {
+    const data = lyricData[index];
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <p class="text-2xl font-bold text-[#363636] mb-4">"${data.lyric}"</p>
+        <div class="space-y-4">
+            <div>
+                <h3 class="font-semibold text-lg text-[#6A5ACD]">คำแปล:</h3>
+                <p class="text-[#363636]">${data.translation}</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg text-[#6A5ACD]">คำอธิบายความหมาย:</h3>
+                <p class="text-[#363636]">${data.explanation}</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('lyric-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('lyric-modal').classList.add('hidden');
+}
+
+function createLyrics() {
+    const container = document.getElementById('lyrics-container');
+    container.innerHTML = lyricData.map((line, index) => `
+        <div class="lyric-line cursor-pointer p-4 rounded-lg" onclick="openModal(${index})">
+            <p class="text-lg text-[#363636]">"${line.lyric}"</p>
+        </div>
+    `).join('');
+}
+
+function createAnalysisCards() {
+    const container = document.getElementById('analysis-cards-container');
+    container.innerHTML = analysisCardsData.map(cardData => `
+        <div class="card h-56 [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-face absolute w-full h-full flex items-center justify-center p-4 bg-white/70 rounded-lg shadow-md border border-[#B0C4DE]">
+                <p class="text-xl font-semibold text-center text-[#483D8B]">${cardData.term}</p>
+            </div>
+            <div class="card-back absolute w-full h-full flex flex-col items-center justify-center p-4 bg-[#6A5ACD] text-white rounded-lg shadow-md">
+                <p class="text-sm text-center font-semibold">${cardData.definition}</p>
+                <p class="text-xs text-center italic mt-2 opacity-80">e.g., "${cardData.example}"</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function createAnalysisChart() {
+    const ctx = document.getElementById('analysisChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['ความปรารถนาในรัก', 'ความเปราะบาง/โดดเดี่ยว', 'ความหวัง', 'ความเร่งด่วนของเวลา'],
+            datasets: [{
+                label: 'ระดับความเข้มข้นทางอารมณ์',
+                data: [10, 8, 9, 7],
+                backgroundColor: [
+                    '#7B68EE', // MediumSlateBlue
+                    '#9370DB', // MediumPurple
+                    '#87CEEB', // SkyBlue
+                    '#B0C4DE'  // LightSteelBlue
+                ],
+                borderColor: '#F0F0FF',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    grid: { color: '#B0C4DE' },
+                    ticks: { color: '#483D8B' }
+                },
+                y: {
+                    grid: { color: '#B0C4DE' },
+                    ticks: { color: '#363636', font: { size: 12 } }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function createQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    showQuestion();
+}
+
+function showQuestion() {
+    const quizContainer = document.getElementById('quiz-container');
+    if (currentQuestionIndex < quizData.length) {
+        const question = quizData[currentQuestionIndex];
+        let questionTitle = '';
+        if (currentQuestionIndex < 10) {
+            questionTitle = `เติมคำในช่องว่าง (${currentQuestionIndex + 1}/10)`;
+        } else if (currentQuestionIndex < 15) {
+            questionTitle = `ความเข้าใจในความหมาย (${currentQuestionIndex - 9}/5)`;
+        } else {
+            questionTitle = `การวิเคราะห์และสัญลักษณ์ (${currentQuestionIndex - 14}/5)`;
+        }
+
+        quizContainer.innerHTML = `
+            <div class="mb-4">
+                <p class="text-lg font-semibold mb-1 text-[#6A5ACD]">${questionTitle}</p>
+                <p class="text-xl text-[#363636]">${question.question}</p>
+            </div>
+            <div id="options-container" class="space-y-3">
+                ${question.options.map((option, index) => `
+                    <button class="quiz-option w-full text-left p-3 border-2 rounded-lg text-[#363636]" onclick="checkAnswer(${index})">
+                        ${String.fromCharCode(97 + index)}. ${option}
+                    </button>
+                `).join('')}
+            </div>
+            <div id="feedback-container" class="mt-4"></div>
+        `;
+    } else {
+        showFinalScore();
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    const question = quizData[currentQuestionIndex];
+    const options = document.querySelectorAll('.quiz-option');
+    const feedbackContainer = document.getElementById('feedback-container');
+
+    options.forEach(button => button.disabled = true);
+    
+    if (selectedIndex === question.answer) {
+        score++;
+        options[selectedIndex].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-green-800 font-semibold">ถูกต้อง!</p>`;
+    } else {
+        options[selectedIndex].classList.add('incorrect');
+        options[question.answer].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-red-800 font-semibold">ผิด! คำตอบที่ถูกต้องคือ: ${String.fromCharCode(97 + question.answer)}</p>`;
+    }
+
+    feedbackContainer.innerHTML += `<button class="mt-4 bg-[#6A5ACD] text-white font-bold py-2 px-6 rounded-lg hover:bg-opacity-80" onclick="nextQuestion()">คำถามถัดไป</button>`;
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+function showFinalScore() {
+    const quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = `
+        <div class="text-center">
+            <h2 class="text-2xl font-bold mb-4 text-[#363636]">จบแบบทดสอบ!</h2>
+            <p class="text-xl mb-4 text-[#363636]">คุณได้ ${score} จาก ${quizData.length} คะแนน</p>
+            <button class="bg-[#6A5ACD] text-white font-bold py-2 px-6 rounded-lg hover:bg-opacity-80" onclick="createQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+        </div>
+    `;
+}
+
+window.onload = function() {
+    createLyrics();
+    createAnalysisCards();
+    createAnalysisChart();
+    createQuiz();
+    showSection('intro'); 
+
+    document.getElementById('lyric-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'lyric-modal') {
+            closeModal();
+        }
+    });
+};
+</script>
+
+</body>
+</html>

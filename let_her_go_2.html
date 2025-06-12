@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง "Let Her Go" - Passenger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Nostalgic Amber -->
+    <!-- Application Structure Plan: Maintaining the 4-tab SPA structure (Intro, Lyrics, Analysis, Quiz) for consistency and user familiarity. The interactive elements—clickable lyrics, flip cards, and quiz—are proven effective for engagement. The key design choice is to tailor the 'Analysis' section to the song's core literary device: juxtaposition. This creates a focused learning experience that is directly relevant to the source material's unique qualities. -->
+    <!-- Visualization & Content Choices: 1. Lyrics: Report Info -> Lyrics, translation, and explanation of the core paradoxes. Goal -> Explore/Inform. Viz -> Clickable list with modal pop-ups. Interaction -> Click-to-reveal. Justification -> Excellent for breaking down the repetitive but meaningful structure of the song. Library -> HTML/CSS/JS. 2. Juxtaposition Analysis: Report Info -> The song's central theme of contrast. Goal -> Compare/Analyze. Viz -> A horizontal bar chart visualizing the key opposing concepts (Light/Dark, Sun/Snow, etc.). Interaction -> Hover tooltips. Justification -> Provides a clear, visual representation of the song's main literary device. Library -> Chart.js. 3. Key Concepts: Report Info -> Hindsight, embers, letting go. Goal -> Organize/Learn. Viz -> Flip cards. Interaction -> Click-to-flip. Justification -> Ideal for defining abstract concepts. Library -> HTML/CSS/JS. 4. Quiz: Report Info -> Comprehension questions on metaphors and themes. Goal -> Test/Reinforce. Library -> HTML/CSS/JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #FDF6E3; /* Soft Cream */
+            color: #583101; /* Dark Brown */
+        }
+        .nav-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            color: #93591D;
+        }
+        .nav-btn.active, .nav-btn:hover {
+            color: #B5651D;
+            border-bottom-color: #B5651D;
+        }
+        .card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        .lyric-line:hover {
+            background-color: #FFFBF0;
+        }
+        .quiz-option {
+            transition: background-color 0.2s ease-in-out;
+            border-color: #E0A96D;
+        }
+        .quiz-option:hover {
+            background-color: #F8E9D6;
+        }
+        .quiz-option.correct {
+            background-color: #D4EDDA;
+            border-color: #A3C9A8;
+        }
+        .quiz-option.incorrect {
+            background-color: #F8D7DA;
+            border-color: #D9A0A7;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal-bg {
+             background-color: rgba(44, 28, 4, 0.7);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="lyric-modal" class="fixed inset-0 modal-bg flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-[#FDF6E3] rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 md:p-8 relative border border-[#E0A96D]">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl">&times;</button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#744315]">Let Her Go</h1>
+            <p class="text-xl text-[#8E5A2B] mt-2">โดย Passenger</p>
+            <p class="mt-4 text-lg text-[#93591D]">แอปพลิเคชันวิเคราะห์เพลงเชิงโต้ตอบ</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-[#E0A96D] mb-10 space-x-4 md:space-x-8">
+            <button id="nav-intro" class="nav-btn py-2 px-1 md:px-4 text-lg active" onclick="showSection('intro')">บทนำ</button>
+            <button id="nav-lyrics" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('lyrics')">เนื้อเพลง</button>
+            <button id="nav-analysis" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('analysis')">วิเคราะห์</button>
+            <button id="nav-quiz" class="nav-btn py-2 px-1 md:px-4 text-lg" onclick="showSection('quiz')">แบบทดสอบ</button>
+        </nav>
+
+        <main>
+            <section id="intro" class="content-section space-y-6 leading-relaxed">
+                <p class="text-lg text-[#583101]">ยินดีต้อนรับสู่การสำรวจเพลง "Let Her Go" ผลงานชิ้นเอกที่สร้างชื่อเสียงไปทั่วโลกให้กับ Passenger (Mike Rosenberg) แอปพลิเคชันนี้จะพาคุณเจาะลึกบทเรียนชีวิตอันเรียบง่ายแต่เจ็บปวดที่ซ่อนอยู่ในทุกท่อนของเพลงนี้ นั่นคือความจริงที่ว่า เรามักจะเห็นคุณค่าของสิ่งต่างๆ ก็ต่อเมื่อมันได้จากเราไปแล้ว ส่วนนี้จะให้ภาพรวมเกี่ยวกับศิลปินและแก่นเรื่องของเพลง เพื่อเป็นพื้นฐานให้คุณเข้าใจความหมายที่ลึกซึ้งยิ่งขึ้น</p>
+                <div class="bg-white/50 p-6 rounded-lg shadow-md border border-[#E0A96D]">
+                    <h2 class="text-2xl font-bold text-[#744315] mb-4">แก่นเรื่องหลัก: บทเรียนจากความสูญเสีย</h2>
+                    <p class="text-[#583101]">หัวใจของ "Let Her Go" คือการสะท้อนความจริงอันเป็นสากลของมนุษย์ Passenger ใช้การเปรียบเทียบที่ตรงกันข้ามกันเป็นคู่ๆ ตลอดทั้งเพลง (เช่น แสงสว่าง/ความมืด, ดวงอาทิตย์/หิมะ, ความรัก/ความเกลียด) เพื่อตอกย้ำแนวคิดที่ว่า การมีอยู่ของสิ่งหนึ่งทำให้เราเข้าใจคุณค่าของสิ่งตรงข้าม เพลงนี้ไม่ใช่แค่เรื่องราวการเลิกรา แต่เป็นบทคร่ำครวญถึงความเสียใจและการตระหนักรู้ที่มักจะมาสายเกินไป</p>
+                </div>
+            </section>
+
+            <section id="lyrics" class="content-section hidden">
+                 <p class="text-lg mb-6 text-center text-[#583101]">สำรวจความจริงอันน่าเจ็บปวดในแต่ละท่อนของเนื้อเพลง คลิกเพื่อดูคำแปลและความหมายเชิงเปรียบเทียบที่ซ่อนอยู่เบื้องหลังความเรียบง่ายของถ้อยคำ</p>
+                <div id="lyrics-container" class="space-y-4 bg-white/50 p-6 rounded-lg shadow-md border border-[#E0A96D]">
+                </div>
+            </section>
+
+            <section id="analysis" class="content-section hidden space-y-12">
+                <p class="text-lg mb-6 text-[#583101]">ในส่วนนี้ เราจะวิเคราะห์เทคนิคทางวรรณกรรมที่ทำให้ "Let Her Go" ทรงพลัง ตั้งแต่การสำรวจพลังของการใช้ภาพตรงกันข้าม (Juxtaposition) ผ่านแผนภูมิ ไปจนถึงการทำความเข้าใจแนวคิดและคำศัพท์สำคัญที่ถ่ายทอดความรู้สึกเสียดายและความคิดถึงได้อย่างลึกซึ้ง</p>
+                
+                <div>
+                    <h2 class="text-2xl font-bold text-[#744315] mb-4 text-center">การวิเคราะห์พลังแห่งความขัดแย้ง (Juxtaposition)</h2>
+                    <div class="chart-container">
+                        <canvas id="thematicChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-[#8E5A2B]">แผนภูมินี้แสดงภาพการใช้แนวคิดที่ตรงกันข้ามกันเป็นคู่ๆ ซึ่งเป็นหัวใจสำคัญทางโครงสร้างและแก่นเรื่องของเพลงนี้</p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-[#744315] mb-4 text-center">แนวคิดและคำศัพท์สำคัญ</h2>
+                    <p class="text-center mb-6 text-[#8E5A2B]">คลิกที่การ์ดเพื่อพลิกดูความหมายและบริบทในเพลง</p>
+                    <div id="analysis-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+                </div>
+
+            </section>
+
+            <section id="quiz" class="content-section hidden">
+                <p class="text-lg mb-6 text-center text-[#583101]">ทดสอบความเข้าใจของคุณเกี่ยวกับบทเรียนและสัจธรรมในเพลงนี้ คำถามจะเน้นไปที่การตีความหมายเชิงเปรียบเทียบและแก่นเรื่องหลักของเพลง</p>
+                <div id="quiz-container" class="bg-white/50 p-6 rounded-lg shadow-md border border-[#E0A96D]">
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+const lyricData = [
+    { lyric: "Well, you only need the light when it's burning low", translation: "คุณต้องการแสงสว่างก็ต่อเมื่อมันกำลังจะมอดดับ", explanation: "ท่อนเปิดที่กำหนดแก่นเรื่องทั้งหมดของเพลง เป็นการเปรียบเทียบว่าเรามักจะเห็นคุณค่าของสิ่งดีๆ (แสงสว่าง) ก็ต่อเมื่อมันกำลังจะหายไป" },
+    { lyric: "Only miss the sun when it starts to snow", translation: "คุณคิดถึงดวงอาทิตย์ก็ต่อเมื่อหิมะเริ่มตก", explanation: "ภาพเปรียบเทียบที่ชัดเจนและเป็นสากล เราโหยหาความอบอุ่น (ดวงอาทิตย์) ก็ต่อเมื่อต้องเผชิญกับความหนาวเหน็บ (หิมะ)" },
+    { lyric: "Only know you love her when you let her go", translation: "คุณรู้ว่ารักเธอก็ต่อเมื่อคุณปล่อยเธอไป", explanation: "ท่อนสำคัญที่เป็นหัวใจของเพลง เปลี่ยนจากเรื่องทั่วไปมาสู่เรื่องราวความสัมพันธ์ส่วนตัว สรุปความจริงอันเจ็บปวดของการตระหนักถึงความรักหลังการสูญเสีย" },
+    { lyric: "Only know you've been high when you're feeling low", translation: "คุณรู้ว่าเคยอยู่สูงก็ต่อเมื่อคุณรู้สึกตกต่ำ", explanation: "เปรียบเทียบความสุข (high) กับความทุกข์ (low) เราจะเข้าใจความสุขที่เคยมีก็ต่อเมื่อได้สัมผัสกับความเศร้า" },
+    { lyric: "Only hate the road when you're missin' home", translation: "คุณเกลียดการเดินทางก็ต่อเมื่อคุณคิดถึงบ้าน", explanation: "การเดินทางที่น่าตื่นเต้นอาจกลายเป็นภาระเมื่อเกิดความรู้สึกโหยหาความอบอุ่นและปลอดภัยของบ้าน" },
+    { lyric: "Staring at the bottom of your glass / Hoping one day you'll make a dream last", translation: "จ้องมองก้นแก้วของคุณ / หวังว่าสักวันหนึ่งคุณจะทำให้ความฝันคงอยู่ตลอดไป", explanation: "ภาพของความสิ้นหวังและความเสียใจ การจ้องมองก้นแก้วที่ว่างเปล่าสะท้อนถึงความว่างเปล่าภายในใจ และความปรารถนาลมๆ แล้งๆ ที่จะย้อนกลับไปแก้ไขอดีต" },
+    { lyric: "But dreams come slow and they go so fast", translation: "แต่ความฝันมาอย่างเชื่องช้าและมันก็จากไปอย่างรวดเร็ว", explanation: "สัจธรรมเกี่ยวกับความสุขและความฝันที่มักจะสั้นและผ่านไปไว ในขณะที่การสร้างมันขึ้นมานั้นต้องใช้เวลานาน" },
+    { lyric: "You see her when you close your eyes / Maybe one day you'll understand why / Everything you touch surely dies", translation: "คุณเห็นเธอเมื่อคุณหลับตา / บางทีสักวันคุณจะเข้าใจว่าทำไม / ทุกสิ่งที่คุณสัมผัสถึงต้องตายจากไป", explanation: "ท่อนที่สะท้อนความรู้สึกผิดและการโทษตัวเองอย่างรุนแรง ความทรงจำเกี่ยวกับเธอยังคงชัดเจน แต่มาพร้อมกับความเชื่อที่ว่าตนเองเป็นสาเหตุของความล้มเหลวและความสูญเสีย" },
+    { lyric: "Staring at the ceiling in the dark / Same old empty feeling in your heart", translation: "จ้องมองเพดานในความมืด / ความรู้สึกว่างเปล่าแบบเดิมๆ ในหัวใจของคุณ", explanation: "ภาพของการนอนไม่หลับและความโดดเดี่ยว ความมืดภายนอกสะท้อนความว่างเปล่าภายในใจ" },
+    { lyric: "'Cause you loved her too much / And you dived too deep", translation: "เพราะคุณรักเธอมากเกินไป / และคุณดำดิ่งลงไปลึกเกินไป", explanation: "การพยายามหาเหตุผลให้กับการเลิกรา อาจเป็นการบอกว่าความรักที่มากมายเกินไปก็นำมาซึ่งการทำลายล้างได้เช่นกัน" }
+];
+
+const analysisCardsData = [
+    { term: "Juxtaposition (การวางคู่กัน)", definition: "เทคนิคทางวรรณกรรมที่เป็นหัวใจของเพลง คือการวางแนวคิดหรือภาพที่ตรงกันข้ามกันไว้เคียงข้างกัน (เช่น Sun/Snow, High/Low) เพื่อเน้นย้ำความแตกต่างและขับเน้นแก่นเรื่อง", example: "Only miss the sun when it starts to snow" },
+    { term: "Hindsight (การมองย้อนกลับ)", definition: "ความสามารถในการเข้าใจเหตุการณ์หลังจากที่มันเกิดขึ้นแล้ว ในเพลงนี้คือการตระหนักถึงคุณค่าของความรัก 'หลังจาก' ที่ปล่อยเธอไปแล้ว ซึ่งมักจะมาพร้อมกับความเสียใจ", example: "Only know you love her when you let her go" },
+    { term: "Let (someone) go", definition: "วลีที่มีความหมายหลายชั้น อาจหมายถึงการตัดสินใจยุติความสัมพันธ์ หรือการยอมรับความจริงว่าความสัมพันธ์ได้จบลงแล้ว และปล่อยให้อีกฝ่ายจากไป", example: "...when you let her go" },
+    { term: "Hollow / Empty feeling", definition: "ความรู้สึกว่างเปล่าในใจ เป็นคำอธิบายถึงสภาวะทางอารมณ์หลังการสูญเสียคนรักไป ซึ่งเป็นความรู้สึกที่เจ็บปวดและอ้างว้าง", example: "Same old empty feeling in your heart" },
+    { term: "Embers (ถ่านที่ยังคุอยู่)", definition: "แม้จะไม่ถูกกล่าวถึงโดยตรง แต่ท่อน 'burning low' ชวนให้นึกถึงภาพของ 'embers' หรือถ่านไฟที่ใกล้จะมอดดับ ซึ่งเป็นอุปลักษณ์ที่สื่อถึงความรักหรือความหวังที่กำลังจะจางหายไป", example: "...when it's burning low" }
+];
+
+const quizData = [
+    {
+        question: "เทคนิคหลักที่ Passenger ใช้ในเนื้อเพลงเพื่อสื่อถึงแก่นเรื่องคืออะไร?",
+        options: ["การใช้คำสัมผัส", "การเล่าเรื่องตามลำดับเวลา", "การวางภาพที่ตรงกันข้ามกัน (Juxtaposition)", "การใช้คำถามเชิงวาทศิลป์"],
+        answer: 2
+    },
+    {
+        question: "ความหมายหลักของท่อน 'Only know you love her when you let her go' คืออะไร?",
+        options: ["การปล่อยวางคือความรักที่แท้จริง", "ความรักทำให้คนตาบอด", "เรามักตระหนักถึงคุณค่าของความรักหลังจากที่สูญเสียมันไป", "ความรักเป็นสิ่งที่ไม่แน่นอน"],
+        answer: 2
+    },
+    {
+        question: "วลี 'staring at the bottom of your glass' สื่อถึงอารมณ์ใด?",
+        options: ["ความสุขและความพึงพอใจ", "ความกระหายน้ำ", "ความหวังและความฝัน", "ความว่างเปล่า ความเสียใจ และความสิ้นหวัง"],
+        answer: 3
+    },
+    {
+        question: "ท่อน 'Everything you touch surely dies' สะท้อนความคิดแบบใดของผู้ร้อง?",
+        options: ["ความหยิ่งทะนงในตนเอง", "การมองโลกในแง่ดี", "การโทษตัวเองอย่างรุนแรงว่าเป็นสาเหตุของความล้มเหลว", "ความไม่ใส่ใจต่อผลลัพธ์"],
+        answer: 2
+    },
+    {
+        question: "เพลง 'Let Her Go' สอนบทเรียนสำคัญอะไรเกี่ยวกับประสบการณ์ของมนุษย์?",
+        options: ["เราควรจะอยู่คนเดียวเสมอ", "ความสุขนั้นคงอยู่ตลอดไป", "เรามักจะเห็นคุณค่าของสิ่งต่างๆ ได้ชัดเจนที่สุดเมื่อมองย้อนกลับไป (Hindsight)", "อย่าไว้ใจความฝัน"],
+        answer: 2
+    }
+];
+
+let currentQuestionIndex = 0;
+let score = 0;
+
+function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId).classList.remove('hidden');
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`nav-${sectionId}`).classList.add('active');
+}
+
+function openModal(index) {
+    const data = lyricData[index];
+    const modalContent = document.getElementById('modal-content');
+    modalContent.innerHTML = `
+        <p class="text-2xl font-bold text-[#583101] mb-4">"${data.lyric}"</p>
+        <div class="space-y-4">
+            <div>
+                <h3 class="font-semibold text-lg text-[#B5651D]">คำแปล:</h3>
+                <p class="text-[#583101]">${data.translation}</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg text-[#B5651D]">คำอธิบายความหมาย:</h3>
+                <p class="text-[#583101]">${data.explanation}</p>
+            </div>
+        </div>
+    `;
+    document.getElementById('lyric-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('lyric-modal').classList.add('hidden');
+}
+
+function createLyrics() {
+    const container = document.getElementById('lyrics-container');
+    container.innerHTML = lyricData.map((line, index) => `
+        <div class="lyric-line cursor-pointer p-4 rounded-lg" onclick="openModal(${index})">
+            <p class="text-lg text-[#583101]">"${line.lyric}"</p>
+        </div>
+    `).join('');
+}
+
+function createAnalysisCards() {
+    const container = document.getElementById('analysis-cards-container');
+    container.innerHTML = analysisCardsData.map(cardData => `
+        <div class="card h-56 [perspective:1000px]" onclick="this.classList.toggle('is-flipped')">
+            <div class="card-face absolute w-full h-full flex items-center justify-center p-4 bg-white/70 rounded-lg shadow-md border border-[#E0A96D]">
+                <p class="text-xl font-semibold text-center text-[#744315]">${cardData.term}</p>
+            </div>
+            <div class="card-back absolute w-full h-full flex flex-col items-center justify-center p-4 bg-[#E0A96D] text-white rounded-lg shadow-md">
+                <p class="text-sm text-center font-light">${cardData.definition}</p>
+                <p class="text-xs text-center italic mt-2 opacity-80">e.g., "${cardData.example}"</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function createThematicChart() {
+    const ctx = document.getElementById('thematicChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Light vs Dark', 'Sun vs Snow', 'High vs Low', 'Love vs Hate'],
+            datasets: [{
+                label: 'พลังของแนวคิดตรงข้าม',
+                data: [10, 10, 10, 10],
+                backgroundColor: '#B5651D',
+                borderColor: '#744315',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    display: false,
+                },
+                y: {
+                    ticks: { 
+                        color: '#583101',
+                        font: { size: 14 }
+                    },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function(context) {
+                            return ` การเปรียบเทียบนี้เป็นแกนหลักของเพลง`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    showQuestion();
+}
+
+function showQuestion() {
+    const quizContainer = document.getElementById('quiz-container');
+    if (currentQuestionIndex < quizData.length) {
+        const question = quizData[currentQuestionIndex];
+        quizContainer.innerHTML = `
+            <div class="mb-4">
+                <p class="text-xl font-semibold mb-1">คำถาม ${currentQuestionIndex + 1} / ${quizData.length}</p>
+                <p class="text-lg">${question.question}</p>
+            </div>
+            <div id="options-container" class="space-y-3">
+                ${question.options.map((option, index) => `
+                    <button class="quiz-option w-full text-left p-3 border-2 rounded-lg" onclick="checkAnswer(${index})">
+                        ${String.fromCharCode(97 + index)}. ${option}
+                    </button>
+                `).join('')}
+            </div>
+            <div id="feedback-container" class="mt-4"></div>
+        `;
+    } else {
+        showFinalScore();
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    const question = quizData[currentQuestionIndex];
+    const options = document.querySelectorAll('.quiz-option');
+    const feedbackContainer = document.getElementById('feedback-container');
+
+    options.forEach(button => button.disabled = true);
+    
+    if (selectedIndex === question.answer) {
+        score++;
+        options[selectedIndex].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-green-800 font-semibold">ถูกต้อง!</p>`;
+    } else {
+        options[selectedIndex].classList.add('incorrect');
+        options[question.answer].classList.add('correct');
+        feedbackContainer.innerHTML = `<p class="text-red-800 font-semibold">ผิด! คำตอบที่ถูกต้องคือ: ${String.fromCharCode(97 + question.answer)}</p>`;
+    }
+
+    feedbackContainer.innerHTML += `<button class="mt-4 bg-[#744315] text-white py-2 px-6 rounded-lg hover:bg-[#583101]" onclick="nextQuestion()">คำถามถัดไป</button>`;
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    showQuestion();
+}
+
+function showFinalScore() {
+    const quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = `
+        <div class="text-center">
+            <h2 class="text-2xl font-bold mb-4">จบแบบทดสอบ!</h2>
+            <p class="text-xl mb-4">คุณได้ ${score} จาก ${quizData.length} คะแนน</p>
+            <button class="bg-[#744315] text-white py-2 px-6 rounded-lg hover:bg-[#583101]" onclick="createQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+        </div>
+    `;
+}
+
+window.onload = function() {
+    createLyrics();
+    createAnalysisCards();
+    createThematicChart();
+    createQuiz();
+    showSection('intro'); 
+
+    document.getElementById('lyric-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'lyric-modal') {
+            closeModal();
+        }
+    });
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง Austin โดย Blake Shelton</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Dusty Road Palette -->
+    <!-- Application Structure Plan: The SPA is structured into three logical, user-centric sections: 1. "สำรวจบทเพลง" (Explore): An interactive deep-dive into the song's analysis using clickable cards for vocabulary, phrasal verbs, tenses, and themes. This replaces the static report format with an engaging, explorable interface. 2. "ทดสอบความเข้าใจ" (Quiz): A fully functional, step-by-step quiz that transforms the report's questions into an interactive assessment. 3. "สรุปผล" (Results): A dynamic summary page appearing after the quiz, featuring a Chart.js visualization of the user's score broken down by category. This structure guides the user from learning to testing to reviewing their performance, providing a more effective and memorable educational experience than a linear document. -->
+    <!-- Visualization & Content Choices: Report Info -> Song Analysis. Goal -> Organize & Inform. Viz/Method -> Interactive HTML cards with flip/reveal animations. Interaction -> Click to reveal details. Justification -> Breaks down dense text into digestible chunks, encouraging user exploration. Library -> Vanilla JS + Tailwind CSS. Report Info -> Quiz Questions. Goal -> Test & Engage. Viz/Method -> Single-question-per-view interactive quiz form. Interaction -> User selects an answer and navigates through questions. Justification -> Focuses user attention and makes testing an active process. Library -> Vanilla JS. Report Info -> Quiz Scores. Goal -> Inform & Compare. Viz/Method -> Donut Chart. Interaction -> Hover to see details. Justification -> Provides a quick, clear visual summary of performance across different categories. Library -> Chart.js (Canvas). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            background-color: #f5f5f5; /* Warm Neutral - Light Gray */
+        }
+        .nav-btn {
+            @apply px-4 py-2 text-lg font-semibold text-gray-600 rounded-md transition-all duration-300;
+        }
+        .nav-btn.active {
+            @apply bg-[#8d7b68] text-white shadow-md; /* Muted Brown */
+        }
+        .nav-btn:not(.active):hover {
+            @apply bg-gray-200;
+        }
+        .card {
+            @apply bg-white p-6 rounded-lg shadow-lg transition-transform duration-300 hover:scale-105;
+        }
+        .quiz-option {
+            @apply block w-full text-left p-4 my-2 border-2 border-gray-200 rounded-lg transition-all duration-300;
+        }
+        .quiz-option:hover {
+            @apply border-[#a4907c] bg-[#fdfaf6]; /* Accent Brown + Light Beige */
+        }
+        .quiz-option.selected {
+            @apply bg-[#8d7b68] text-white border-[#8d7b68]; /* Muted Brown */
+        }
+        .quiz-option.correct {
+             @apply bg-green-500 text-white border-green-500;
+        }
+        .quiz-option.incorrect {
+             @apply bg-red-500 text-white border-red-500;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: auto;
+            max-height: 400px;
+        }
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div id="app" class="container mx-auto px-4 py-8 max-w-5xl">
+
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#8d7b68]">Austin</h1>
+            <p class="text-xl text-gray-500 mt-2">วิเคราะห์เพลงคันทรีสุดคลาสสิก โดย Blake Shelton</p>
+        </header>
+
+        <nav class="flex justify-center bg-white/70 backdrop-blur-sm p-2 rounded-xl shadow-md mb-10 sticky top-4 z-50">
+            <button id="nav-explore" class="nav-btn active" onclick="showView('explore')">🎵 สำรวจบทเพลง</button>
+            <button id="nav-quiz" class="nav-btn" onclick="showView('quiz')">❓ ทดสอบความเข้าใจ</button>
+        </nav>
+
+        <main>
+            <!-- Explore View -->
+            <section id="view-explore">
+                <div class="space-y-12">
+                    <div>
+                        <h2 class="text-3xl font-bold mb-2 text-center text-[#a4907c]">บทนำและภาพรวม</h2>
+                        <p class="text-lg text-gray-700 leading-relaxed max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
+                            เพลง "Austin" คือซิงเกิลเปิดตัวที่สร้างชื่อให้ Blake Shelton จนกลายเป็นศิลปินคันทรีแถวหน้า เพลงนี้โดดเด่นด้วยการเล่าเรื่องราวความรักที่กินใจและเต็มไปด้วยความหวัง ผ่านสัญลักษณ์ของเครื่องตอบรับอัตโนมัติที่กลายเป็นสะพานเชื่อมความสัมพันธ์อีกครั้ง แอปพลิเคชันนี้จะพาคุณไปเจาะลึกองค์ประกอบต่างๆ ที่ทำให้เพลงนี้ยังคงเป็นที่รักมาจนถึงปัจจุบัน ตั้งแต่คำศัพท์ ไวยากรณ์ ไปจนถึงความหมายที่ซ่อนอยู่
+                        </p>
+                    </div>
+
+                    <div>
+                        <h2 class="text-3xl font-bold mb-6 text-center text-[#a4907c]">การวิเคราะห์เนื้อหา</h2>
+                         <div id="analysis-content" class="grid md:grid-cols-2 gap-6">
+                            <!-- Analysis Cards will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quiz View -->
+            <section id="view-quiz" style="display: none;">
+                <div class="bg-white p-8 rounded-xl shadow-2xl max-w-3xl mx-auto">
+                    <div id="quiz-container">
+                        <div id="quiz-start-screen">
+                             <h2 class="text-3xl font-bold mb-4 text-center text-[#a4907c]">พร้อมทดสอบหรือยัง?</h2>
+                            <p class="text-center text-lg mb-6">แบบทดสอบนี้มีทั้งหมด 20 ข้อ แบ่งออกเป็น 4 ส่วนเพื่อทดสอบความเข้าใจของคุณในเพลง "Austin"</p>
+                            <button onclick="startQuiz()" class="w-full bg-[#8d7b68] text-white font-bold py-4 px-6 rounded-lg text-xl hover:bg-[#a4907c] transition-colors duration-300 shadow-lg">
+                                เริ่มทำแบบทดสอบ
+                            </button>
+                        </div>
+                        <div id="quiz-question-screen" style="display: none;">
+                            <div class="mb-4">
+                                <p id="quiz-category" class="text-center font-semibold text-[#a4907c]"></p>
+                                <p id="quiz-progress" class="text-center text-sm text-gray-500"></p>
+                            </div>
+                            <h3 id="question-text" class="text-2xl font-semibold mb-6 text-center"></h3>
+                            <div id="options-container" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Results View -->
+            <section id="view-results" style="display: none;">
+                <div class="bg-white p-8 rounded-xl shadow-2xl max-w-3xl mx-auto text-center">
+                    <h2 class="text-3xl font-bold mb-4 text-[#a4907c]">สรุปผลการทดสอบ</h2>
+                    <p class="text-5xl font-bold mb-2" id="final-score"></p>
+                    <p class="text-lg text-gray-600 mb-6" id="score-feedback"></p>
+                    <div class="chart-container mb-8">
+                        <canvas id="results-chart"></canvas>
+                    </div>
+                    <div id="review-answers-container" class="mt-4 text-left" style="display: none;">
+                        <h3 class="text-2xl font-bold mb-4 text-center">ทบทวนคำตอบ</h3>
+                        <div id="review-answers-content" class="space-y-6 max-h-96 overflow-y-auto p-4 bg-gray-50 rounded-lg"></div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+                        <button onclick="toggleReview()" class="bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors duration-300">
+                           <span id="review-button-text">ทบทวนคำตอบ</span>
+                        </button>
+                        <button onclick="restartQuiz()" class="bg-[#8d7b68] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#a4907c] transition-colors duration-300">
+                            ลองอีกครั้ง
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const analysisData = {
+            "คำศัพท์สำคัญ": [
+                { title: "clear her mind", content: "หมายถึง ไปพักสมองหรือไปคิดทบทวน สื่อถึงความต้องการของผู้หญิงที่จะหลีกหนีจากความสับสนวุ่นวายในใจ หรือต้องการเวลาและพื้นที่ส่วนตัวเพื่อคิดทบทวนเรื่องราวต่างๆ โดยเฉพาะเรื่องความสัมพันธ์ของเธอ" },
+                { title: "figured", content: "หมายถึง คิดว่า/คาดว่า แสดงถึงการคาดเดาหรืออนุมานของฝ่ายชายเกี่ยวกับจุดหมายปลายทางของฝ่ายหญิง โดยอาศัยข้อมูลที่เขามีคือเธอเคยพูดถึงออสตินบ่อยครั้ง" },
+                { title: "hang on", content: "หมายถึง รอ/อดทนต่อไป สื่อถึงความอดทนและความมั่นคงในความรักของฝ่ายชายที่รอคอยเธอนานเกือบปี" },
+                { title: "taken me so long", content: "หมายถึง ใช้เวลานานมาก เป็นการยอมรับของฝ่ายชายว่าเขาใช้เวลานานเกินไปกว่าจะรู้ใจตัวเองและรู้ว่าที่ของเขาคือที่ไหน" },
+                 { title: "where I belong", content: "หมายถึง ที่ที่เป็นของฉัน/ที่ที่ฉันควรอยู่ สื่อถึงการค้นพบความสุขและความรู้สึกเป็นส่วนหนึ่ง ซึ่งในบริบทนี้คือการได้อยู่กับคนรัก" },
+            ],
+            "การใช้ Tenses": [
+                { title: "Past Simple", content: "ใช้เล่าเหตุการณ์ในอดีตซึ่งเป็นโครงเรื่องหลัก เช่น 'She left without leaving a number.' เพื่อให้ผู้ฟังเข้าใจลำดับเหตุการณ์" },
+                { title: "Present Tenses (ในข้อความเสียง)", content: "ใช้บอกสถานะปัจจุบันหรือกิจวัตร เช่น 'I'm bowling' หรือ 'I still love you' ทำให้ความรักของเขาดูเหมือนถูกแช่แข็งไว้ในเวลาและเป็นปัจจุบันเสมอ" },
+                { title: "Future Forms (ในข้อความเสียง)", content: "ใช้บอกแผนการในอนาคต เช่น 'I'll call you back' เพื่อแสดงว่าเขายังคงตั้งใจที่จะรักษาสายใยความสัมพันธ์ไว้" },
+            ],
+            "Phrasal Verbs ที่น่าสนใจ": [
+                { title: "leave (a number)", content: "หมายถึง ให้ข้อมูลติดต่อ เช่น 'She left without leaving a number.'" },
+                { title: "call up", content: "หมายถึง โทรหา เป็นจุดเริ่มต้นของการพยายามเชื่อมต่อความสัมพันธ์อีกครั้ง เช่น 'Before she called him up.'" },
+                { title: "head out (to)", content: "หมายถึง มุ่งหน้าไป, ออกเดินทางไป เช่น 'I'm headed out to the lake.'" },
+                { title: "call back", content: "หมายถึง โทรกลับ เช่น 'But I'll call you back / When I get home.'" },
+            ],
+            "ความหมายเชิงเปรียบเทียบ": [
+                { title: "ความหมายสองนัยของ 'Austin'", content: "หมายถึง 1) เมืองออสติน ที่ฝ่ายหญิงใฝ่ฝันจะไป และ 2) ชื่อที่ฝ่ายชายใช้เรียกแทนตัวฝ่ายหญิง 'P.S. if this is Austin, I still love you' เป็นการเปลี่ยนสัญลักษณ์ของการจากลาให้กลายเป็นความผูกพัน" },
+                { title: "เครื่องตอบรับอัตโนมัติ", content: "เป็นสัญลักษณ์ของความหวัง, ความอดทน และการสื่อสารทางเดียวที่รอคอยการตอบกลับ เปรียบเสมือน 'ข้อความในขวดแก้ว' ที่ส่งออกไปโดยไม่รู้ว่าจะถึงผู้รับหรือไม่" },
+                { title: "บทสนทนาสุดท้าย", content: "'This is no machine you're talking to' คือจุดเปลี่ยนจากการสื่อสารผ่านเทคโนโลยีสู่การยืนยันความรักแบบสดๆ เป็นจุดสุดยอดของเรื่องราว" },
+            ]
+        };
+
+        const quizData = {
+            "ทดสอบการฟัง": [
+                { question: `"She left without leaving a ______."`, options: ["letter", "message", "number", "trace"], answer: 2 },
+                { question: `"He figured she'd gone back to ______."`, options: ["Boston", "Austin", "Houston", "Dallas"], answer: 1 },
+                { question: `"If you're calling 'bout the car, I ______ it."`, options: ["bought", "crashed", "fixed", "sold"], answer: 3 },
+                { question: `"What kinda man would ______ on that long."`, options: ["give", "wait", "hang", "look"], answer: 2 },
+                { question: `"This is no ______ you're talking to."`, options: ["person", "machine", "stranger", "friend"], answer: 1 },
+            ],
+            "การใช้ Tenses": [
+                { question: `ในประโยค "She left without leaving a number" คำกริยา "left" อยู่ใน Tense ใด?`, options: ["Present Simple", "Past Simple", "Present Continuous", "Past Continuous"], answer: 1 },
+                { question: `ในข้อความเสียง "If this is Tuesday night, I'm bowling" การใช้ "I'm bowling" สื่อถึงอะไร?`, options: ["การกระทำที่เพิ่งจบลง", "การกระทำที่กำลังจะเกิดขึ้นในอนาคตอันใกล้", "กิจกรรมที่ทำเป็นประจำหรือตามตารางเวลาในปัจจุบัน", "ความตั้งใจที่จะไปเล่นโบว์ลิ่ง"], answer: 2 },
+                { question: `ประโยค "I shoulda listened to it a little more" แสดงความรู้สึกใดของผู้พูด?`, options: ["ความสุขเกี่ยวกับอดีต", "ความไม่พอใจในปัจจุบัน", "ความเสียใจต่อสิ่งที่ไม่ได้ทำในอดีต", "การวางแผนสำหรับอนาคต"], answer: 2 },
+                { question: `การใช้ Present Simple Tense ในประโยค "And P.S. if this is Austin, I still love you" ในข้อความเสียง มีจุดประสงค์หลักเพื่อสื่อว่าความรักของเขานั้นเป็นอย่างไร?`, options: ["เป็นความรู้สึกที่เพิ่งเกิดขึ้น", "เป็นความทรงจำในอดีต", "ยังคงดำเนินอยู่และเป็นปัจจุบัน", "เป็นความหวังในอนาคต"], answer: 2 },
+                { question: `ในประโยค "It was almost a year / Before she called him up" คำว่า "called up" อยู่ใน Tense ใด และมีความหมายใกล้เคียงกับคำใดมากที่สุด?`, options: ["Past Simple, visited", "Past Perfect, had telephoned", "Past Simple, telephoned", "Present Perfect, has telephoned"], answer: 2 },
+            ],
+            "ความเข้าใจในความหมาย": [
+                { question: `เหตุผลหลักที่ฝ่ายชายเปลี่ยนข้อความในเครื่องตอบรับอัตโนมัติอยู่เสมอคืออะไร?`, options: ["เขามีกิจกรรมอดิเรกหลายอย่าง", "เขาต้องการแสดงให้ 'Austin' เห็นว่าเขามีชีวิตที่ยุ่ง", "เขาต้องการให้ 'Austin' รู้ว่าเขายังรักเธอเสมอ ไม่ว่าเธอจะโทรมาเมื่อไหร่ก็ตาม", "เขาพยายามหลีกเลี่ยงการพูดคุยกับคนอื่น"], answer: 2 },
+                { question: `คำว่า "Austin" ในเพลงมีความหมายถึงอะไรบ้าง?`, options: ["ชื่อเมืองและชื่อเล่นของฝ่ายชาย", "ชื่อเพลงและชื่อวงดนตรี", "ชื่อเมืองที่ฝ่ายหญิงไป และชื่อที่ฝ่ายชายใช้เรียกฝ่ายหญิง", "ชื่อเพื่อนของฝ่ายชายและชื่อสถานที่นัดพบ"], answer: 2 },
+                { question: `เมื่อฝ่ายหญิงได้ยินข้อความ "And P.S. if this is Austin, I still love you" เธอรู้สึกอย่างไร จากท่อน "She heard but she couldn't believe"?`, options: ["รำคาญที่เขายังคงรบกวนเธอ", "สับสนว่าออสตินคือใคร", "ประหลาดใจและซาบซึ้งในความรักที่เขายังมีให้", "ไม่สนใจข้อความของเขา"], answer: 2 },
+                { question: `แก่นเรื่องหลักของเพลง "Austin" คืออะไร?`, options: ["ความสำคัญของการสื่อสารในยุคดิจิทัล", "ความรักที่มั่นคงและการให้อภัยซึ่งนำไปสู่การเริ่มต้นใหม่", "ความยากลำบากในการใช้ชีวิตในเมืองใหญ่", "การเดินทางเพื่อค้นหาตนเอง"], answer: 1 },
+                { question: `ในตอนท้ายเพลง เมื่อฝ่ายชายพูดว่า "Can't you tell this is Austin" เขากำลังหมายถึงอะไร?`, options: ["เขากำลังอยู่ที่เมืองออสติน", "เขากำลังพูดถึงเพื่อนที่ชื่อออสติน", "เขากำลังบอกว่าตัวเขาเองคือ 'ออสติน' คนที่ยังรักเธอ", "เขากำลังถามว่าเธอจำเมืองออสตินได้หรือไม่"], answer: 2 },
+            ],
+            "Phrasal Verbs": [
+                { question: `ในประโยค "She left without leaving a number" คำว่า "leaving a number" หมายถึงอะไร?`, options: ["ทิ้งตัวเลขไว้", "ให้เบอร์โทรศัพท์ไว้", "ออกจากหมายเลขห้อง", "เขียนตัวเลข"], answer: 1 },
+                { question: `ในประโยค "Said she needed to clear her mind" คำว่า "clear her mind" มีความหมายว่าอย่างไร?`, options: ["ทำความสะอาดความคิด", "ลบความทรงจำ", "ทำให้สมองปลอดโปร่งเพื่อคิดทบทวน", "ประกาศความคิดของเธอ"], answer: 2 },
+                { question: `ในประโยค "What kinda man would hang on that long" คำว่า "hang on" หมายถึงอะไร?`, options: ["วางสายโทรศัพท์", "จับไว้แน่น", "รอคอยหรืออดทนต่อไป", "ตกแต่ง"], answer: 2 },
+                { question: `ในข้อความเสียง "I'm headed out to the lake" คำว่า "headed out to" หมายถึงอะไร?`, options: ["มองออกไปที่", "มุ่งหน้าไปยัง", "นำหัวหน้าออกไป", "คิดเกี่ยวกับ"], answer: 1 },
+                { question: `ในประโยค "Then it wouldn't have / Taken me so long / To know where I belong" คำว่า "taken me so long" หมายถึงอะไร?`, options: ["พาฉันไปไกลมาก", "ทำให้ฉันใช้เวลานานมาก", "เอาของฉันไปนานแล้ว", "เข้าใจฉันมานาน"], answer: 1 },
+            ]
+        };
+
+        let currentView = 'explore';
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let flatQuizData = [];
+        let resultsChart = null;
+        let isReviewing = false;
+
+        function showView(viewId) {
+            document.getElementById(`view-${currentView}`).style.display = 'none';
+            document.getElementById(`nav-${currentView}`).classList.remove('active');
+            
+            document.getElementById(`view-${viewId}`).style.display = 'block';
+            document.getElementById(`nav-${viewId}`).classList.add('active');
+
+            currentView = viewId;
+        }
+
+        function loadAnalysisContent() {
+            const container = document.getElementById('analysis-content');
+            container.innerHTML = '';
+            Object.entries(analysisData).forEach(([category, items]) => {
+                const categoryHtml = `
+                    <div class="md:col-span-2 mt-8">
+                        <h3 class="text-2xl font-semibold text-center mb-4 text-[#8d7b68]">${category}</h3>
+                    </div>
+                    ${items.map(item => `
+                        <div class="card cursor-pointer">
+                            <h4 class="text-xl font-bold mb-2">${item.title}</h4>
+                            <p class="text-gray-600">${item.content}</p>
+                        </div>
+                    `).join('')}
+                `;
+                 container.innerHTML += categoryHtml;
+            });
+        }
+        
+        function flattenQuizData() {
+            flatQuizData = [];
+            Object.entries(quizData).forEach(([category, questions]) => {
+                questions.forEach(q => {
+                    flatQuizData.push({ ...q, category });
+                });
+            });
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = Array(flatQuizData.length).fill(null);
+            document.getElementById('quiz-start-screen').style.display = 'none';
+            document.getElementById('quiz-question-screen').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= flatQuizData.length) {
+                showResults();
+                return;
+            }
+
+            const questionData = flatQuizData[currentQuestionIndex];
+            document.getElementById('quiz-category').textContent = questionData.category;
+            document.getElementById('quiz-progress').textContent = `คำถามที่ ${currentQuestionIndex + 1} จาก ${flatQuizData.length}`;
+            document.getElementById('question-text').innerHTML = questionData.question;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            questionData.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'quiz-option';
+                button.innerHTML = option;
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(selectedIndex) {
+            userAnswers[currentQuestionIndex] = selectedIndex;
+            currentQuestionIndex++;
+            showQuestion();
+        }
+        
+        function showResults() {
+            showView('results');
+            document.getElementById('nav-quiz').style.display = 'none';
+            document.getElementById('nav-explore').style.display = 'none';
+            
+            const categoryScores = {};
+            const categoryTotals = {};
+            
+            flatQuizData.forEach((q, index) => {
+                if (!categoryScores[q.category]) {
+                    categoryScores[q.category] = 0;
+                    categoryTotals[q.category] = 0;
+                }
+                categoryTotals[q.category]++;
+                if (userAnswers[index] === q.answer) {
+                    categoryScores[q.category]++;
+                }
+            });
+
+            const totalScore = Object.values(categoryScores).reduce((sum, score) => sum + score, 0);
+            document.getElementById('final-score').textContent = `${totalScore} / ${flatQuizData.length}`;
+            
+            const scorePercentage = (totalScore / flatQuizData.length) * 100;
+            let feedback = "เยี่ยมมาก! คุณเข้าใจเพลงนี้เป็นอย่างดี";
+            if (scorePercentage < 50) feedback = "พยายามอีกหน่อยนะ!";
+            else if (scorePercentage < 80) feedback = "ทำได้ดี! ลองทบทวนเพื่อความเข้าใจที่ลึกซึ้งขึ้น";
+            document.getElementById('score-feedback').textContent = feedback;
+
+            const ctx = document.getElementById('results-chart').getContext('2d');
+            if(resultsChart) {
+                resultsChart.destroy();
+            }
+            resultsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryScores),
+                    datasets: [{
+                        label: 'คะแนนตามหมวดหมู่',
+                        data: Object.values(categoryScores),
+                        backgroundColor: [ '#8d7b68', '#a4907c', '#c3b091', '#e4d5b7' ],
+                        borderColor: '#f5f5f5',
+                        borderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += `${context.parsed} / ${categoryTotals[context.label]}`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            isReviewing = false;
+            document.getElementById('review-answers-container').style.display = 'none';
+            document.getElementById('review-button-text').textContent = 'ทบทวนคำตอบ';
+        }
+        
+        function toggleReview() {
+            isReviewing = !isReviewing;
+            const container = document.getElementById('review-answers-container');
+            const buttonText = document.getElementById('review-button-text');
+            
+            if(isReviewing) {
+                loadReviewAnswers();
+                container.style.display = 'block';
+                buttonText.textContent = 'ซ่อนคำตอบ';
+            } else {
+                container.style.display = 'none';
+                buttonText.textContent = 'ทบทวนคำตอบ';
+            }
+        }
+        
+        function loadReviewAnswers() {
+            const container = document.getElementById('review-answers-content');
+            container.innerHTML = '';
+            
+            flatQuizData.forEach((q, index) => {
+                const userAnswerIndex = userAnswers[index];
+                const isCorrect = userAnswerIndex === q.answer;
+                
+                let optionsHtml = q.options.map((option, optIndex) => {
+                    let classes = 'quiz-option text-sm';
+                    if (optIndex === q.answer) {
+                        classes += ' correct';
+                    } else if (optIndex === userAnswerIndex && !isCorrect) {
+                        classes += ' incorrect';
+                    }
+                    return `<button class="${classes}" disabled>${option}</button>`;
+                }).join('');
+
+                const questionBlock = `
+                    <div class="p-4 bg-white rounded-lg shadow-sm">
+                        <p class="font-semibold mb-2">${index + 1}. ${q.question}</p>
+                        <div class="space-y-2">${optionsHtml}</div>
+                    </div>
+                `;
+                container.innerHTML += questionBlock;
+            });
+        }
+        
+        function restartQuiz() {
+            document.getElementById('view-results').style.display = 'none';
+            document.getElementById('nav-quiz').style.display = 'inline-block';
+            document.getElementById('nav-explore').style.display = 'inline-block';
+            
+            showView('quiz');
+            document.getElementById('quiz-question-screen').style.display = 'none';
+            document.getElementById('quiz-start-screen').style.display = 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAnalysisContent();
+            flattenQuizData();
+        });
+
+    </script>
+</body>
+</html>

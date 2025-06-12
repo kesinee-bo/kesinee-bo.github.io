@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง The Nights - Avicii</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Golden Hour Memories (Warm neutrals like stone/amber, inspired by the song's reflective and inspiring tone) -->
+    <!-- Application Structure Plan: A single-page app with a sticky top navigation bar for jumping between four main sections: Overview, Lyric Exploration, Thematic Analysis, and an Interactive Quiz. This structure breaks the dense report into manageable, user-driven chunks, prioritizing active exploration over passive reading. The lyric exploration is the centerpiece, allowing users to click on lyrics to reveal analysis, making the connection between the text and its meaning direct and intuitive. The quiz at the end reinforces learning. -->
+    <!-- Visualization & Content Choices: Report's textual analysis is transformed into interactive elements. Lyric analysis uses clickable text to show pop-up explanations (JS). The grammatical tense flow is shown with a simple HTML/CSS diagram. The main data visualization is a Chart.js doughnut chart that appears after the quiz to dynamically display the user's score, providing a more engaging summary than plain text. Phrasal verbs are in a styled HTML table for clarity. Themes are presented in a card layout for scannability. All choices are designed to make the original report's content more engaging and easier to digest. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+        }
+        .interactive-lyric {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border-bottom: 2px dotted #f59e0b; /* amber-500 */
+        }
+        .interactive-lyric:hover {
+            background-color: #fef3c7; /* amber-100 */
+            color: #b45309; /* amber-700 */
+        }
+        .nav-link {
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #f59e0b; /* amber-500 */
+        }
+        .quiz-option {
+            transition: background-color 0.2s;
+        }
+        .quiz-option.selected {
+            background-color: #fef3c7; /* amber-100 */
+            border-color: #f59e0b; /* amber-500 */
+        }
+        .quiz-option.correct {
+            background-color: #dcfce7; /* green-100 */
+            border-color: #22c55e; /* green-500 */
+        }
+        .quiz-option.incorrect {
+            background-color: #fee2e2; /* red-100 */
+            border-color: #ef4444; /* red-500 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800">
+
+    <!-- Header -->
+    <header class="bg-stone-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6 md:py-10 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-amber-400">The Nights</h1>
+            <p class="text-xl md:text-2xl mt-2 font-light">Avicii</p>
+            <p class="text-lg md:text-xl mt-6 font-light italic max-w-2xl mx-auto">"So live a life you will remember."</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 bg-white/80 backdrop-blur-sm shadow-md z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center items-center space-x-4 md:space-x-8 py-3 text-sm md:text-base font-medium">
+                <a href="#overview" class="nav-link text-stone-600">ภาพรวม</a>
+                <a href="#lyrics" class="nav-link text-stone-600">สำรวจเนื้อเพลง</a>
+                <a href="#themes" class="nav-link text-stone-600">แก่นเรื่อง</a>
+                <a href="#quiz" class="nav-link text-stone-600">ทดสอบความเข้าใจ</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <!-- Section 1: Overview -->
+        <section id="overview" class="mb-16">
+            <h2 class="text-3xl font-bold text-amber-600 mb-6 text-center">ภาพรวมและเบื้องหลัง</h2>
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg space-y-6">
+                <p class="text-lg leading-relaxed">เพลง "The Nights" โดย Avicii เปิดตัวในปี 2014 และกลายเป็นเพลงที่สร้างแรงบันดาลใจไปทั่วโลก ด้วยสาระสำคัญที่กระตุ้นให้ผู้ฟังใช้ชีวิตอย่างเต็มที่และสร้างความทรงจำอันล้ำค่า เพลงนี้มีท่วงทำนองที่ติดหูและให้ความรู้สึกฮึกเหิม ทำให้เข้าถึงผู้คนได้ในวงกว้าง</p>
+                <div class="border-l-4 border-amber-500 pl-4 py-2 bg-amber-50 rounded-r-lg">
+                    <h3 class="text-xl font-semibold text-stone-700">💡 เบื้องหลังบทเพลง</h3>
+                    <p class="mt-2 text-md leading-relaxed">แม้เพลงนี้จะโด่งดังในนามของ Avicii แต่ผู้ประพันธ์เนื้อร้องและทำนองดั้งเดิมคือ <strong class="text-amber-700">Nicholas Furlong</strong> เขาแต่งเพลงนี้ขึ้นเพื่อเป็น "บทเพลงรำลึกถึงบิดาของเขา" โดยมีชื่อเดิมว่า "My Father Told Me" ซึ่งสะท้อนถึงคำสอนและปัญญาที่พ่อได้มอบให้ นี่คือหัวใจสำคัญที่ทำให้เนื้อเพลงมีความลึกซึ้งและเป็นส่วนตัวอย่างยิ่ง ก่อนที่ Avicii จะนำมาเรียบเรียงและโปรดิวซ์ในสไตล์ที่เป็นเอกลักษณ์ของเขา</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Lyric Exploration -->
+        <section id="lyrics" class="mb-16">
+            <h2 class="text-3xl font-bold text-amber-600 mb-6 text-center">สำรวจเนื้อเพลง</h2>
+            <div class="lg:flex lg:space-x-8">
+                <div class="lg:w-1/2 bg-white p-6 md:p-8 rounded-xl shadow-lg leading-loose text-lg font-light">
+                    <h3 class="text-2xl font-semibold mb-4 text-stone-700 border-b-2 border-amber-200 pb-2">Lyrics</h3>
+                    <p>
+                        He said, "One day you'll <span class="interactive-lyric" data-key="leave_behind">leave this world behind</span><br>
+                        So <span class="interactive-lyric" data-key="live_a_life">live a life you will remember</span>."<br>
+                        My father told me when I was just a child<br>
+                        These are the nights that never die<br>
+                        My father <span class="interactive-lyric" data-key="told_me">told me</span><br>
+                        <br>
+                        He said, "<span class="interactive-lyric" data-key="venture">Go venture</span> far beyond the shores.<br>
+                        Don't <span class="interactive-lyric" data-key="forsake">forsake</span> this life of yours."<br>
+                        I got to tell you, I got to tell you in my veins<br>
+                        I got that feeling, I got that feeling in my veins<br>
+                        <br>
+                        When I was younger, I would imagine a place<br>
+                        Where there was no name and no face<br>
+                        <br>
+                        Once upon a younger year<br>
+                        When all our <span class="interactive-lyric" data-key="shadows">shadows</span> disappeared<br>
+                        The <span class="interactive-lyric" data-key="animals">animals inside</span> <span class="interactive-lyric" data-key="came_out">came out</span> to play<br>
+                        <br>
+                        He said, "One day you'll leave this world behind<br>
+                        So live a life you will remember."<br>
+                        My father told me when I was just a child<br>
+                        These are the nights that never die<br>
+                        My father told me<br>
+                        <br>
+                        These are the nights that never die<br>
+                        My father told me<br>
+                        Hey, hey<br>
+                        <br>
+                        He said, "One day my father, he told me,<br>
+                        'Son, don't let it <span class="interactive-lyric" data-key="slip_away">slip away</span>.'"<br>
+                        When I was just a kid, I heard him say,<br>
+                        "'When you get older, your <span class="interactive-lyric" data-key="wild_heart">wild heart</span> will <span class="interactive-lyric" data-key="live_for">live for</span> younger days.'"<br>
+                        Think of me if ever you're afraid.<br>
+                        He said, "One day you'll leave this world behind<br>
+                        So live a life you will remember."
+                    </p>
+                </div>
+                <div id="analysis-panel" class="lg:w-1/2 mt-8 lg:mt-0 sticky top-24 h-fit bg-amber-50 p-6 rounded-xl border border-amber-200 shadow-lg">
+                    <h3 class="text-2xl font-semibold text-stone-700">📖 คำอธิบาย</h3>
+                    <p id="analysis-text" class="mt-4 text-stone-600">คลิกที่คำหรือวลีที่ขีดเส้นใต้ในเนื้อเพลงเพื่อดูคำอธิบายที่นี่</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Themes -->
+        <section id="themes" class="mb-16">
+            <h2 class="text-3xl font-bold text-amber-600 mb-8 text-center">แก่นเรื่องสำคัญ</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Theme Card 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl mb-4">🌟</div>
+                    <h3 class="text-xl font-semibold text-stone-800">ใช้ชีวิตที่คุณจะจดจำ</h3>
+                    <p class="mt-2 text-stone-600 font-light">นี่คือสาระสำคัญที่สุดของเพลง กระตุ้นให้เราสร้างคุณค่าให้กับประสบการณ์มากกว่าวัตถุ และทิ้งไว้ซึ่งเรื่องราวของชีวิตที่น่าจดจำ</p>
+                </div>
+                <!-- Theme Card 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl mb-4">👨‍👦</div>
+                    <h3 class="text-xl font-semibold text-stone-800">มรดกจากพ่อ</h3>
+                    <p class="mt-2 text-stone-600 font-light">คำแนะนำจากพ่อเป็นเหมือนเข็มทิศและแรงผลักดัน เน้นย้ำถึงการถ่ายทอดปัญญาระหว่างรุ่นและความรักในครอบครัวที่เป็นรากฐานของชีวิต</p>
+                </div>
+                <!-- Theme Card 3 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl mb-4">🚀</div>
+                    <h3 class="text-xl font-semibold text-stone-800">โอบรับการผจญภัย</h3>
+                    <p class="mt-2 text-stone-600 font-light">เพลงนี้เฉลิมฉลองจิตวิญญาณของวัยเยาว์ ความกล้าหาญที่จะก้าวออกจากความคุ้นเคย (comfort zone) และการเผชิญหน้ากับความกลัวเพื่อเติบโต</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Quiz -->
+        <section id="quiz">
+            <h2 class="text-3xl font-bold text-amber-600 mb-6 text-center">ทดสอบความเข้าใจ</h2>
+            <div id="quiz-container" class="bg-white p-6 md:p-8 rounded-xl shadow-lg max-w-3xl mx-auto">
+                <div id="quiz-intro">
+                     <p class="text-center text-lg mb-4">มาทดสอบความเข้าใจของคุณเกี่ยวกับเพลง "The Nights" กันเถอะ!</p>
+                     <button id="start-quiz-btn" class="w-full bg-amber-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-amber-600 transition-colors duration-300 text-lg">เริ่มทำแบบทดสอบ</button>
+                </div>
+                <div id="quiz-content" class="hidden">
+                    <div id="question-header" class="text-center mb-4">
+                        <p id="question-category" class="text-sm font-semibold text-amber-600"></p>
+                        <p id="question-counter" class="text-lg font-medium text-stone-500"></p>
+                    </div>
+                    <p id="question-text" class="text-xl font-semibold text-center mb-6 min-h-[6rem] flex items-center justify-center"></p>
+                    <div id="options-container" class="space-y-4"></div>
+                    <div id="feedback-container" class="mt-4 text-center font-medium"></div>
+                    <button id="next-question-btn" class="w-full mt-6 bg-stone-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-stone-800 transition-colors duration-300">คำถามถัดไป</button>
+                </div>
+                <div id="quiz-results" class="hidden text-center">
+                    <h3 class="text-2xl font-bold mb-4">ผลการทดสอบ</h3>
+                    <p class="text-lg mb-4">คุณทำได้ <span id="score-value" class="font-bold text-amber-600 text-2xl"></span> คะแนน จาก <span id="total-questions" class="font-bold text-2xl"></span> คะแนน!</p>
+                    <div class="chart-container my-4">
+                        <canvas id="results-chart"></canvas>
+                    </div>
+                    <button id="restart-quiz-btn" class="bg-amber-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-amber-600 transition-colors duration-300">ลองอีกครั้ง</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center py-6 mt-12 bg-stone-100 border-t border-stone-200">
+        <p class="text-stone-500 text-sm">Interactive Analysis by Gemini</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Lyric Analysis Logic
+            const analysisData = {
+                leave_behind: { title: "Phrasal Verb: leave behind", text: "หมายถึง การจากไปจากสถานที่หรือสภาวะอย่างถาวร ในบริบทนี้คือความตาย และเน้นย้ำถึงการทิ้ง 'มรดก' หรือความทรงจำไว้เบื้องหลัง" },
+                live_a_life: { title: "แก่นเรื่องหลัก (Main Theme)", text: "นี่คือสาระสำคัญของเพลง เป็นประโยคคำสั่ง (Imperative) ที่กระตุ้นให้ผู้ฟังใช้ชีวิตอย่างมีความหมายและสร้างประสบการณ์ที่น่าจดจำ" },
+                told_me: { title: "Tense: Past Simple", text: "การใช้ Past Simple ('told') เป็นการยึดคำแนะนำไว้กับความทรงจำในอดีตที่เกิดขึ้นจริง ทำให้คำสอนของพ่อมีน้ำหนักและน่าเชื่อถือ" },
+                venture: { title: "คำศัพท์ (Vocabulary): Venture", text: "คำกริยานี้หมายถึง 'การออกไปผจญภัย' ในที่ที่ไม่รู้จัก เต็มไปด้วยความกล้าหาญ เป็นการสร้างบรรยากาศแห่งการสำรวจตั้งแต่ต้น" },
+                forsake: { title: "คำศัพท์ (Vocabulary): Forsake", text: "คำกริยาที่มีความหมายหนักแน่นนี้หมายถึง 'การละทิ้ง' หรือทอดทิ้งสิ่งล้ำค่า เป็นการย้ำเตือนไม่ให้ปล่อยชีวิตให้สูญเปล่า" },
+                shadows: { title: "อุปมา (Metaphor): Shadows", text: "'เงา' ในที่นี้เป็นสัญลักษณ์ของความกลัว ความกังวล หรือภาระของผู้ใหญ่ การที่มัน 'เลือนหายไป' หมายถึงช่วงเวลาแห่งความไร้เดียงสาและกล้าหาญในวัยเยาว์" },
+                animals: { title: "อุปมา (Metaphor): Animals inside", text: "'สัตว์ร้ายภายใน' เปรียบได้กับสัญชาตญาณดิบ พลังงาน หรือความสุขที่ไม่ถูกจำกัด การที่มัน 'ออกมาเล่น' คือการปลดปล่อยตัวตนที่แท้จริงอย่างอิสระ" },
+                came_out: { title: "Phrasal Verb: came out", text: "หมายถึง 'ปรากฏตัว' หรือแสดงตัวออกมา ในที่นี้ใช้ร่วมกับ 'to play' เพื่อสื่อถึงการปลดปล่อยอย่างไม่ยับยั้งชั่งใจ" },
+                slip_away: { title: "Phrasal Verb: slip away", text: "หมายถึง 'หลุดลอยไป' หรือสูญเสียไปอย่างง่ายดายโดยไม่ทันสังเกต ในที่นี้หมายถึงเวลา โอกาส หรือชีวิตที่อาจผ่านไปอย่างรวดเร็ว" },
+                wild_heart: { title: "อุปมา (Metaphor): Wild heart", text: "'หัวใจอันโลดเถื่อน' สื่อถึงจิตวิญญาณแห่งการผจญภัย ความปรารถนาอิสรภาพ และความกระตือรือร้นแบบเยาว์วัยที่จะยังคงอยู่แม้เมื่ออายุมากขึ้น" },
+                live_for: { title: "Phrasal Verb: live for", text: "หมายถึง การมีบางสิ่งเป็นจุดมุ่งหมายหลักหรือความสุขที่โหยหาในชีวิต ในที่นี้คือการที่คนเราเมื่ออายุมากขึ้นจะโหยหาและทะนุถนอมความทรงจำในวัยหนุ่มสาว" },
+            };
+
+            const lyricSpans = document.querySelectorAll('.interactive-lyric');
+            const analysisPanel = document.getElementById('analysis-panel');
+            const analysisText = document.getElementById('analysis-text');
+
+            lyricSpans.forEach(span => {
+                span.addEventListener('click', () => {
+                    const key = span.dataset.key;
+                    if (analysisData[key]) {
+                        analysisPanel.innerHTML = `
+                            <h3 class="text-2xl font-semibold text-stone-700">${analysisData[key].title}</h3>
+                            <p class="mt-4 text-stone-600 leading-relaxed">${analysisData[key].text}</p>
+                        `;
+                    }
+                });
+            });
+
+            // Quiz Logic
+            const quizData = [
+                { category: "การฟัง (เติมคำ)", question: "One day my father, he told me, 'Son, don't let it ______ away.'", options: ["run", "slip", "fly", "go"], answer: 1 },
+                { category: "การฟัง (เติมคำ)", question: "When you get older, your wild ______ will live for younger days.", options: ["spirit", "mind", "heart", "soul"], answer: 2 },
+                { category: "การฟัง (เติมคำ)", question: "He said, 'One day you'll ______ this world behind...'", options: ["leave", "find", "forget", "take"], answer: 0 },
+                { category: "การฟัง (เติมคำ)", question: "Once upon a younger year, when all our ______ disappeared.", options: ["dreams", "fears", "shadows", "hopes"], answer: 2 },
+                { category: "การฟัง (เติมคำ)", question: "He took me in his arms, I heard him say, 'These are the nights that never ______.'", options: ["end", "fade", "change", "die"], answer: 3 },
+                { category: "การใช้ Tenses", question: "ในท่อน \"One day my father he **told** me,\" คำว่า \"told\" อยู่ใน Tense ใด?", options: ["Present Simple", "Past Simple", "Future Simple", "Present Perfect"], answer: 1 },
+                { category: "การใช้ Tenses", question: "ท่อน \"...your wild heart **will live** for younger days\" ใช้ Tense ใดเพื่อสื่อถึงอนาคต?", options: ["Present Continuous", "Past Perfect", "Future Simple", "Present Simple"], answer: 2 },
+                { category: "การใช้ Tenses", question: "ประโยคคำสั่ง เช่น \"Son, **don't let it slip away**\" อยู่ใน Mood ใด?", options: ["Indicative Mood", "Subjunctive Mood", "Imperative Mood", "Conditional Mood"], answer: 2 },
+                { category: "การใช้ Tenses", question: "การใช้ Past Simple Tense ในการเล่าคำพูดของพ่อมีจุดประสงค์หลักเพื่ออะไร?", options: ["เพื่อแสดงการกระทำที่กำลังดำเนินอยู่", "เพื่อสร้างความรู้สึกไม่แน่นอน", "เพื่อยึดเหนี่ยวคำแนะนำกับอดีตที่น่าเชื่อถือ", "เพื่อคาดการณ์อนาคต"], answer: 2 },
+                { category: "การใช้ Tenses", question: "ท่อน \"These are the nights that **never die**\" ใช้ Tense ใดเป็นหลัก?", options: ["Past Simple", "Present Simple", "Future Perfect", "Past Continuous"], answer: 1 },
+                { category: "ความเข้าใจในความหมาย", question: "สาระสำคัญหลักของเพลง \"The Nights\" คืออะไร?", options: ["การทะนุถนอมวัยเยาว์", "การใช้ชีวิตที่น่าจดจำ", "การเชื่อฟังพ่อแม่", "การปาร์ตี้ทุกคืน"], answer: 1 },
+                { category: "ความเข้าใจในความหมาย", question: "คำว่า \"shadows\" ในท่อน \"when all our shadows disappeared\" น่าจะหมายถึงอะไร?", options: ["ความมืด", "ความทรงจำที่ไม่ดี", "ความกลัวและความกังวล", "เพื่อนในวัยเด็ก"], answer: 2 },
+                { category: "ความเข้าใจในความหมาย", question: "คำแนะนำหลักที่พ่อมอบให้ในเพลงคืออะไร?", options: ["ให้หาเงินให้ได้มากๆ", "ให้เดินทางไปทั่วโลก", "ให้ใช้ชีวิตอย่างคุ้มค่า", "ให้ระวังคนแปลกหน้า"], answer: 2 },
+                { category: "ความเข้าใจในความหมาย", question: "วลี \"The animals inside came out to play\" สื่อถึงอะไร?", options: ["การไปสวนสัตว์", "การปลดปล่อยตัวตนที่แท้จริง", "การเล่นกับสัตว์เลี้ยง", "ความฝันที่แปลกประหลาด"], answer: 1 },
+                { category: "ความเข้าใจในความหมาย", question: "ตามเนื้อเพลง อะไรคือสิ่งที่จะ \"never die\" (ไม่มีวันตาย)?", options: ["ความร่ำรวย", "ความเยาว์วัย", "ค่ำคืนแห่งประสบการณ์ที่น่าจดจำ", "ความกลัว"], answer: 2 },
+                { category: "คำกริยาวลี (Phrasal Verbs)", question: "ในท่อน \"...don't let it **slip away**,\" คำว่า \"slip away\" หมายถึงอะไร?", options: ["ลื่นล้ม", "ผ่านไปหรือสูญหายไปโดยไม่ทันสังเกต", "แอบหนี", "พูดพล่อยๆ"], answer: 1 },
+                { category: "คำกริยาวลี (Phrasal Verbs)", question: "ในท่อน \"The animals inside **came out** to play,\" คำว่า \"came out\" หมายถึงอะไร?", options: ["ออกมาจากอาคาร", "ถูกตีพิมพ์", "ปรากฏตัวหรือแสดงออกมา", "กลายเป็นที่นิยม"], answer: 2 },
+                { category: "คำกริยาวลี (Phrasal Verbs)", question: "ในท่อน \"...you'll **leave** this world **behind**,\" คำว่า \"leave behind\" หมายถึงอะไร?", options: ["ลืมบางสิ่งไว้", "จากไปและทิ้งบางสิ่งไว้ (มรดก)", "ตามหลังคนอื่น", "หยุดทำบางสิ่ง"], answer: 1 },
+                { category: "คำกริยาวลี (Phrasal Verbs)", question: "ในท่อน \"...your wild heart will **live for** younger days,\" คำว่า \"live for\" หมายถึงอะไร?", options: ["อาศัยอยู่ในช่วงเวลานั้น", "มีชีวิตอยู่เพื่อรอคอย", "มีบางสิ่งเป็นจุดมุ่งหมาย/ความสุขหลัก", "ทำงานเพื่อหาเลี้ยงชีพ"], answer: 2 },
+                { category: "คำกริยาวลี (Phrasal Verbs)", question: "คำว่า \"slip away\" ในเพลงนี้อ้างถึงสิ่งใดเป็นหลักที่ไม่ต้องการให้สูญเสียไป?", options: ["เงินทอง", "เพื่อนฝูง", "เวลา, โอกาส, หรือชีวิต", "สัตว์เลี้ยง"], answer: 2 }
+            ];
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let chartInstance = null;
+            let answered = false;
+
+            const quizIntro = document.getElementById('quiz-intro');
+            const quizContent = document.getElementById('quiz-content');
+            const quizResults = document.getElementById('quiz-results');
+            const startBtn = document.getElementById('start-quiz-btn');
+            const nextBtn = document.getElementById('next-question-btn');
+            const restartBtn = document.getElementById('restart-quiz-btn');
+
+            const questionCategoryEl = document.getElementById('question-category');
+            const questionCounterEl = document.getElementById('question-counter');
+            const questionTextEl = document.getElementById('question-text');
+            const optionsContainerEl = document.getElementById('options-container');
+            const feedbackContainerEl = document.getElementById('feedback-container');
+            
+            function startQuiz() {
+                currentQuestionIndex = 0;
+                score = 0;
+                answered = false;
+                quizIntro.classList.add('hidden');
+                quizResults.classList.add('hidden');
+                quizContent.classList.remove('hidden');
+                nextBtn.classList.remove('hidden');
+                nextBtn.textContent = 'คำถามถัดไป';
+                loadQuestion();
+            }
+            
+            function loadQuestion() {
+                answered = false;
+                feedbackContainerEl.textContent = '';
+                const question = quizData[currentQuestionIndex];
+                questionCategoryEl.textContent = question.category;
+                questionCounterEl.textContent = `คำถามที่ ${currentQuestionIndex + 1} / ${quizData.length}`;
+                questionTextEl.innerHTML = question.question;
+                optionsContainerEl.innerHTML = '';
+                
+                question.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.innerHTML = option;
+                    button.classList.add('w-full', 'text-left', 'p-4', 'border-2', 'rounded-lg', 'quiz-option');
+                    button.onclick = () => selectAnswer(index, button);
+                    optionsContainerEl.appendChild(button);
+                });
+                
+                nextBtn.disabled = true;
+            }
+
+            function selectAnswer(selectedIndex, selectedButton) {
+                if (answered) return;
+                answered = true;
+                nextBtn.disabled = false;
+
+                const question = quizData[currentQuestionIndex];
+                const correct = selectedIndex === question.answer;
+
+                if (correct) {
+                    score++;
+                    feedbackContainerEl.textContent = 'ถูกต้อง!';
+                    feedbackContainerEl.style.color = '#22c55e';
+                } else {
+                    feedbackContainerEl.textContent = 'ผิดครับ! คำตอบที่ถูกต้องคือ: ' + question.options[question.answer];
+                    feedbackContainerEl.style.color = '#ef4444';
+                }
+
+                Array.from(optionsContainerEl.children).forEach((btn, index) => {
+                    btn.disabled = true;
+                    if (index === question.answer) {
+                        btn.classList.add('correct');
+                    } else if (index === selectedIndex) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+            }
+
+            function nextQuestion() {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    if (currentQuestionIndex === quizData.length - 1) {
+                        nextBtn.textContent = 'ดูผลลัพธ์';
+                    }
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }
+            
+            function showResults() {
+                quizContent.classList.add('hidden');
+                quizResults.classList.remove('hidden');
+                
+                document.getElementById('score-value').textContent = score;
+                document.getElementById('total-questions').textContent = quizData.length;
+                
+                const ctx = document.getElementById('results-chart').getContext('2d');
+                
+                if(chartInstance) {
+                    chartInstance.destroy();
+                }
+                
+                chartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['ถูกต้อง', 'ผิด'],
+                        datasets: [{
+                            data: [score, quizData.length - score],
+                            backgroundColor: ['#22c55e', '#ef4444'],
+                            borderColor: ['#ffffff', '#ffffff'],
+                            borderWidth: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 14,
+                                        family: 'Kanit'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                titleFont: { family: 'Kanit' },
+                                bodyFont: { family: 'Kanit' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            startBtn.addEventListener('click', startQuiz);
+            nextBtn.addEventListener('click', nextQuestion);
+            restartBtn.addEventListener('click', startQuiz);
+        });
+    </script>
+
+</body>
+</html>

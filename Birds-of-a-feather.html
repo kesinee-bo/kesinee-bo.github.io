@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>การวิเคราะห์เพลง 'BIRDS OF A FEATHER' - Billie Eilish</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals (Beige, Off-white, Dusty Rose accent) -->
+    <!-- Application Structure Plan: A single-page application with a sticky top navigation bar allowing users to jump to four distinct sections: Overview, Language Analysis, Themes, and an Interactive Quiz. This non-linear structure replaces the report's linear format, enhancing user-driven exploration. Language Analysis is further broken down into interactive components (chart for vocabulary, timeline for tenses, flip cards for phrasal verbs) to make dense information more digestible and engaging. The goal is to transform a static analysis into an interactive learning tool. -->
+    <!-- Visualization & Content Choices: 1. Vocabulary: Report's word lists -> Goal: Compare love vs. death language -> Viz: Grouped Bar Chart -> Interaction: Hover to see word examples -> Justification: Visually represents the song's core thematic tension -> Library: Chart.js/Canvas. 2. Tense Usage: Report's tense analysis -> Goal: Show narrative progression -> Viz: HTML/CSS/JS interactive timeline -> Interaction: Click points to reveal info -> Justification: More intuitive than text for showing time-based changes. 3. Phrasal Verbs: Report's list -> Goal: Define verbs -> Viz: HTML/CSS/JS Flip Cards -> Interaction: Click to flip -> Justification: Engaging and interactive way to learn definitions. 4. Quiz: Report's questions -> Goal: Test comprehension -> Viz: Multi-step JS form -> Interaction: Select answer, get feedback, see final score -> Justification: Standard and effective for interactive testing. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #FDFBF6;
+            color: #3C3633;
+        }
+        .nav-button {
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-button:hover, .nav-button.active {
+            color: #A0522D;
+            border-bottom-color: #A0522D;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #E0DCD7;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        .flip-card { perspective: 1000px; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1rem; border-radius: 0.5rem; }
+        .flip-card-front { background-color: #FFFBF5; border: 1px solid #E0DCD7; }
+        .flip-card-back { background-color: #F5EFE6; border: 1px solid #E0DCD7; transform: rotateY(180deg); }
+        .quiz-option { border: 2px solid #E0DCD7; transition: all 0.2s; }
+        .quiz-option:hover { border-color: #A0522D; background-color: #FFFBF5; }
+        .quiz-option.selected { border-color: #A0522D; background-color: #F5EFE6; }
+        .quiz-option.correct { background-color: #D1E7DD; border-color: #0F5132; }
+        .quiz-option.incorrect { background-color: #F8D7DA; border-color: #842029; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl md:text-2xl font-bold text-[#A0522D]">BIRDS OF A FEATHER</h1>
+                <div class="hidden md:flex space-x-6">
+                    <button onclick="scrollToSection('overview')" class="nav-button font-medium py-2">ภาพรวม</button>
+                    <button onclick="scrollToSection('language')" class="nav-button font-medium py-2">วิเคราะห์ภาษา</button>
+                    <button onclick="scrollToSection('themes')" class="nav-button font-medium py-2">แก่นเรื่อง</button>
+                    <button onclick="scrollToSection('quiz')" class="nav-button font-medium py-2">ทดสอบความเข้าใจ</button>
+                </div>
+                 <div class="md:hidden">
+                    <select onchange="scrollToSection(this.value)" class="bg-transparent font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-[#A0522D]">
+                        <option value="overview">ภาพรวม</option>
+                        <option value="language">วิเคราะห์ภาษา</option>
+                        <option value="themes">แก่นเรื่อง</option>
+                        <option value="quiz">ทดสอบความเข้าใจ</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <section id="overview" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl md:text-4xl font-bold mb-2">บทวิเคราะห์เพลง "BIRDS OF A FEATHER"</h2>
+                <p class="text-lg text-gray-600">โดย Billie Eilish</p>
+            </div>
+            <div class="max-w-3xl mx-auto card p-6 md:p-8 rounded-lg">
+                <h3 class="text-2xl font-semibold mb-4 text-[#A0522D]">บทนำ</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    เพลง "BIRDS OF A FEATHER" ของ Billie Eilish เป็นเพลงรักที่ดูอ่อนหวานแต่กลับแฝงไว้ด้วยความลึกซึ้งและความขัดแย้งที่น่าสนใจ แอปพลิเคชันนี้จะพาคุณไปสำรวจแง่มุมต่างๆ ของเพลง ตั้งแต่การเลือกใช้คำศัพท์ที่ทรงพลัง การใช้ไวยากรณ์เพื่อสร้างมิติทางอารมณ์ ไปจนถึงการวิเคราะห์แก่นเรื่องหลักที่ทำให้เพลงนี้โดนใจผู้ฟังทั่วโลก คุณจะได้เห็นว่าความรักและความตายถูกนำมาวางเคียงคู่กันเพื่อสร้างความหมายที่ลึกซึ้งได้อย่างไร และสุดท้ายคุณสามารถทดสอบความเข้าใจของคุณผ่านแบบทดสอบเชิงโต้ตอบได้
+                </p>
+            </div>
+        </section>
+
+        <section id="language" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">การวิเคราะห์เชิงลึกด้านภาษา</h2>
+             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">
+                ส่วนนี้จะเจาะลึกการใช้เครื่องมือทางภาษาในเพลง ตั้งแต่คลังศัพท์ที่ตัดกันอย่างชัดเจน, การใช้ Tense เพื่อเล่าเรื่องราวทางอารมณ์, ไปจนถึงกริยาวลีที่เพิ่มความสมจริงและอารมณ์ดิบให้กับเนื้อเพลง
+            </p>
+
+            <div class="space-y-12">
+                <div class="card p-6 md:p-8 rounded-lg">
+                    <h3 class="text-2xl font-semibold mb-4 text-center text-[#A0522D]">คลังศัพท์: ความรัก vs. ความตาย</h3>
+                    <p class="text-center text-gray-600 mb-6">เพลงนี้สร้างความตึงเครียดด้วยการใช้กลุ่มคำที่สื่อถึงความรักและความผูกพัน ควบคู่ไปกับกลุ่มคำที่สื่อถึงความตายอย่างชัดเจน แผนภูมินี้แสดงการเปรียบเทียบจำนวนคำในแต่ละกลุ่ม</p>
+                    <div class="chart-container">
+                        <canvas id="vocabChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card p-6 md:p-8 rounded-lg">
+                    <h3 class="text-2xl font-semibold mb-6 text-center text-[#A0522D]">การใช้ Tense: เส้นเวลาของอารมณ์</h3>
+                    <p class="text-center text-gray-600 mb-8">เพลงนี้ใช้ Tense อย่างมีกลยุทธ์เพื่อแสดงการเดินทางของความรู้สึก จากความเชื่อในอดีต สู่ความรู้สึกในปัจจุบัน และคำมั่นสัญญาในอนาคต คลิกที่แต่ละจุดบนเส้นเวลาเพื่อดูรายละเอียด</p>
+                    <div class="relative w-full py-4">
+                        <div class="absolute left-0 top-1/2 w-full h-0.5 bg-gray-300"></div>
+                        <div class="relative flex justify-between">
+                            <div class="text-center w-1/3">
+                                <button onclick="showTenseInfo('past')" class="mx-auto w-8 h-8 rounded-full bg-[#A0522D] text-white flex items-center justify-center ring-4 ring-white transition">1</button>
+                                <p class="mt-2 font-semibold">อดีต</p>
+                            </div>
+                            <div class="text-center w-1/3">
+                                <button onclick="showTenseInfo('present')" class="mx-auto w-8 h-8 rounded-full bg-[#A0522D] text-white flex items-center justify-center ring-4 ring-white transition">2</button>
+                                <p class="mt-2 font-semibold">ปัจจุบัน</p>
+                            </div>
+                            <div class="text-center w-1/3">
+                                <button onclick="showTenseInfo('future')" class="mx-auto w-8 h-8 rounded-full bg-[#A0522D] text-white flex items-center justify-center ring-4 ring-white transition">3</button>
+                                <p class="mt-2 font-semibold">อนาคต</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-6 md:p-8 rounded-lg">
+                    <h3 class="text-2xl font-semibold mb-6 text-center text-[#A0522D]">กริยาวลีที่น่าสนใจ</h3>
+                     <p class="text-center text-gray-600 mb-8">กริยาวลีช่วยเพิ่มความเป็นกันเองและสื่ออารมณ์ที่ชัดเจน คลิกที่การ์ดแต่ละใบเพื่อดูความหมายและตัวอย่างจากเพลง</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="flip-card h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front"><h4 class="text-xl font-bold">stick together</h4></div>
+                                <div class="flip-card-back">
+                                    <h5 class="font-semibold mb-1">ความหมาย</h5>
+                                    <p class="text-sm">อยู่ด้วยกัน, ไม่ทอดทิ้งกัน</p>
+                                    <p class="text-xs mt-2 italic">"we should stick together"</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flip-card h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front"><h4 class="text-xl font-bold">rot away</h4></div>
+                                <div class="flip-card-back">
+                                    <h5 class="font-semibold mb-1">ความหมาย</h5>
+                                    <p class="text-sm">เน่าเปื่อย, ผุพัง</p>
+                                    <p class="text-xs mt-2 italic">"'Til I rot away"</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flip-card h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front"><h4 class="text-xl font-bold">ride away</h4></div>
+                                <div class="flip-card-back">
+                                    <h5 class="font-semibold mb-1">ความหมาย</h5>
+                                    <p class="text-sm">จากไป (ในความตาย)</p>
+                                    <p class="text-xs mt-2 italic">"'Til I ride away"</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flip-card h-48 cursor-pointer" onclick="this.classList.toggle('flipped')">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front"><h4 class="text-xl font-bold">turn blue</h4></div>
+                                <div class="flip-card-back">
+                                    <h5 class="font-semibold mb-1">ความหมาย</h5>
+                                    <p class="text-sm">ภาวะใกล้ตาย, ตัวเขียว</p>
+                                     <p class="text-xs mt-2 italic">"if I'm turning blue"</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="themes" class="mb-16 scroll-mt-20">
+             <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">การวิเคราะห์แก่นเรื่องและความหมาย</h2>
+             <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">
+                เพลงนี้ไม่ได้มีแค่เรื่องความรัก แต่สำรวจแก่นเรื่องที่ซับซ้อนหลายอย่าง ตั้งแต่ความภักดีที่ไม่สั่นคลอน, ความกลัวการสูญเสีย, ไปจนถึงการยอมรับความตายและความไม่สมบูรณ์แบบในความสัมพันธ์ คลิกที่หัวข้อเพื่ออ่านรายละเอียด
+            </p>
+            <div id="accordion" class="max-w-3xl mx-auto space-y-3">
+            </div>
+        </section>
+
+        <section id="quiz" class="scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-8">ทดสอบความเข้าใจของคุณ</h2>
+            <div id="quiz-container" class="max-w-3xl mx-auto card p-6 md:p-8 rounded-lg">
+            </div>
+        </section>
+
+    </main>
+
+    <div id="tense-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 opacity-0 pointer-events-none">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full relative">
+            <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h3 id="modal-title" class="text-2xl font-bold mb-4 text-[#A0522D]"></h3>
+            <p id="modal-tense" class="font-semibold text-gray-500 mb-2"></p>
+            <p id="modal-function" class="text-gray-700 mb-4"></p>
+            <blockquote id="modal-example" class="border-l-4 border-[#A0522D] pl-4 italic text-gray-600"></blockquote>
+        </div>
+    </div>
+    
+    <script>
+        const scrollSections = {
+            overview: document.getElementById('overview'),
+            language: document.getElementById('language'),
+            themes: document.getElementById('themes'),
+            quiz: document.getElementById('quiz')
+        };
+        const navButtons = document.querySelectorAll('.nav-button');
+
+        function scrollToSection(id) {
+            scrollSections[id].scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            for (const id in scrollSections) {
+                const section = scrollSections[id];
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = id;
+                }
+            }
+            navButtons.forEach(button => {
+                button.classList.remove('active');
+                if (button.textContent.toLowerCase().includes(current)) {
+                    button.classList.add('active');
+                }
+            });
+        });
+
+        const vocabData = {
+            labels: ['กลุ่มคำศัพท์'],
+            datasets: [
+                {
+                    label: 'ความรัก / ความผูกพัน',
+                    data: [5],
+                    backgroundColor: 'rgba(160, 82, 45, 0.7)',
+                    borderColor: 'rgba(160, 82, 45, 1)',
+                    borderWidth: 1,
+                    tooltip: {
+                        callbacks: {
+                            footer: () => ['stay', 'forever', 'always', 'love', 'baby']
+                        }
+                    }
+                },
+                {
+                    label: 'ความตาย / ความสิ้นสุด',
+                    data: [7],
+                    backgroundColor: 'rgba(92, 92, 92, 0.7)',
+                    borderColor: 'rgba(92, 92, 92, 1)',
+                    borderWidth: 1,
+                    tooltip: {
+                        callbacks: {
+                           footer: () => ['grave', 'dead and buried', 'casket', 'die', 'light leaves my eyes', 'rot away', 'turning blue']
+                        }
+                    }
+                }
+            ]
+        };
+
+        const vocabChartCtx = document.getElementById('vocabChart').getContext('2d');
+        new Chart(vocabChartCtx, {
+            type: 'bar',
+            data: vocabData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        bodyFont: { family: 'Kanit' },
+                        titleFont: { family: 'Kanit' },
+                        footerFont: { family: 'Kanit' },
+                        callbacks: {
+                             footer: (tooltipItems) => {
+                                let category = tooltipItems[0].dataset.label;
+                                if (category === 'ความรัก / ความผูกพัน') {
+                                    return ['stay', 'forever', 'always', 'love', 'baby'];
+                                } else if (category === 'ความตาย / ความสิ้นสุด') {
+                                    return ['grave', 'dead and buried', 'casket', 'die', 'rot away', 'turning blue'];
+                                }
+                                return '';
+                             }
+                        }
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'จำนวนคำ/วลี', font: { family: 'Kanit' } },
+                        ticks: { font: { family: 'Kanit' } }
+                    },
+                    x: { ticks: { font: { family: 'Kanit' } } }
+                }
+            }
+        });
+
+        const tenseInfoData = {
+            past: {
+                title: 'อดีต: การเปลี่ยนแปลง',
+                tense: 'Past Simple Tense',
+                function: 'ใช้อ้างถึงความคิดหรือความเชื่อในอดีตที่ได้เปลี่ยนแปลงไปแล้ว ซึ่งเน้นย้ำถึงพลังของความรักในปัจจุบัน',
+                example: "I said I'd never think I wasn't better alone"
+            },
+            present: {
+                title: 'ปัจจุบัน: ความรู้สึกที่แท้จริง',
+                tense: 'Present Simple Tense',
+                function: 'ใช้เพื่อประกาศความรู้สึก ความปรารถนา และความจริงในความสัมพันธ์ ณ ขณะปัจจุบัน ทำให้เพลงรู้สึกจริงใจและเร่งด่วน',
+                example: "I want you to stay"
+            },
+            future: {
+                title: 'อนาคต: คำมั่นสัญญา',
+                tense: 'Future Simple Tense',
+                function: 'ใช้สำหรับให้คำมั่นสัญญาที่หนักแน่นเกี่ยวกับอนาคต ตอกย้ำถึงความรักที่ไม่มีวันสิ้นสุดจนกว่าความตายจะมาพราก',
+                example: "I'll love you 'til the day that I die"
+            }
+        };
+
+        const modal = document.getElementById('tense-modal');
+        function showTenseInfo(tenseKey) {
+            const data = tenseInfoData[tenseKey];
+            document.getElementById('modal-title').textContent = data.title;
+            document.getElementById('modal-tense').textContent = data.tense;
+            document.getElementById('modal-function').textContent = data.function;
+            document.getElementById('modal-example').textContent = data.example;
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        const themesData = [
+            { title: 'ความรักที่มั่นคงและภักดีชั่วนิรันดร์', content: 'แก่นเรื่องหลักคือความผูกพันที่เด็ดขาดและไม่มีเงื่อนไข แสดงออกผ่านคำสัญญาที่ว่าจะรักไปจนวันตาย สะท้อนทัศนคติแบบ "ยอมตายไปด้วยกัน" (ride or die)' },
+            { title: 'ความกลัวการพลัดพรากและความเปราะบาง', content: 'ความรักที่เข้มข้นมาพร้อมกับความกลัวการสูญเสียที่รุนแรง เพลงถ่ายทอดความเปราะบางนี้ออกมาอย่างจริงใจ ทำให้ผู้ฟังเข้าถึงได้ง่าย' },
+            { title: 'ความตายและการเปรียบเทียบกับความรัก', content: 'การใช้ภาพความตายอย่างโจ่งแจ้งไม่ได้ลดทอนความรัก แต่กลับตอกย้ำความลึกซึ้งและจริงจังของมัน ทำให้ความรักเป็นการเดิมพันสูงสุดของชีวิต' },
+            { title: 'การเปลี่ยนแปลงและการนิยามตนเองใหม่', content: 'เพลงชี้ให้เห็นว่าความรักครั้งนี้ได้เปลี่ยนแปลงมุมมองของผู้พูดที่มีต่อชีวิตและความสัมพันธ์ จากที่เคยเชื่อว่าการอยู่คนเดียวดีกว่า' },
+            { title: 'ความจริงแท้ผ่านความซับซ้อน', content: 'เพลงยอมรับความขัดแย้งและความไม่สมบูรณ์แบบในความรัก มันทั้งอ่อนหวานและแฝงด้วยความ "เป็นพิษ" ซึ่งสะท้อนความจริงของความสัมพันธ์มนุษย์ได้ดีกว่าภาพในอุดมคติ' }
+        ];
+
+        const accordionContainer = document.getElementById('accordion');
+        themesData.forEach((theme, index) => {
+            const item = document.createElement('div');
+            item.className = 'card rounded-lg overflow-hidden';
+            item.innerHTML = `
+                <button class="w-full text-left p-4 flex justify-between items-center bg-white hover:bg-gray-50 transition" onclick="toggleAccordion(${index})">
+                    <h4 class="font-semibold text-lg text-[#A0522D]">${theme.title}</h4>
+                    <span class="transform transition-transform duration-300 accordion-icon-item-${index}">▼</span>
+                </button>
+                <div id="accordion-content-${index}" class="px-4 pb-4 text-gray-700 max-h-0 overflow-hidden transition-max-height duration-500 ease-in-out">
+                    <p>${theme.content}</p>
+                </div>
+            `;
+            accordionContainer.appendChild(item);
+        });
+        
+        function toggleAccordion(index) {
+            const content = document.getElementById(`accordion-content-${index}`);
+            const icon = document.querySelector(`.accordion-icon-item-${index}`);
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                 document.querySelectorAll('[id^="accordion-content-"]').forEach(el => el.style.maxHeight = null);
+                 document.querySelectorAll('[class*="accordion-icon-item-"]').forEach(el => el.style.transform = 'rotate(0deg)');
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+        
+        const quizData = [
+            { section: "ทดสอบการฟัง", question: "'I want you to ______ 'til I'm in the grave.'", options: ["leave", "stay", "sing", "play"], answer: "stay" },
+            { section: "ทดสอบการฟัง", question: "'Birds of a feather, we should ______ together.'", options: ["fly", "cry", "stick", "die"], answer: "stick" },
+            { section: "ทดสอบการฟัง", question: "'I'll love you 'til the day that I ______.'", options: ["try", "fly", "cry", "die"], answer: "die" },
+            { section: "ทดสอบการฟัง", question: "'If you go, I'm ______ too, oh.'", options: ["staying", "going", "crying", "lying"], answer: "going" },
+            { section: "ทดสอบการฟัง", question: "'And if I'm turning ______, please don't save me.'", options: ["red", "pale", "blue", "green"], answer: "blue" },
+            { section: "การใช้ Tenses", question: "ในประโยค 'I want you to stay' กาลที่ใช้ (Present Simple) สื่อถึงสิ่งใดเป็นหลัก?", options: ["การกระทำที่เพิ่งสิ้นสุดลง", "ความปรารถนาหรือความรู้สึกในปัจจุบัน", "แผนการในอนาคตอันใกล้", "เหตุการณ์ในอดีตที่ส่งผลถึงปัจจุบัน"], answer: "ความปรารถนาหรือความรู้สึกในปัจจุบัน" },
+            { section: "การใช้ Tenses", question: "ประโยค 'I'll love you 'til the day that I die' ใช้ Future Simple Tense เพื่อแสดงออกถึงสิ่งใด?", options: ["การคาดการณ์ที่ไม่แน่นอน", "คำมั่นสัญญาที่หนักแน่นเกี่ยวกับอนาคต", "การตัดสินใจที่เกิดขึ้นในขณะที่พูด", "ความสามารถในการกระทำบางสิ่ง"], answer: "คำมั่นสัญญาที่หนักแน่นเกี่ยวกับอนาคต" },
+            { section: "การใช้ Tenses", question: "วลี 'I said I'd never think I wasn't better alone' ใช้ Past Simple Tense ('said') เพื่ออ้างถึงสิ่งใด?", options: ["ความเชื่อในปัจจุบัน", "การกระทำที่กำลังดำเนินอยู่ในอดีต", "คำพูดหรือความคิดในอดีตที่ได้เปลี่ยนไปแล้ว", "เงื่อนไขที่เป็นไปไม่ได้ในอดีต"], answer: "คำพูดหรือความคิดในอดีตที่ได้เปลี่ยนไปแล้ว" },
+            { section: "การใช้ Tenses", question: "คำว่า 'should' ในประโยค 'Birds of a feather, we should stick together' ทำหน้าที่ใด?", options: ["แสดงความสามารถ", "แสดงความเป็นไปได้", "แสดงข้อเสนอแนะหรือความสมควร", "แสดงความจำเป็นเร่งด่วน"], answer: "แสดงข้อเสนอแนะหรือความสมควร" },
+            { section: "การใช้ Tenses", question: "การใช้ Present Simple Tense ในท่อน 'I don't know what I'm crying for' เน้นย้ำสิ่งใด?", options: ["ความสับสนที่เกิดขึ้นเป็นนิสัย", "ความไม่เข้าใจในอารมณ์ของตนเองในขณะนั้น", "การวางแผนที่จะร้องไห้", "การเล่าเรื่องเหตุการณ์ในอดีต"], answer: "ความไม่เข้าใจในอารมณ์ของตนเองในขณะนั้น" },
+            { section: "ความเข้าใจในความหมาย", question: "สำนวน 'birds of a feather' สื่อความหมายหลักว่าอย่างไรเกี่ยวกับคนสองคน?", options: ["พวกเขามีขนนกเหมือนกัน", "พวกเขาเป็นเพื่อนกันผิวเผิน", "พวกเขามีความคล้ายคลึงกันอย่างลึกซึ้งและเหมาะสมที่จะอยู่ด้วยกันโดยธรรมชาติ", "พวกเขาถูกโชคชะตากำหนดให้ต้องเผชิญความยากลำบากร่วมกัน"], answer: "พวกเขามีความคล้ายคลึงกันอย่างลึกซึ้งและเหมาะสมที่จะอยู่ด้วยกันโดยธรรมชาติ" },
+            { section: "ความเข้าใจในความหมาย", question: "แก่นเรื่องใดต่อไปนี้ *ไม่ใช่* แก่นเรื่องหลักของเพลง?", options: ["ความรักที่มั่นคงและภักดีชั่วนิรันดร์", "ความกลัวการพลัดพรากและการสูญเสีย", "การให้อภัยและการเริ่มต้นใหม่", "ความตายและการเปรียบเทียบความรักกับความตาย"], answer: "การให้อภัยและการเริ่มต้นใหม่" },
+            { section: "ความเข้าใจในความหมาย", question: "วลี 'If you go, I'm going too' แสดงออกถึงอารมณ์หรือทัศนคติใด?", options: ["ความไม่ใส่ใจ", "ความปรารถนาที่จะพึ่งพาตนเอง", "ความผูกพันอย่างสุดขั้วและการไม่ยอมแยกจาก", "ความโกรธและความต้องการแก้แค้น"], answer: "ความผูกพันอย่างสุดขั้วและการไม่ยอมแยกจาก" },
+            { section: "ความเข้าใจในความหมาย", question: "การที่เพลงกล่าวถึง 'grave,' 'rot away' มีผลต่อความหมายของความรักอย่างไร?", options: ["ทำให้ความรักดูน่ากลัว", "ลดทอนความสำคัญของความรัก", "เน้นย้ำความลึกซึ้งและความมุ่งมั่นของความรักที่ขยายไปจนถึงความตาย", "ทำให้เพลงมีบรรยากาศที่เบิกบาน"], answer: "เน้นย้ำความลึกซึ้งและความมุ่งมั่นของความรักที่ขยายไปจนถึงความตาย" },
+            { section: "ความเข้าใจในความหมาย", question: "การที่ผู้พูดกล่าวว่า 'I said I'd never think I wasn't better alone' บ่งบอกถึงสิ่งใด?", options: ["ผู้พูดเสียใจที่ได้รัก", "ความรักครั้งนี้ได้เปลี่ยนแปลงมุมมองของผู้พูด", "ผู้พูดยังคงเชื่อว่าการอยู่คนเดียวดีกว่า", "ผู้พูดไม่เคยมีความคิดเห็นที่ชัดเจน"], answer: "ความรักครั้งนี้ได้เปลี่ยนแปลงมุมมองของผู้พูด" },
+            { section: "Phrasal Verbs", question: "กริยาวลี 'stick together' หมายความว่าอย่างไร?", options: ["ติดกันทางกายภาพ", "ยังคงเป็นหนึ่งเดียวกันและซื่อสัตย์ต่อกัน", "ทะเลาะกันบ่อยครั้ง", "เดินทางไปด้วยกัน"], answer: "ยังคงเป็นหนึ่งเดียวกันและซื่อสัตย์ต่อกัน" },
+            { section: "Phrasal Verbs", question: "กริยาวลี 'rot away' มีความหมายใกล้เคียงกับคำใดมากที่สุด?", options: ["หายไปอย่างรวดเร็ว", "เน่าเปื่อยผุพัง", "เติบโตอย่างแข็งแรง", "วิ่งหนีไป"], answer: "เน่าเปื่อยผุพัง" },
+            { section: "Phrasal Verbs", question: "ความหมายของ 'turn blue' คืออะไร?", options: ["รู้สึกเศร้าหรือหดหู่", "เปลี่ยนเสื้อผ้าเป็นสีน้ำเงิน", "กำลังจะตาย (จากภาวะขาดออกซิเจน)", "รู้สึกอิจฉา"], answer: "กำลังจะตาย (จากภาวะขาดออกซิเจน)" },
+            { section: "Phrasal Verbs", question: "กริยาวลี 'ride away' สื่อถึงอะไร?", options: ["การขี่ม้าออกไปผจญภัย", "การขับรถหนีจากปัญหา", "การจากไปในความตาย หรือการเดินทางสู่โลกหน้า", "การเลิกสนใจบางสิ่ง"], answer: "การจากไปในความตาย หรือการเดินทางสู่โลกหน้า" },
+            { section: "Phrasal Verbs", question: "การใช้กริยาวลี เช่น 'rot away' และ 'turn blue' ส่งผลต่อโทนของเพลงอย่างไร?", options: ["ทำให้เพลงดูเบาและตลกขบขัน", "เพิ่มความสมจริง ความดิบ และความเข้มข้นทางอารมณ์", "ทำให้เพลงฟังดูเป็นทางการ", "ลดทอนความน่าเชื่อถือ"], answer: "เพิ่มความสมจริง ความดิบ และความเข้มข้นทางอารมณ์" }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let currentSection = "";
+        const quizContainer = document.getElementById('quiz-container');
+
+        function renderQuiz() {
+            if (currentQuestionIndex < quizData.length) {
+                const q = quizData[currentQuestionIndex];
+                let optionsHTML = q.options.map(opt => 
+                    `<button class="quiz-option w-full text-left p-3 rounded-lg" onclick="selectAnswer(this, '${opt}')">${opt}</button>`
+                ).join('');
+
+                let sectionTitle = "";
+                if(q.section !== currentSection) {
+                    currentSection = q.section;
+                    sectionTitle = `<h4 class="text-xl font-semibold mb-4 text-[#A0522D] border-b pb-2">${currentSection}</h4>`;
+                }
+
+                quizContainer.innerHTML = `
+                    ${sectionTitle}
+                    <p class="mb-2 font-medium">คำถามที่ ${currentQuestionIndex + 1} / ${quizData.length}</p>
+                    <p class="mb-4 text-lg">${q.question}</p>
+                    <div class="space-y-3">${optionsHTML}</div>
+                    <div id="feedback" class="mt-4"></div>
+                    <button id="next-btn" class="hidden mt-4 w-full bg-[#A0522D] text-white py-2 rounded-lg hover:bg-[#804222] transition" onclick="nextQuestion()">คำถามถัดไป</button>
+                `;
+            } else {
+                renderScore();
+            }
+        }
+        
+        function selectAnswer(buttonEl, selectedOption) {
+            const q = quizData[currentQuestionIndex];
+            const allOptions = document.querySelectorAll('.quiz-option');
+            allOptions.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.answer) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            if (selectedOption === q.answer) {
+                score++;
+                buttonEl.classList.add('correct');
+            } else {
+                buttonEl.classList.add('incorrect');
+            }
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            renderQuiz();
+        }
+
+        function renderScore() {
+            quizContainer.innerHTML = `
+                <h3 class="text-2xl font-bold text-center mb-4">จบแบบทดสอบแล้ว!</h3>
+                <p class="text-center text-xl mb-6">คุณได้คะแนน</p>
+                <p class="text-center text-6xl font-bold text-[#A0522D] mb-8">${score} / ${quizData.length}</p>
+                <button class="w-full bg-[#A0522D] text-white py-2 rounded-lg hover:bg-[#804222] transition" onclick="restartQuiz()">ทำแบบทดสอบอีกครั้ง</button>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            currentSection = "";
+            renderQuiz();
+        }
+
+        document.addEventListener('DOMContentLoaded', renderQuiz);
+
+    </script>
+</body>
+</html>

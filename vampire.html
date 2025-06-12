@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง 'If We Were Vampires' - Jason Isbell</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Fireside Twilight -->
+    <!-- Application Structure Plan: The application uses a single-page, vertical-scrolling structure with a sticky navigation bar for easy access to different thematic sections. This non-linear design encourages exploration. The structure is as follows: 1) Hero section to set the mood. 2) Thematic Analysis (Tabs) for deep-diving into vocabulary, symbolism, and grammar in a structured yet interactive way. 3) An interactive phrasal verbs "flashcard" section for active learning. 4) A Chart.js radar chart to visually synthesize the song's core themes. 5) An interactive quiz to test comprehension and reinforce learning. This structure was chosen to transform a static report into an engaging, multi-faceted learning experience, prioritizing user interaction and discovery over passive reading. -->
+    <!-- Visualization & Content Choices: Report Info: Core Themes -> Goal: Synthesize -> Viz/Method: Radar Chart (Chart.js) -> Interaction: Hover for tooltips -> Justification: Provides a quick, impactful visual summary of the song's emotional components. Report Info: Quiz -> Goal: Assess -> Viz/Method: Interactive Form (HTML/JS) -> Interaction: Click to select, submit for score -> Justification: Gamifies learning and provides immediate feedback. Report Info: Vocabulary, Metaphors -> Goal: Inform/Engage -> Viz/Method: Interactive Cards/Toggles (HTML/JS) -> Interaction: Click/Hover to reveal -> Justification: Breaks down dense information into digestible, engaging chunks. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #F5F5F5; /* Warm Neutral Background */
+        }
+        .bg-primary { background-color: #F5F5F5; }
+        .bg-secondary { background-color: #FFFFFF; }
+        .text-main { color: #333333; }
+        .text-accent { color: #8C6A5E; } /* Muted Earth Tone Accent */
+        .border-accent { border-color: #8C6A5E; }
+        .btn-accent {
+            background-color: #8C6A5E;
+            color: #FFFFFF;
+            transition: background-color 0.3s ease;
+        }
+        .btn-accent:hover {
+            background-color: #73574E;
+        }
+        .active-nav {
+            color: #8C6A5E;
+            border-bottom-width: 2px;
+            border-color: #8C6A5E;
+        }
+        .inactive-nav {
+            color: #6B7280;
+            border-bottom-width: 2px;
+            border-color: transparent;
+        }
+        .quiz-option.selected {
+            background-color: #D6C6BF;
+            border-color: #8C6A5E;
+        }
+        .quiz-option.correct {
+            background-color: #D1FAE5;
+            border-color: #10B981;
+        }
+        .quiz-option.incorrect {
+            background-color: #FEE2E2;
+            border-color: #EF4444;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+        [x-cloak] { display: none !important; }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-primary text-main">
+
+    <header id="navbar" class="bg-secondary/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3">
+            <ul class="flex justify-center space-x-4 md:space-x-8 text-sm md:text-base font-medium">
+                <li><a href="#intro" class="inactive-nav hover:text-accent transition-colors duration-300 pb-1">บทนำ</a></li>
+                <li><a href="#analysis" class="inactive-nav hover:text-accent transition-colors duration-300 pb-1">วิเคราะห์เพลง</a></li>
+                <li><a href="#themes" class="inactive-nav hover:text-accent transition-colors duration-300 pb-1">แก่นเรื่อง</a></li>
+                <li><a href="#quiz" class="inactive-nav hover:text-accent transition-colors duration-300 pb-1">แบบทดสอบ</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        
+        <section id="intro" class="text-center my-12 md:my-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-accent mb-4">If We Were Vampires</h1>
+            <p class="text-xl md:text-2xl text-main mb-6">Jason Isbell and the 400 Unit</p>
+            <p class="max-w-3xl mx-auto text-lg text-gray-700">
+                สำรวจความงดงามของความรักที่ต้องเผชิญหน้ากับความจริงที่ว่า...เวลาของเรามีจำกัด
+                บทเพลงนี้ไม่ได้โศกเศร้าถึงความตาย แต่กลับชี้ให้เห็นว่า 'ความไม่จีรัง' คือของขวัญที่ทำให้ทุกวินาทีมีความหมาย
+            </p>
+        </section>
+
+        <section id="analysis" class="my-12 md:my-20 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-10 text-accent">เจาะลึกบทเพลง</h2>
+            
+            <div x-data="{ tab: 'symbolism' }" class="bg-secondary p-4 sm:p-6 rounded-xl shadow-lg">
+                <div class="border-b border-gray-200 mb-6">
+                    <nav class="flex justify-center -mb-px space-x-2 sm:space-x-6" aria-label="Tabs">
+                        <button @click="tab = 'symbolism'" :class="{ 'border-accent text-accent': tab === 'symbolism', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'symbolism' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm sm:text-base">
+                            สัญลักษณ์ & ความหมาย
+                        </button>
+                        <button @click="tab = 'language'" :class="{ 'border-accent text-accent': tab === 'language', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'language' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm sm:text-base">
+                            ภาษา & ไวยากรณ์
+                        </button>
+                        <button @click="tab = 'phrasal'" :class="{ 'border-accent text-accent': tab === 'phrasal', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'phrasal' }" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm sm:text-base">
+                            Phrasal Verbs
+                        </button>
+                    </nav>
+                </div>
+
+                <div x-show="tab === 'symbolism'" x-transition x-cloak>
+                    <h3 class="text-2xl font-semibold mb-4 text-center">The Vampire Paradox: คุณค่าของชีวิตที่มีขีดจำกัด</h3>
+                    <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">เพลงใช้ "แวมไพร์" ผู้เป็นอมตะ มาเปรียบเทียบกับชีวิตมนุษย์เพื่อเน้นย้ำว่า ความตายไม่ใช่คำสาป แต่เป็นสิ่งที่ทำให้ความรักและการแสดงออกของเรามีความหมายอย่างแท้จริง</p>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            <h4 class="text-xl font-bold mb-3 text-center text-blue-600">ชีวิตมนุษย์ (Mortal Life)</h4>
+                            <ul class="space-y-4 text-gray-700">
+                                <li class="flex items-start">
+                                    <span class="text-blue-500 mr-3 mt-1">❤️</span>
+                                    <div><strong class="text-main">"I'll work hard 'til the end of my shift / To give you every second I can find"</strong><br>ทำงานหนักเพื่อมอบทุกวินาทีให้คนรัก เพราะรู้ว่าเวลามีจำกัด</div>
+                                </li>
+                                <li class="flex items-start">
+                                     <span class="text-blue-500 mr-3 mt-1">🤝</span>
+                                    <div><strong class="text-main">รู้สึกถึงความจำเป็นที่จะต้อง "จับมือคุณไว้"</strong><br>การแสดงออกทางกายและใจมีความสำคัญอย่างยิ่ง</div>
+                                </li>
+                                 <li class="flex items-start">
+                                     <span class="text-blue-500 mr-3 mt-1">⏳</span>
+                                    <div><strong class="text-main">"Maybe time running out is a gift"</strong><br>มองว่าเวลาที่กำลังจะหมดไปเป็น 'ของขวัญ' ที่ทำให้เราเห็นคุณค่าของปัจจุบัน</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-800 text-white p-6 rounded-lg">
+                            <h4 class="text-xl font-bold mb-3 text-center text-purple-400">ชีวิตแวมไพร์ (Vampire Life)</h4>
+                             <ul class="space-y-4 text-gray-300">
+                                <li class="flex items-start">
+                                    <span class="text-purple-400 mr-3 mt-1">😂</span>
+                                    <div><strong class="text-white">"If we were vampires and death was a joke"</strong><br>ถ้าความตายเป็นแค่เรื่องตลก... ชีวิตที่ไร้จุดจบอาจน่าเบื่อและไร้ความหมาย</div>
+                                </li>
+                                <li class="flex items-start">
+                                     <span class="text-purple-400 mr-3 mt-1">🚬</span>
+                                    <div><strong class="text-white">"We'd go out on the sidewalk and smoke / And laugh at all the lovers and their plans"</strong><br>ใช้ชีวิตอย่างเฉยเมย หัวเราะเยาะความรักและความฝันของผู้อื่น เพราะมีเวลาเหลือเฟือ</div>
+                                </li>
+                                 <li class="flex items-start">
+                                     <span class="text-purple-400 mr-3 mt-1">🤷</span>
+                                    <div><strong class="text-white">"I wouldn't feel the need to hold your hand"</strong><br>ความผูกพันและการแสดงออกซึ่งความรักอาจไม่สำคัญเท่าเดิม</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="tab === 'language'" x-transition style="display: none;" x-cloak>
+                    <h3 class="text-2xl font-semibold mb-4 text-center">ไวยากรณ์แห่งความรู้สึก</h3>
+                    <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">การเลือกใช้ Tense ในเพลงไม่ใช่เรื่องบังเอิญ แต่เป็นเครื่องมือสร้างอารมณ์และบอกเล่าความรู้สึกของผู้ร้อง</p>
+                    <div class="space-y-4">
+                        <div x-data="{ open: false }" class="bg-gray-50 p-4 rounded-lg">
+                            <button @click="open = !open" class="w-full flex justify-between items-center text-left">
+                                <span class="text-lg font-semibold text-accent">Present Simple: ความจริงในปัจจุบัน</span>
+                                <span x-text="open ? '−' : '+'" class="text-xl font-bold text-accent"></span>
+                            </button>
+                            <div x-show="open" x-collapse class="mt-3 text-gray-700">
+                                <p><strong>ตัวอย่าง:</strong> "Maybe time running out <strong class="text-red-600">is</strong> a gift."</p>
+                                <p><strong>ผลกระทบ:</strong> ใช้เพื่อบรรยายสภาวะที่เป็นจริง ความคิด และการตระหนักรู้ที่เกิดขึ้นในขณะนี้ เป็นการยอมรับความจริงที่ต้องเผชิญ</p>
+                            </div>
+                        </div>
+                         <div x-data="{ open: false }" class="bg-gray-50 p-4 rounded-lg">
+                            <button @click="open = !open" class="w-full flex justify-between items-center text-left">
+                                <span class="text-lg font-semibold text-accent">Future Simple: อนาคตที่หลีกเลี่ยงไม่ได้</span>
+                                <span x-text="open ? '−' : '+'" class="text-xl font-bold text-accent"></span>
+                            </button>
+                            <div x-show="open" x-collapse class="mt-3 text-gray-700">
+                                <p><strong>ตัวอย่าง:</strong> "one day I<strong class="text-red-600">'ll be</strong> gone or one day you<strong class="text-red-600">'ll be</strong> gone"</p>
+                                <p><strong>ผลกระทบ:</strong> เน้นย้ำถึงความแน่นอนของการพลัดพรากในอนาคต สร้างความรู้สึกสะเทือนใจและเป็นแรงผลักดันให้เห็นคุณค่าของปัจจุบัน</p>
+                            </div>
+                        </div>
+                         <div x-data="{ open: false }" class="bg-gray-50 p-4 rounded-lg">
+                            <button @click="open = !open" class="w-full flex justify-between items-center text-left">
+                                <span class="text-lg font-semibold text-accent">Second Conditional: โลกคู่ขนานในจินตนาการ</span>
+                                <span x-text="open ? '−' : '+'" class="text-xl font-bold text-accent"></span>
+                            </button>
+                            <div x-show="open" x-collapse class="mt-3 text-gray-700">
+                                <p><strong>ตัวอย่าง:</strong> "If we <strong class="text-red-600">were</strong> vampires... We<strong class="text-red-600">'d go</strong> out... I <strong class="text-red-600">wouldn't feel</strong>..."</p>
+                                <p><strong>ผลกระทบ:</strong> สร้างสถานการณ์สมมติที่ไม่เป็นจริง (การเป็นแวมไพร์) เพื่อเปรียบเทียบและตอกย้ำคุณค่าของโลกแห่งความเป็นจริงที่เราอาศัยอยู่</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div x-show="tab === 'phrasal'" x-transition style="display: none;" x-cloak>
+                    <h3 class="text-2xl font-semibold mb-4 text-center">Phrasal Verbs: วลีที่ซ่อนความหมาย</h3>
+                    <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">คลิกที่การ์ดเพื่อดูความหมายของกริยาวลีที่ใช้ในเพลง</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div x-data="{ flipped: false }" class="h-40 [perspective:1000px]">
+                            <div @click="flipped = !flipped" class="relative h-full w-full cursor-pointer [transform-style:preserve-3d] transition-all duration-500" :class="{ '[transform:rotateY(180deg)]': flipped }">
+                                <div class="absolute inset-0 bg-secondary border-2 border-accent rounded-lg flex items-center justify-center p-4 [backface-visibility:hidden]">
+                                    <p class="text-center font-semibold">"...the light <strong class="text-accent">coming off of</strong> your skin."</p>
+                                </div>
+                                <div class="absolute inset-0 bg-accent text-white rounded-lg flex items-center justify-center p-4 [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                                    <p class="text-center">(แสง) ที่เปล่งออกมาจาก, ส่องสว่างมาจาก</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div x-data="{ flipped: false }" class="h-40 [perspective:1000px]">
+                            <div @click="flipped = !flipped" class="relative h-full w-full cursor-pointer [transform-style:preserve-3d] transition-all duration-500" :class="{ '[transform:rotateY(180deg)]': flipped }">
+                                <div class="absolute inset-0 bg-secondary border-2 border-accent rounded-lg flex items-center justify-center p-4 [backface-visibility:hidden]">
+                                    <p class="text-center font-semibold">"...this can't <strong class="text-accent">go on</strong> forever."</p>
+                                </div>
+                                <div class="absolute inset-0 bg-accent text-white rounded-lg flex items-center justify-center p-4 [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                                    <p class="text-center">ดำเนินต่อไป, เกิดขึ้นต่อไป</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div x-data="{ flipped: false }" class="h-40 [perspective:1000px]">
+                            <div @click="flipped = !flipped" class="relative h-full w-full cursor-pointer [transform-style:preserve-3d] transition-all duration-500" :class="{ '[transform:rotateY(180deg)]': flipped }">
+                                <div class="absolute inset-0 bg-secondary border-2 border-accent rounded-lg flex items-center justify-center p-4 [backface-visibility:hidden]">
+                                    <p class="text-center font-semibold">"...time <strong class="text-accent">running out</strong> is a gift."</p>
+                                </div>
+                                <div class="absolute inset-0 bg-accent text-white rounded-lg flex items-center justify-center p-4 [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                                    <p class="text-center">กำลังจะหมดไป</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div x-data="{ flipped: false }" class="h-40 [perspective:1000px]">
+                            <div @click="flipped = !flipped" class="relative h-full w-full cursor-pointer [transform-style:preserve-3d] transition-all duration-500" :class="{ '[transform:rotateY(180deg)]': flipped }">
+                                <div class="absolute inset-0 bg-secondary border-2 border-accent rounded-lg flex items-center justify-center p-4 [backface-visibility:hidden]">
+                                    <p class="text-center font-semibold">"...the way you <strong class="text-accent">talk me off</strong> the roof."</p>
+                                </div>
+                                <div class="absolute inset-0 bg-accent text-white rounded-lg flex items-center justify-center p-4 [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                                    <p class="text-center">พูดเกลี้ยกล่อมให้สงบลง, พูดให้เปลี่ยนใจ (จากเรื่องสิ้นหวัง)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div x-data="{ flipped: false }" class="h-40 [perspective:1000px]">
+                            <div @click="flipped = !flipped" class="relative h-full w-full cursor-pointer [transform-style:preserve-3d] transition-all duration-500" :class="{ '[transform:rotateY(180deg)]': flipped }">
+                                <div class="absolute inset-0 bg-secondary border-2 border-accent rounded-lg flex items-center justify-center p-4 [backface-visibility:hidden]">
+                                    <p class="text-center font-semibold">"...hope it isn't me who's <strong class="text-accent">left behind</strong>."</p>
+                                </div>
+                                <div class="absolute inset-0 bg-accent text-white rounded-lg flex items-center justify-center p-4 [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                                    <p class="text-center">ผู้ที่ถูกทิ้งไว้ข้างหลัง (หลังจากคนรักจากไป)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div x-data="{ flipped: false }" class="h-40 [perspective:1000px]">
+                            <div @click="flipped = !flipped" class="relative h-full w-full cursor-pointer [transform-style:preserve-3d] transition-all duration-500" :class="{ '[transform:rotateY(180deg)]': flipped }">
+                                <div class="absolute inset-0 bg-secondary border-2 border-accent rounded-lg flex items-center justify-center p-4 [backface-visibility:hidden]">
+                                    <p class="text-center font-semibold">"We'd <strong class="text-accent">go out</strong> on the sidewalk..."</p>
+                                </div>
+                                <div class="absolute inset-0 bg-accent text-white rounded-lg flex items-center justify-center p-4 [transform:rotateY(180deg)] [backface-visibility:hidden]">
+                                    <p class="text-center">ออกไปข้างนอก</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="themes" class="my-12 md:my-20 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-4 text-accent">ภาพรวมแก่นเรื่องหลัก</h2>
+            <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">เพลงนี้ถักทอหลายแนวคิดเข้าด้วยกันอย่างลงตัว โดยมี "ความตาย" เป็นศูนย์กลางที่ทำให้องค์ประกอบอื่นๆ มีความหมาย</p>
+            <div class="bg-secondary p-4 sm:p-8 rounded-xl shadow-lg">
+                <div class="chart-container">
+                    <canvas id="themesChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="quiz" class="my-12 md:my-20 scroll-mt-20">
+            <div x-data="quizApp()" class="bg-secondary p-6 sm:p-8 rounded-xl shadow-lg max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-6 text-accent">ทดสอบความเข้าใจ</h2>
+                <div x-show="!quizStarted" x-cloak>
+                    <p class="text-center text-gray-600 mb-6">มาทดสอบกันว่าคุณเข้าใจความหมายที่ซ่อนอยู่ในเพลง "If We Were Vampires" มากแค่ไหน</p>
+                    <div class="text-center">
+                        <button @click="startQuiz()" class="btn-accent font-bold py-3 px-8 rounded-full text-lg">เริ่มทำแบบทดสอบ</button>
+                    </div>
+                </div>
+
+                <div x-show="quizStarted && !isQuizFinished()" x-transition x-cloak>
+                    <p class="text-center font-medium mb-2" x-text="`คำถามที่ ${currentQuestionIndex + 1} / ${questions.length}`"></p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                        <div class="bg-accent h-2.5 rounded-full" :style="`width: ${((currentQuestionIndex + 1) / questions.length) * 100}%`"></div>
+                    </div>
+                    <p class="text-xl font-semibold mb-6 text-center" x-html="questions[currentQuestionIndex].question"></p>
+                    <div class="space-y-4">
+                        <template x-for="(option, index) in questions[currentQuestionIndex].options" :key="index">
+                            <button
+                                @click="selectAnswer(index)"
+                                :disabled="answered"
+                                class="w-full p-4 text-left border-2 rounded-lg transition-all duration-300 quiz-option"
+                                :class="{
+                                    'selected': selectedAnswer === index && !answered,
+                                    'correct': answered && index === questions[currentQuestionIndex].answer,
+                                    'incorrect': answered && selectedAnswer === index && index !== questions[currentQuestionIndex].answer
+                                }"
+                                x-text="option">
+                            </button>
+                        </template>
+                    </div>
+                     <div class="text-center mt-8" x-show="answered">
+                        <button @click="nextQuestion()" class="btn-accent font-bold py-2 px-6 rounded-full">
+                            <span x-show="currentQuestionIndex < questions.length - 1">ข้อต่อไป</span>
+                            <span x-show="currentQuestionIndex === questions.length - 1">ดูผลลัพธ์</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div x-show="isQuizFinished()" x-transition class="text-center" x-cloak>
+                    <h3 class="text-2xl font-bold mb-4">สรุปผล</h3>
+                    <p class="text-5xl font-bold text-accent my-4" x-text="`${score} / ${questions.length}`"></p>
+                    <p class="text-xl mb-8" x-text="getResultMessage()"></p>
+                    <button @click="resetQuiz()" class="btn-accent font-bold py-3 px-8 rounded-full text-lg">ทำอีกครั้ง</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-16">
+        <div class="container mx-auto text-center">
+            <p>Interactive Analysis of "If We Were Vampires" by Jason Isbell.</p>
+            <p class="text-sm text-gray-400">Created for educational purposes.</p>
+        </div>
+    </footer>
+    
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('quizApp', () => ({
+            quizStarted: false,
+            questions: [
+                 {
+                    question: "แก่นเรื่องหลักของเพลง 'If We Were Vampires' คืออะไร?",
+                    options: [
+                        "ความกลัวต่อสิ่งเหนือธรรมชาติ",
+                        "การเฉลิมฉลองชีวิตอมตะ",
+                        "ความตายทำให้ความรักและเวลามีคุณค่า",
+                        "ความโศกเศร้าจากการสูญเสียคนรัก"
+                    ],
+                    answer: 2
+                },
+                {
+                    question: "ในท่อน 'If we <strong>were</strong> vampires... We<strong>'d go</strong> out...' ใช้โครงสร้างไวยากรณ์แบบใด?",
+                    options: [
+                        "Future Simple",
+                        "Past Simple",
+                        "First Conditional",
+                        "Second Conditional"
+                    ],
+                    answer: 3
+                },
+                {
+                    question: "Phrasal verb 'left behind' ในเพลงนี้สื่อถึงอะไร?",
+                    options: [
+                        "ลืมของไว้ข้างหลัง",
+                        "คนที่ยังมีชีวิตอยู่หลังคนรักจากไป",
+                        "ตามหลังคนอื่น",
+                        "ออกจากสถานที่"
+                    ],
+                    answer: 1
+                },
+                {
+                    question: "สัญลักษณ์ 'แวมไพร์' ถูกใช้เพื่อเน้นย้ำแนวคิดใด?",
+                    options: [
+                        "ความปรารถนาที่จะมีชีวิตอมตะ",
+                        "ความน่ากลัวของความตาย",
+                        "ความสำคัญของการแสดงความรักเมื่อเวลามีจำกัด",
+                        "พลังอำนาจที่เหนือกว่ามนุษย์"
+                    ],
+                    answer: 2
+                },
+                 {
+                    question: "ท่อน 'Maybe time running out is a gift' สื่อความหมายว่าอย่างไร?",
+                    options: [
+                        "เวลาที่เหลือน้อยเป็นสิ่งมีค่าที่ควรใช้ให้คุ้มค่า",
+                        "การหมดเวลาคือการได้รับของขวัญ",
+                        "ควรปล่อยให้เวลาผ่านไปโดยไม่ต้องกังวล",
+                        "ของขวัญที่ดีที่สุดคือเวลาที่ไม่สิ้นสุด"
+                    ],
+                    answer: 0
+                }
+            ],
+            currentQuestionIndex: 0,
+            selectedAnswer: null,
+            answered: false,
+            score: 0,
+
+            startQuiz() {
+                this.resetQuiz();
+                this.quizStarted = true;
+            },
+            
+            isQuizFinished() {
+                return this.currentQuestionIndex >= this.questions.length;
+            },
+
+            selectAnswer(index) {
+                if (this.answered) return;
+                this.selectedAnswer = index;
+                this.answered = true;
+                if (index === this.questions[this.currentQuestionIndex].answer) {
+                    this.score++;
+                }
+            },
+
+            nextQuestion() {
+                this.currentQuestionIndex++;
+                this.answered = false;
+                this.selectedAnswer = null;
+            },
+            
+            resetQuiz() {
+                this.quizStarted = false;
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.answered = false;
+                this.selectedAnswer = null;
+            },
+
+            getResultMessage() {
+                const percentage = (this.score / this.questions.length) * 100;
+                if (percentage === 100) return "ยอดเยี่ยม! คุณเข้าใจแก่นของเพลงนี้อย่างลึกซึ้ง";
+                if (percentage >= 60) return "ทำได้ดีมาก! คุณเข้าใจความหมายส่วนใหญ่ของเพลง";
+                return "ลองฟังและวิเคราะห์อีกครั้งสิ! ยังมีความหมายดีๆ ซ่อนอยู่อีกมาก";
+            }
+        }))
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('themesChart').getContext('2d');
+        const themesChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['ความรัก (Love)', 'ความตาย (Mortality)', 'คุณค่าของเวลา (Time)', 'ความผูกพัน (Connection)', 'การยอมรับ (Acceptance)'],
+                datasets: [{
+                    label: 'น้ำหนักของแก่นเรื่องในเพลง',
+                    data: [9, 10, 9, 8, 7],
+                    fill: true,
+                    backgroundColor: 'rgba(140, 106, 94, 0.2)',
+                    borderColor: 'rgb(140, 106, 94)',
+                    pointBackgroundColor: 'rgb(140, 106, 94)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(140, 106, 94)'
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 12,
+                                family: "'Sarabun', sans-serif"
+                            },
+                             color: '#333333'
+                        },
+                        ticks: {
+                            backdropColor: 'rgba(255, 255, 255, 0.75)',
+                            stepSize: 2
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                             font: {
+                                size: 14,
+                                family: "'Sarabun', sans-serif"
+                            }
+                        }
+                    },
+                    tooltip: {
+                         bodyFont: {
+                            family: "'Sarabun', sans-serif"
+                        },
+                        titleFont: {
+                             family: "'Sarabun', sans-serif"
+                        }
+                    }
+                }
+            }
+        });
+        
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('#navbar a');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => {
+                        link.classList.remove('active-nav');
+                        link.classList.add('inactive-nav');
+                        if (link.getAttribute('href').substring(1) === entry.target.id) {
+                            link.classList.add('active-nav');
+                            link.classList.remove('inactive-nav');
+                        }
+                    });
+                }
+            });
+        }, { rootMargin: "-30% 0px -70% 0px" });
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+    });
+    </script>
+</body>
+</html>

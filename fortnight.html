@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง 'Fortnight' - Taylor Swift</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Muted Poet -->
+    <!-- Application Structure Plan: A tab-based single-page application is chosen to structure the dense analytical content. This design allows users to navigate non-linearly to sections of interest: 'Overview', 'Lyrical Deep Dive', 'Linguistic Craft', and an 'Interactive Quiz'. The 'Deep Dive' uses accordion-style cards to break down complex themes, preventing information overload. The 'Linguistics' section uses inner tabs to organize tables. The 'Quiz' is a step-by-step interactive element to enhance engagement and learning retention. This structure prioritizes user-driven exploration over a passive, linear reading experience, making the analysis more accessible and digestible. -->
+    <!-- Visualization & Content Choices: Report Info: Lyrical themes -> Goal: Organize/Inform -> Viz: Interactive Accordion Cards -> Interaction: Click-to-reveal text -> Justification: Breaks down complex text into manageable chunks. | Report Info: Linguistic tables -> Goal: Organize/Compare -> Viz: Tabbed Interface with HTML Tables -> Interaction: Click tabs to switch views -> Justification: Cleanly separates different linguistic aspects. | Report Info: Quiz questions -> Goal: Engage/Test -> Viz: Step-by-step quiz UI -> Interaction: User selects answers, gets immediate feedback, and sees a final score -> Justification: Gamification increases engagement and reinforces learning. | All interactions are powered by Vanilla JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #F8F5F2;
+            color: #4B4B4B;
+        }
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-button.active {
+            color: #A0522D;
+            border-bottom-color: #A0522D;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .accordion-header {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+        .quiz-option {
+            transition: all 0.2s ease;
+            border: 2px solid #D1C4E9;
+        }
+        .quiz-option:hover {
+            background-color: #EFEBE9;
+            border-color: #A0522D;
+        }
+        .quiz-option.selected {
+            background-color: #D1C4E9;
+            border-color: #A0522D;
+        }
+        .quiz-option.correct {
+            background-color: #C8E6C9;
+            border-color: #4CAF50;
+        }
+        .quiz-option.incorrect {
+            background-color: #FFCDD2;
+            border-color: #F44336;
+        }
+    </style>
+</head>
+<body class="bg-[#F8F5F2]">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+        <header class="text-center mb-8">
+            <h1 class="font-display text-4xl md:text-6xl text-[#6D4C41] mb-2">Fortnight</h1>
+            <p class="text-lg md:text-xl text-[#A0522D]">การวิเคราะห์เชิงลึกผลงานโดย Taylor Swift ft. Post Malone</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-gray-300 mb-8 flex-wrap">
+            <button class="tab-button py-4 px-6 block hover:text-[#A0522D] focus:outline-none active" data-tab="overview">ภาพรวม</button>
+            <button class="tab-button py-4 px-6 block hover:text-[#A0522D] focus:outline-none" data-tab="deep-dive">เจาะลึกเนื้อเพลง</button>
+            <button class="tab-button py-4 px-6 block hover:text-[#A0522D] focus:outline-none" data-tab="linguistics">ศาสตร์แห่งภาษา</button>
+            <button class="tab-button py-4 px-6 block hover:text-[#A0522D] focus:outline-none" data-tab="quiz">ทดสอบความเข้าใจ</button>
+        </nav>
+
+        <main>
+            <section id="overview" class="content-section active">
+                <div class="bg-white/50 p-6 rounded-lg shadow-sm">
+                    <h2 class="font-display text-2xl text-[#6D4C41] mb-4">บทนำสู่ The Tortured Poets Department</h2>
+                    <p class="mb-4">
+                        เพลง "Fortnight" คือซิงเกิลนำร่องจากอัลบั้มสตูดิโอลำดับที่สิบเอ็ดของ Taylor Swift, *The Tortured Poets Department* โดยได้ Post Malone มาร่วมขับขาน เพลงนี้ไม่เพียงแต่เปิดตัวอัลบั้ม แต่ยังทำหน้าที่ปูทางให้ผู้ฟังได้สัมผัสกับแก่นเรื่องหลักอันได้แก่ พรหมลิขิต (fatalism), ความปรารถนาอย่างแรงกล้า (longing), และความฝันที่สูญสลาย (lost dreams) ซึ่ง贯통อยู่ทั่วทั้งอัลบั้ม การเลือกเพลงที่มีโทนเศร้าและซับซ้อนนี้เป็นซิงเกิลแรก สะท้อนทิศทางทางศิลปะที่เน้นการสำรวจความรู้สึกภายในมากกว่าเพลงป๊อปเชิงพาณิชย์ทั่วไป
+                    </p>
+                    <h2 class="font-display text-2xl text-[#6D4C41] mb-4 mt-6">บทสรุปแก่นแท้</h2>
+                    <p>
+                        "Fortnight" เป็นการสำรวจที่ซับซ้อนและเจ็บปวดเกี่ยวกับผลกระทบอันยาวนานของความรักที่แม้จะสั้นแต่กลับฝังลึก แก่นเรื่องหลักวนเวียนอยู่กับความรักที่ทำลายล้าง ("I love you, it's ruining my life"), ภาพลวงตาของการก้าวข้ามอดีต, และความทรมานจากการอยู่ใกล้ชิดกับรักที่สูญเสียไปในฉากชีวิตประจำวัน เพลงนี้เป็นบทพิสูจน์ถึงพลังของความผูกพันบางอย่าง ที่แม้จะกินเวลาเพียง "สองสัปดาห์" แต่ก็สามารถเปลี่ยนแปลงเส้นทางชีวิตของคนคนหนึ่งได้อย่างไม่อาจย้อนกลับ
+                    </p>
+                </div>
+            </section>
+
+            <section id="deep-dive" class="content-section">
+                <div class="space-y-4">
+                    <div class="accordion-item bg-white/50 rounded-lg shadow-sm">
+                        <div class="accordion-header flex justify-between items-center p-4">
+                            <h3 class="font-display text-xl text-[#6D4C41]">"Fortnight": ความหมายของสองสัปดาห์</h3>
+                            <span class="text-[#A0522D] text-2xl transition-transform duration-300 transform">↓</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="p-4 pt-0 text-gray-700">
+                                <p>คำว่า "Fortnight" หมายถึงระยะเวลาสองสัปดาห์ ในเพลงนี้มันทำหน้าที่เป็นทั้งหน่วยวัดเวลาตามตัวอักษรและความหมายเชิงเปรียบเทียบที่ลึกซึ้ง มันคือช่วงเวลาสั้นๆ ที่ส่งผลกระทบใหญ่หลวง ("And for a fortnight there, we were forever") และเป็นสัญลักษณ์ของอดีตในอุดมคติที่สูญเสียไป เป็นความขัดแย้งเชิงเวลาที่ช่วงเวลาสั้นๆ สามารถสรุปรวมความรู้สึกที่เป็นนิรันดร์และความเสียใจชั่วชีวิตได้</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white/50 rounded-lg shadow-sm">
+                        <div class="accordion-header flex justify-between items-center p-4">
+                            <h3 class="font-display text-xl text-[#6D4C41]">ภูมิทัศน์ทางอารมณ์: รัก สูญเสีย เจ็บปวด</h3>
+                            <span class="text-[#A0522D] text-2xl transition-transform duration-300 transform">↓</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="p-4 pt-0 text-gray-700">
+                                <p>แรงขับเคลื่อนทางอารมณ์หลักของเพลงสรุปได้ในท่อน "I love you, it's ruining my life" เพลงนี้สำรวจผลกระทบอันเลวร้ายจากความสัมพันธ์ที่สั้นแต่ลึกซึ้ง ผู้เล่าเรื่องดิ่งสู่ภาวะซึมเศร้าและการเสพติด ("I was a functioning alcoholic") ความรักไม่ใช่แค่แหล่งความเจ็บปวด แต่เป็นตัวกระตุ้นพฤติกรรมทำลายตนเองและการพังทลายของชีวิต</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item bg-white/50 rounded-lg shadow-sm">
+                        <div class="accordion-header flex justify-between items-center p-4">
+                            <h3 class="font-display text-xl text-[#6D4C41]">ฝันร้ายในชานเมืองและจินตนาการมืดมน</h3>
+                            <span class="text-[#A0522D] text-2xl transition-transform duration-300 transform">↓</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="p-4 pt-0 text-gray-700">
+                                <p>เพลงวาดภาพ "ฝันร้ายในชานเมือง" ที่ทั้งผู้เล่าเรื่องและอดีตคนรักต่างติดอยู่ในชีวิตสมรสที่ไม่มีความสุข การเป็น "เพื่อนบ้านที่ดี" บังคับให้มีปฏิสัมพันธ์ที่ผิวเผินซึ่งขัดกับความวุ่นวายภายในใจ ความอิจฉาริษยานำไปสู่จินตนาการอันมืดมน ("Your wife waters flowers, I wanna kill her") เป็นการวิพากษ์เปลือกนอกของความสุขในครอบครัวและความคาดหวังทางสังคม</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item bg-white/50 rounded-lg shadow-sm">
+                        <div class="accordion-header flex justify-between items-center p-4">
+                            <h3 class="font-display text-xl text-[#6D4C41]">การทรยศอันเงียบงันและยาเยียวยาใจ</h3>
+                            <span class="text-[#A0522D] text-2xl transition-transform duration-300 transform">↓</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="p-4 pt-0 text-gray-700">
+                                <p>วลี "Quiet treason" สื่อถึงการทรยศแบบแฝงเร้น เช่น การถอนตัวทางอารมณ์ ขณะที่ "miracle move-on drug" คืออุปมาอุปมัยถึงความพยายามที่จะลืมรักเก่าอย่างรวดเร็ว (เช่น rebound relationship) แต่ไร้ผล ("the effects were temporary") ตอกย้ำความลึกของบาดแผลเดิมที่ไม่สามารถเยียวยาด้วยวิธีฉาบฉวยได้</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item bg-white/50 rounded-lg shadow-sm">
+                        <div class="accordion-header flex justify-between items-center p-4">
+                            <h3 class="font-display text-xl text-[#6D4C41]">บทบาทของ Post Malone</h3>
+                            <span class="text-[#A0522D] text-2xl transition-transform duration-300 transform">↓</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="p-4 pt-0 text-gray-700">
+                                <p>ท่อนของ Post Malone ถูกตีความว่าเป็นมุมมองของอดีตคนรัก เผยให้เห็นความเสียใจและความปรารถนาของเขาเอง ("Thought of callin' ya, but you won't pick up") มันเปลี่ยนเพลงจากบทคร่ำครวญฝ่ายเดียวให้กลายเป็นโศกนาฏกรรมร่วมของคนสองคนที่ต่างติดอยู่ในความทุกข์และไม่สามารถเชื่อมถึงกันได้ ขยายความรู้สึกพรหมลิขิตของเพลงให้เด่นชัดขึ้น</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="linguistics" class="content-section">
+                <div class="bg-white/50 p-6 rounded-lg shadow-sm">
+                    <div class="flex border-b border-gray-200 mb-4">
+                        <button class="linguistics-tab-button flex-1 py-2 text-center active" data-ling-tab="vocab">คำศัพท์</button>
+                        <button class="linguistics-tab-button flex-1 py-2 text-center" data-ling-tab="tenses">Tenses</button>
+                        <button class="linguistics-tab-button flex-1 py-2 text-center" data-ling-tab="phrasal">Phrasal Verbs</button>
+                        <button class="linguistics-tab-button flex-1 py-2 text-center" data-ling-tab="figurative">ภาษาเปรียบเทียบ</button>
+                    </div>
+                    
+                    <div id="vocab" class="ling-content-section active">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="border-b-2 border-[#A0522D]">
+                                    <tr>
+                                        <th class="p-2">คำศัพท์</th><th class="p-2">ความหมายในบริบท</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-gray-200">
+                                        <td class="p-2 font-bold">Fortnight</td><td class="p-2">ระยะเวลาสองสัปดาห์; สื่อถึงความสัมพันธ์ที่สั้นแต่ส่งผลกระทบยาวนาน</td>
+                                    </tr>
+                                    <tr class="border-b border-gray-200 bg-stone-50">
+                                        <td class="p-2 font-bold">Aesthetic</td><td class="p-2">รูปลักษณ์ภายนอก; การเปลี่ยนแปลงตนเองที่ไม่ได้รับการสังเกตเห็น</td>
+                                    </tr>
+                                    <tr class="border-b border-gray-200">
+                                        <td class="p-2 font-bold">Treason</td><td class="p-2">การทรยศอย่างเงียบงัน ไม่เปิดเผย</td>
+                                    </tr>
+                                    <tr class="border-b border-gray-200 bg-stone-50">
+                                        <td class="p-2 font-bold">Miracle</td><td class="p-2">สื่อถึงความพยายามสิ้นหวังที่จะก้าวข้ามความเจ็บปวดอย่างรวดเร็ว</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="tenses" class="ling-content-section">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="border-b-2 border-[#A0522D]">
+                                    <tr>
+                                        <th class="p-2">Tense</th><th class="p-2">หน้าที่/ผลกระทบ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-gray-200">
+                                        <td class="p-2 font-bold">Past Simple</td><td class="p-2">สร้างเหตุการณ์ในอดีตที่เป็นจุดเริ่มต้นของความเจ็บปวด</td>
+                                    </tr>
+                                    <tr class="border-b border-gray-200 bg-stone-50">
+                                        <td class="p-2 font-bold">Present Simple</td><td class="p-2">บรรยายสถานการณ์ปัจจุบันที่ต้องเผชิญหน้ากับอดีต</td>
+                                    </tr>
+                                    <tr class="border-b border-gray-200">
+                                        <td class="p-2 font-bold">Present Continuous</td><td class="p-2">เน้นย้ำว่าความเจ็บปวดจากอดีตยังคงทำลายชีวิตอยู่ในปัจจุบัน</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="phrasal" class="ling-content-section">
+                       <div class="overflow-x-auto">
+                           <table class="w-full text-left">
+                               <thead class="border-b-2 border-[#A0522D]">
+                                   <tr>
+                                       <th class="p-2">Phrasal Verb</th><th class="p-2">ความหมาย</th>
+                                   </tr>
+                               </thead>
+                               <tbody>
+                                   <tr class="border-b border-gray-200">
+                                       <td class="p-2 font-bold">Run into</td><td class="p-2">พบโดยบังเอิญ</td>
+                                   </tr>
+                                   <tr class="border-b border-gray-200 bg-stone-50">
+                                       <td class="p-2 font-bold">Pick up</td><td class="p-2">รับโทรศัพท์</td>
+                                   </tr>
+                                   <tr class="border-b border-gray-200">
+                                       <td class="p-2 font-bold">Move on</td><td class="p-2">ก้าวต่อไป, ลืมอดีต</td>
+                                   </tr>
+                                   <tr class="border-b border-gray-200 bg-stone-50">
+                                       <td class="p-2 font-bold">Start up</td><td class="p-2">(เครื่องยนต์) เริ่มทำงาน; สื่อถึงชีวิตที่ไม่สามารถเริ่มต้นใหม่ได้</td>
+                                   </tr>
+                               </tbody>
+                           </table>
+                       </div>
+                   </div>
+
+                    <div id="figurative" class="ling-content-section">
+                       <div class="overflow-x-auto">
+                           <table class="w-full text-left">
+                               <thead class="border-b-2 border-[#A0522D]">
+                                   <tr>
+                                       <th class="p-2">สำนวนเปรียบเทียบ</th><th class="p-2">ความหมายที่สื่อ</th>
+                                   </tr>
+                               </thead>
+                               <tbody>
+                                   <tr class="border-b border-gray-200">
+                                       <td class="p-2 font-bold">Functioning alcoholic</td><td class="p-2">การพยายามใช้ชีวิตปกติทั้งที่ภายในเจ็บปวด</td>
+                                   </tr>
+                                   <tr class="border-b border-gray-200 bg-stone-50">
+                                       <td class="p-2 font-bold">Miracle move-on drug</td><td class="p-2">ความพยายามลืมรักเก่าที่ได้ผลเพียงชั่วคราว</td>
+                                   </tr>
+                                   <tr class="border-b border-gray-200">
+                                       <td class="p-2 font-bold">Endless February</td><td class="p-2">สภาวะของความเศร้าหมอง, ความหนาวเย็น, และซ้ำซากจำเจ</td>
+                                   </tr>
+                               </tbody>
+                           </table>
+                       </div>
+                   </div>
+                </div>
+            </section>
+
+            <section id="quiz" class="content-section">
+                <div id="quiz-container" class="bg-white/50 p-6 rounded-lg shadow-sm text-center">
+                    <h2 class="font-display text-2xl text-[#6D4C41] mb-4">คุณเข้าใจ "Fortnight" ดีแค่ไหน?</h2>
+                    <p class="mb-6">มาทดสอบความรู้ของคุณเกี่ยวกับเพลงนี้กันเถอะ!</p>
+                    <button id="start-quiz-btn" class="bg-[#A0522D] text-white py-2 px-6 rounded-full hover:bg-[#8C463D] transition-colors">เริ่มทำแบบทดสอบ</button>
+                </div>
+                
+                <div id="question-container" class="hidden">
+                     <div id="progress-bar-container" class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                        <div id="progress-bar" class="bg-[#A0522D] h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <div class="bg-white/50 p-6 rounded-lg shadow-sm">
+                        <h3 id="question-text" class="text-xl mb-6 text-center"></h3>
+                        <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                        <div class="text-center mt-6">
+                            <button id="next-question-btn" class="bg-[#A0522D] text-white py-2 px-8 rounded-full hover:bg-[#8C463D] transition-colors hidden">ข้อต่อไป</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="results-container" class="hidden text-center bg-white/50 p-6 rounded-lg shadow-sm">
+                    <h2 class="font-display text-2xl text-[#6D4C41] mb-4">ผลการทดสอบของคุณ</h2>
+                    <p id="score-text" class="text-4xl font-bold text-[#A0522D] mb-6"></p>
+                    <p id="result-message" class="text-lg mb-6"></p>
+                    <button id="restart-quiz-btn" class="bg-gray-500 text-white py-2 px-6 rounded-full hover:bg-gray-600 transition-colors">ทำใหม่อีกครั้ง</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "'I was a functioning _____. \'Til nobody noticed my new aesthetic.' ควรเติมคำว่าอะไร?", options: ["artist", "neighbor", "alcoholic", "dreamer"], answer: "alcoholic" },
+            { question: "'And for a _____ there, we were forever running.' ควรเติมคำว่าอะไร?", options: ["moment", "lifetime", "year", "fortnight"], answer: "fortnight" },
+            { question: "'Your wife waters flowers, I wanna _____ her.' ควรเติมคำว่าอะไร?", options: ["meet", "help", "kill", "thank"], answer: "kill" },
+            { question: "'My husband is _____, I wanna kill him.' ควรเติมคำว่าอะไร?", options: ["working", "cheating", "sleeping", "leaving"], answer: "cheating" },
+            { question: "'But it won\'t _____ up \'til you touch... me.' ควรเติมคำว่าอะไร?", options: ["clean", "fill", "start", "lock"], answer: "start" },
+            { question: "ในประโยค 'I touched you for only a fortnight,' คำว่า 'touched' อยู่ใน Tense ใด?", options: ["Present Simple", "Past Simple", "Present Continuous", "Past Continuous"], answer: "Past Simple" },
+            { question: "ในประโยค 'I love you, it's ruining my life,' ส่วน 'it's ruining' อยู่ใน Tense ใด?", options: ["Present Simple", "Past Simple", "Present Continuous", "Future Simple"], answer: "Present Continuous" },
+            { question: "ประโยค 'Now you\'re in my backyard' ใช้ Tense ใด?", options: ["Past Simple", "Present Perfect", "Present Simple", "Past Continuous"], answer: "Present Simple" },
+            { question: "การใช้ Past Simple ใน 'I was supposed to be sent away' มีหน้าที่หลักคืออะไร?", options: ["บรรยายการกระทำที่กำลังเกิดขึ้น", "บรรยายเหตุการณ์ในอดีตที่เป็นฉากหลัง", "คาดการณ์อนาคต", "แสดงความปรารถนา"], answer: "บรรยายเหตุการณ์ในอดีตที่เป็นฉากหลัง" },
+            { question: "การใช้ Present Continuous ใน 'My husband is cheating' เน้นย้ำสิ่งใด?", options: ["การกระทำที่จบไปแล้ว", "นิสัยที่ทำเป็นประจำ", "การกระทำที่กำลังดำเนินอยู่", "แผนการในอนาคต"], answer: "การกระทำที่กำลังดำเนินอยู่" },
+            { question: "วลี 'miracle move-on drug' สื่อถึงอะไรมากที่สุด?", options: ["ยาตามใบสั่งแพทย์", "ความพยายามลืมรักเก่าแต่ไม่ได้ผลถาวร", "การเดินทางไปพักผ่อน", "การบำบัดที่ประสบความสำเร็จ"], answer: "ความพยายามลืมรักเก่าแต่ไม่ได้ผลถาวร" },
+            { question: "'Quiet treason' สื่อถึงการกระทำแบบใด?", options: ["การทรยศอย่างเปิดเผย", "การหักหลังอย่างเงียบๆ", "การใส่ร้ายป้ายสี", "การละเลยหน้าที่"], answer: "การหักหลังอย่างเงียบๆ" },
+            { question: "การเป็น 'good neighbors' สะท้อนสภาวะใด?", options: ["ความสุขในชีวิตปัจจุบัน", "ความสัมพันธ์ฉันมิตร", "ความเจ็บปวดจากการต้องเผชิญหน้ากับอดีต", "การให้อภัยและลืมอดีต"], answer: "ความเจ็บปวดจากการต้องเผชิญหน้ากับอดีต" },
+            { question: "ธีมหลักของเพลง 'Fortnight' คืออะไร?", options: ["ความสุขของรักครั้งใหม่", "ผลกระทบทำลายล้างของรักที่สั้นแต่ลึกซึ้ง", "การให้อภัยและการเติบโต", "ความสำคัญของมิตรภาพ"], answer: "ผลกระทบทำลายล้างของรักที่สั้นแต่ลึกซึ้ง" },
+            { question: "ท่อนของ Post Malone สื่อถึงอารมณ์ใด?", options: ["ความโกรธแค้น", "ความไม่แยแส", "ความลังเลและความปรารถนาที่ยังคงอยู่", "ความมั่นใจ"], answer: "ความลังเลและความปรารถนาที่ยังคงอยู่" },
+            { question: "Phrasal verb 'run into' หมายถึงอะไร?", options: ["วิ่งชน", "พบโดยบังเอิญ", "วิ่งหนี", "ตามหา"], answer: "พบโดยบังเอิญ" },
+            { question: "คำว่า 'callin\' (calling up)' หมายถึงอะไร?", options: ["ตะโกนเรียก", "โทรศัพท์หา", "ยกเลิก", "เยี่ยมเยียน"], answer: "โทรศัพท์หา" },
+            { question: "Phrasal verb 'pick up' ในบริบทนี้หมายถึงอะไร?", options: ["หยิบขึ้นมา", "ไปรับ (คน)", "รับโทรศัพท์", "เรียนรู้"], answer: "รับโทรศัพท์" },
+            { question: "คำว่า 'move on' หมายถึงอะไร?", options: ["ย้ายบ้าน", "ก้าวต่อไป (ทางอารมณ์)", "เคลื่อนไหวร่างกาย", "เลื่อนตำแหน่ง"], answer: "ก้าวต่อไป (ทางอารมณ์)" },
+            { question: "Phrasal verb 'start up' ในบริบทนี้หมายถึงอะไร?", options: ["เริ่มต้นบริษัท", "ทำให้ตกใจ", "(เครื่องยนต์) เริ่มทำงาน", "กระโดดขึ้น"], answer: "(เครื่องยนต์) เริ่มทำงาน" }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.tab-button');
+            const contentSections = document.querySelectorAll('.content-section');
+            const lingTabs = document.querySelectorAll('.linguistics-tab-button');
+            const lingContentSections = document.querySelectorAll('.ling-content-section');
+            const accordions = document.querySelectorAll('.accordion-item');
+
+            const quizContainer = document.getElementById('quiz-container');
+            const startQuizBtn = document.getElementById('start-quiz-btn');
+            const questionContainer = document.getElementById('question-container');
+            const resultsContainer = document.getElementById('results-container');
+            const questionText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            const nextQuestionBtn = document.getElementById('next-question-btn');
+            const restartQuizBtn = document.getElementById('restart-quiz-btn');
+            const scoreText = document.getElementById('score-text');
+            const resultMessage = document.getElementById('result-message');
+            const progressBar = document.getElementById('progress-bar');
+
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let answerSelected = false;
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const target = tab.getAttribute('data-tab');
+                    contentSections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === target) {
+                            section.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            lingTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    lingTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const target = tab.getAttribute('data-ling-tab');
+                    lingContentSections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === target) {
+                            section.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            accordions.forEach(item => {
+                const header = item.querySelector('.accordion-header');
+                const content = item.querySelector('.accordion-content');
+                const icon = header.querySelector('span');
+
+                header.addEventListener('click', () => {
+                    const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+                    
+                    accordions.forEach(i => {
+                        i.querySelector('.accordion-content').style.maxHeight = '0px';
+                        i.querySelector('.accordion-header span').classList.remove('rotate-180');
+                    });
+
+                    if (!isOpen) {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        icon.classList.add('rotate-180');
+                    }
+                });
+            });
+            
+            function startQuiz() {
+                currentQuestionIndex = 0;
+                score = 0;
+                answerSelected = false;
+                quizContainer.style.display = 'none';
+                resultsContainer.classList.add('hidden');
+                questionContainer.classList.remove('hidden');
+                nextQuestionBtn.classList.add('hidden');
+                displayQuestion();
+            }
+
+            function displayQuestion() {
+                answerSelected = false;
+                const currentQuestion = quizData[currentQuestionIndex];
+                questionText.textContent = `คำถาม ${currentQuestionIndex + 1}: ${currentQuestion.question}`;
+                optionsContainer.innerHTML = '';
+                
+                currentQuestion.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add('quiz-option', 'p-4', 'rounded-lg', 'text-left', 'w-full', 'bg-white/70');
+                    button.addEventListener('click', () => selectAnswer(button, option));
+                    optionsContainer.appendChild(button);
+                });
+                
+                updateProgressBar();
+                nextQuestionBtn.classList.add('hidden');
+            }
+
+            function selectAnswer(button, selectedOption) {
+                if (answerSelected) return;
+                answerSelected = true;
+
+                const currentQuestion = quizData[currentQuestionIndex];
+                const isCorrect = selectedOption === currentQuestion.answer;
+                
+                if (isCorrect) {
+                    score++;
+                    button.classList.add('correct');
+                } else {
+                    button.classList.add('incorrect');
+                }
+                
+                Array.from(optionsContainer.children).forEach(btn => {
+                    btn.disabled = true;
+                    if(btn.textContent === currentQuestion.answer) {
+                        if(!btn.classList.contains('correct')) btn.classList.add('correct');
+                    }
+                });
+
+                nextQuestionBtn.classList.remove('hidden');
+            }
+
+            function showResults() {
+                questionContainer.classList.add('hidden');
+                resultsContainer.classList.remove('hidden');
+                scoreText.textContent = `${score} / ${quizData.length}`;
+                
+                const percentage = (score / quizData.length) * 100;
+                if (percentage >= 80) {
+                    resultMessage.textContent = "ยอดเยี่ยมมาก! คุณคือแฟนตัวยงและผู้เชี่ยวชาญด้านภาษาศาสตร์อย่างแท้จริง";
+                } else if (percentage >= 50) {
+                    resultMessage.textContent = "ทำได้ดี! คุณมีความเข้าใจในเพลงนี้เป็นอย่างดี";
+                } else {
+                    resultMessage.textContent = "ไม่เป็นไร ลองทบทวนเนื้อหาและพยายามอีกครั้งนะ!";
+                }
+            }
+            
+            function updateProgressBar() {
+                const percentage = ((currentQuestionIndex) / quizData.length) * 100;
+                progressBar.style.width = percentage + '%';
+            }
+
+            startQuizBtn.addEventListener('click', startQuiz);
+
+            nextQuestionBtn.addEventListener('click', () => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    displayQuestion();
+                } else {
+                    progressBar.style.width = '100%';
+                    showResults();
+                }
+            });
+
+            restartQuizBtn.addEventListener('click', () => {
+                resultsContainer.classList.add('hidden');
+                quizContainer.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

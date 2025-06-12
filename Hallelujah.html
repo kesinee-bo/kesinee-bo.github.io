@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง Hallelujah - Leonard Cohen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Somber Harmony -->
+    <!-- Application Structure Plan: The application is structured into four distinct, navigable sections to transform the dense report into an engaging, user-friendly experience. 1) Home: A visually appealing introduction to set the tone. 2) Lyrical Exploration: An interactive two-pane view where clicking on highlighted lyrics reveals detailed linguistic and thematic analysis, promoting active discovery. 3) Narrative Structure: This section uses visualizations—a Chart.js bar chart for the "Hallelujah Spectrum" and interactive cards for Tense Analysis—to make abstract concepts tangible and comparable. 4) Quiz: A gamified section to test user comprehension with immediate feedback. This thematic, task-oriented structure was chosen over a linear format to cater to different levels of user interest, allowing them to either get a quick overview, dive deep into lyrical details, or test their knowledge, enhancing usability and information retention. -->
+    <!-- Visualization & Content Choices: 1. (Report Info: Vocabulary/Biblical Refs -> Goal: Inform/Explore -> Viz: Clickable text + dynamic display pane -> Interaction: Click lyric to show analysis -> Justification: Directly connects lyrics to their deep meaning, fostering active learning -> Method: HTML/JS). 2. (Report Info: Table 3 - Evolving meanings of "Hallelujah" -> Goal: Compare/Organize -> Viz: Horizontal Bar Chart -> Interaction: Hover for details -> Justification: Transforms a static table into an intuitive emotional spectrum, making comparison easy -> Library: Chart.js). 3. (Report Info: Tense Analysis -> Goal: Explain Process -> Viz: Interactive HTML cards -> Interaction: Click/Hover to reveal info -> Justification: Simplifies complex grammar into digestible, visual chunks -> Method: HTML/JS). 4. (Report Info: Appendix Quiz -> Goal: Test Knowledge -> Viz: Interactive Form -> Interaction: Select answers, submit for scoring -> Justification: Gamifies the learning process and provides instant feedback -> Method: HTML/JS). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #FDFBF8; color: #4A4A4A; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; color: #2C3E50; }
+        .nav-link { transition: all 0.3s ease; border-bottom: 2px solid transparent; }
+        .nav-link.active, .nav-link:hover { color: #8E44AD; border-bottom-color: #8E44AD; }
+        .lyric-interactive { cursor: pointer; transition: color 0.3s ease; color: #8E44AD; font-weight: 500; }
+        .lyric-interactive:hover { color: #C0392B; }
+        .content-card { background-color: #FFFFFF; border-left: 4px solid #8E44AD; }
+        .quiz-option { transition: background-color 0.3s; }
+        .quiz-option:hover { background-color: #F3E5F5; }
+        .correct-answer { background-color: #D4EDDA; border-left: 4px solid #28A745; }
+        .incorrect-answer { background-color: #F8D7DA; border-left: 4px solid #DC3545; }
+        .btn-primary { background-color: #8E44AD; color: white; transition: background-color 0.3s; }
+        .btn-primary:hover { background-color: #6C3483; }
+        .btn-secondary { background-color: #7F8C8D; color: white; transition: background-color 0.3s; }
+        .btn-secondary:hover { background-color: #616A6B; }
+        .chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="py-6 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <h1 class="text-3xl md:text-4xl font-bold mb-4 sm:mb-0">ถอดรหัส Hallelujah</h1>
+                <nav id="main-nav" class="flex flex-wrap justify-center space-x-4 sm:space-x-6">
+                    <a href="#home" class="nav-link text-lg p-2 active">หน้าแรก</a>
+                    <a href="#lyrics" class="nav-link text-lg p-2">สำรวจเนื้อเพลง</a>
+                    <a href="#structure" class="nav-link text-lg p-2">โครงสร้างเรื่องเล่า</a>
+                    <a href="#quiz" class="nav-link text-lg p-2">ทดสอบความเข้าใจ</a>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <section id="home" class="page-section py-12 md:py-20 text-center">
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">"It's a cold and it's a broken Hallelujah"</h2>
+                <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-600 leading-relaxed">
+                    ยินดีต้อนรับสู่การเดินทางเชิงลึกเพื่อวิเคราะห์ "Hallelujah" ผลงานชิ้นเอกของ Leonard Cohen บทเพลงที่ก้าวข้ามกาลเวลาและวัฒนธรรม จากบทเพลงที่ไม่เป็นที่รู้จักในปี 1984 สู่บทสวดแห่งยุคสมัย แอปพลิเคชันนี้จะนำคุณไปสำรวจความซับซ้อนทางภาษา ความหมายที่ซ่อนเร้น และพลังทางอารมณ์ที่ทำให้เพลงนี้ยังคงก้องกังวานในใจผู้คนทั่วโลก
+                </p>
+                <div class="mt-12">
+                     <a href="#lyrics" class="btn-primary font-bold py-3 px-8 rounded-full text-lg" onclick="document.querySelector('a[href=\'#lyrics\']').click()">
+                        เริ่มการสำรวจ →
+                    </a>
+                </div>
+            </section>
+
+            <section id="lyrics" class="page-section hidden py-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">สำรวจเนื้อเพลงแบบอินเทอร์แอคทีฟ</h2>
+                    <p class="text-lg text-gray-600 mt-2">คลิกที่วลีที่เน้นสีเพื่อดูการวิเคราะห์เชิงลึก</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="lyrics-pane text-base leading-loose pr-4 overflow-y-auto" style="max-height: 80vh;">
+                        <p>
+                            Now I've heard there was a <span class="lyric-interactive" data-key="secret_chord">secret chord</span><br>
+                            That David played, and it pleased the Lord<br>
+                            But you don't really <span class="lyric-interactive" data-key="care_for">care for</span> music, do you?<br>
+                            It <span class="lyric-interactive" data-key="goes_like_this">goes like this</span>, the fourth, the fifth<br>
+                            The <span class="lyric-interactive" data-key="baffled_king">minor fall, the major lift</span><br>
+                            The <span class="lyric-interactive" data-key="baffled_king">baffled king</span> composing Hallelujah
+                        </p>
+                        <p class="mt-4">
+                            Hallelujah, Hallelujah, Hallelujah, Hallelujah
+                        </p>
+                        <p class="mt-4">
+                            Your faith was strong but you needed proof<br>
+                            You saw her bathing on the roof<br>
+                            Her beauty in the moonlight <span class="lyric-interactive" data-key="overthrew">overthrew</span> you<br>
+                            She <span class="lyric-interactive" data-key="samson">tied you to a kitchen chair</span><br>
+                            She <span class="lyric-interactive" data-key="samson">broke your throne, and cut your hair</span><br>
+                            And from your lips she <span class="lyric-interactive" data-key="drew">drew the Hallelujah</span>
+                        </p>
+                         <p class="mt-4">
+                            Hallelujah, Hallelujah, Hallelujah, Hallelujah
+                        </p>
+                        <p class="mt-4">
+                            Baby I've been here before<br>
+                            I know this room, I've walked this floor<br>
+                            I used to live alone before I knew you<br>
+                            I've seen your flag on the marble arch<br>
+                            Love is not a victory march<br>
+                            It's a <span class="lyric-interactive" data-key="cold_broken">cold and it's a broken Hallelujah</span>
+                        </p>
+                         <p class="mt-4">
+                            Hallelujah, Hallelujah, Hallelujah, Hallelujah
+                        </p>
+                        <p class="mt-4">
+                            There was a time you <span class="lyric-interactive" data-key="let_know">let me know</span><br>
+                            What's really <span class="lyric-interactive" data-key="going_on">going on</span> below<br>
+                            But now you never show it to me, do you?<br>
+                            And remember when I <span class="lyric-interactive" data-key="moved_in">moved in</span> you<br>
+                            The holy dove was moving too<br>
+                            And every breath we drew was Hallelujah
+                        </p>
+                         <p class="mt-4">
+                            Hallelujah, Hallelujah, Hallelujah, Hallelujah
+                        </p>
+                        <p class="mt-4">
+                            Maybe there's a God above<br>
+                            But all I've ever learned from love<br>
+                            Was how to <span class="lyric-interactive" data-key="shoot_at">shoot at someone who outdrew you</span><br>
+                            It's not a cry you can hear at night<br>
+                            It's not someone who's seen the light<br>
+                            It's a <span class="lyric-interactive" data-key="cold_broken">cold and it's a broken Hallelujah</span>
+                        </p>
+                        <p class="mt-4">
+                            Hallelujah, Hallelujah, Hallelujah, Hallelujah
+                        </p>
+                    </div>
+                    <div id="analysis-pane">
+                        <div id="analysis-content" class="content-card p-6 rounded-lg shadow-md sticky top-8">
+                             <h3 class="text-2xl font-bold mb-2">ผลการวิเคราะห์</h3>
+                             <p class="text-gray-600">กรุณาเลือกวลีจากเนื้อเพลงทางด้านซ้ายเพื่อดูความหมายและการวิเคราะห์ในเชิงลึกที่เกี่ยวข้องกับคำศัพท์ การอ้างอิง และประเด็นสำคัญของบทเพลง</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="structure" class="page-section hidden py-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">โครงสร้างเรื่องเล่าและอารมณ์</h2>
+                    <p class="text-lg text-gray-600 mt-2">สำรวจการใช้กาลและสเปกตรัมความหมายของ "Hallelujah"</p>
+                </div>
+                
+                <div class="mb-16">
+                    <h3 class="text-2xl md:text-3xl font-bold text-center mb-8">มิติแห่งกาลเวลา</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="content-card p-6 rounded-lg shadow-sm">
+                            <h4 class="text-xl font-bold mb-2 text-purple-700">Past Simple: การวางรากฐาน</h4>
+                            <p>ใช้เพื่อเล่าเหตุการณ์ในตำนานและเรื่องราวส่วนตัวที่เป็นรากฐานของเพลง สร้างความรู้สึกถึงประวัติศาสตร์และประสบการณ์ที่ผ่านมา</p>
+                            <p class="mt-3 text-sm text-gray-500 italic">"That David <strong>played</strong>, and it <strong>pleased</strong> the Lord"</p>
+                        </div>
+                        <div class="content-card p-6 rounded-lg shadow-sm">
+                            <h4 class="text-xl font-bold mb-2 text-purple-700">Present Perfect: เสียงสะท้อนถึงปัจจุบัน</h4>
+                            <p>เชื่อมโยงประสบการณ์ในอดีตเข้ากับสภาวะปัจจุบันของผู้เล่า สร้างความรู้สึกถึงบทเรียนที่สั่งสมมาหรือภาระที่แบกรับไว้</p>
+                            <p class="mt-3 text-sm text-gray-500 italic">"Baby I'<strong>ve been</strong> here before. I'<strong>ve seen</strong> this room..."</p>
+                        </div>
+                        <div class="content-card p-6 rounded-lg shadow-sm">
+                            <h4 class="text-xl font-bold mb-2 text-purple-700">Present Simple: การประกาศสัจธรรม</h4>
+                            <p>ใช้เพื่อกล่าวถ้อยแถลงที่ชัดเจน แสดงสภาวะปัจจุบัน หรือนิยามสัจธรรมที่เป็นอมตะภายในบริบทของเพลง</p>
+                            <p class="mt-3 text-sm text-gray-500 italic">"Love <strong>is</strong> not a victory march"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl md:text-3xl font-bold text-center mb-8">สเปกตรัมความหมายของ Hallelujah</h3>
+                     <p class="text-center text-gray-600 mb-4">เพลงนี้นำเสนอ "Hallelujah" ในหลายมิติ ตั้งแต่ความศักดิ์สิทธิ์ไปจนถึงความแตกสลาย แผนภูมินี้แสดงให้เห็นถึงสเปกตรัมทางอารมณ์ที่แตกต่างกัน (ลองนำเมาส์ไปวางบนแท่งกราฟ)</p>
+                    <div class="chart-container bg-white p-4 rounded-lg shadow-md">
+                        <canvas id="hallelujahChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="quiz" class="page-section hidden py-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">ทดสอบความเข้าใจของคุณ</h2>
+                    <p class="text-lg text-gray-600 mt-2">มาดูกันว่าคุณเข้าใจ "Hallelujah" ลึกซึ้งแค่ไหน</p>
+                </div>
+                <div id="quiz-container" class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+                    
+                </div>
+                <div id="quiz-results" class="hidden max-w-3xl mx-auto bg-white mt-8 p-8 rounded-lg shadow-lg text-center">
+                    <h3 class="text-2xl font-bold">ผลการทดสอบ</h3>
+                    <p id="score-text" class="text-4xl font-bold my-4"></p>
+                    <p id="score-feedback" class="text-lg text-gray-700"></p>
+                    <button id="restart-quiz-btn" class="btn-primary font-bold py-2 px-6 rounded-full mt-6">ทำแบบทดสอบอีกครั้ง</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const lyricAnalysisData = {
+                secret_chord: {
+                    title: "Secret Chord (คอร์ดลับ)",
+                    content: "สื่อถึงบางสิ่งที่ลี้ลับ ได้รับการดลใจจากสวรรค์ หรือรูปแบบการแสดงออกที่สมบูรณ์แบบซึ่งสูญหายไปแล้ว การเชื่อมโยงกับความสามารถทางดนตรีของกษัตริย์เดวิดและความสัมพันธ์ของท่านกับพระเจ้า สร้างบรรยากาศที่ลึกลับและชวนให้ค้นหา"
+                },
+                baffled_king: {
+                    title: "Baffled King / Minor Fall, Major Lift",
+                    content: "<strong>Baffled King (กษัตริย์ผู้สับสนงุนงง):</strong> คำว่า 'baffled' หมายถึง ความสับสนหรือจนปัญญา การใช้คำนี้กับกษัตริย์เดวิดเน้นย้ำถึงการต่อสู้ดิ้นรนในการสร้างสรรค์และความศรัทธา<br><strong>Minor Fall, Major Lift (ท่วงทำนองที่ร่วงหล่นและทะยานขึ้น):</strong> อ้างอิงถึงการเรียบเรียงคอร์ดดนตรี (คอร์ดไมเนอร์และเมเจอร์) ซึ่งสะท้อนถึงอารมณ์ที่ขึ้นลงของชีวิตและความศรัทธา"
+                },
+                overthrew: {
+                    title: "Overthrew (โค่นล้ม)",
+                    content: "ในท่อน 'Her beauty in the moonlight overthrew you' คำกริยาที่แข็งแรงนี้สื่อถึงความพ่ายแพ้ การถูกแย่งชิงอำนาจ เน้นย้ำถึงพลังอำนาจของสิ่งยั่วยวนและความปรารถนาที่นำไปสู่การล้มลงทางศีลธรรม โดยอ้างอิงถึงเรื่องราวของเดวิดกับบัทเชบา"
+                },
+                samson: {
+                    title: "การทรยศ (แซมซั่นและเดลิลาห์)",
+                    content: "ท่อน 'She tied you to a kitchen chair / She broke your throne, and cut your hair' เป็นการผสมผสานภาพลักษณ์ของการทรยศจากสองเรื่องราวในพระคัมภีร์: <strong>การตัดผม</strong> มาจากเรื่องของแซมซั่นที่ถูกเดลิลาห์ทรยศจนสูญเสียพละกำลัง ส่วน <strong>บัลลังก์ที่แตกสลาย (broken throne)</strong> อ้างอิงถึงการสูญเสียอำนาจและสถานะของกษัตริย์เดวิด เป็นการสร้างสัญลักษณ์ของการสูญเสียอย่างรอบด้าน"
+                },
+                drew: {
+                    title: "Drew the Hallelujah (ดึงฮาเลลูยาออกมา)",
+                    content: "คำว่า 'drew' (ดึง) สื่อถึงการสกัดออกมา ซึ่งอาจเป็นการบังคับหรือเป็นผลลัพธ์ที่หลีกเลี่ยงไม่ได้ มากกว่าจะเป็นการเปล่งเสียงโดยสมัครใจ ชี้ให้เห็นว่า 'Hallelujah' ในบริบทนี้เกิดจากประสบการณ์ที่เจ็บปวดหรือการยอมจำนน"
+                },
+                cold_broken: {
+                    title: "Cold and Broken Hallelujah",
+                    content: "นี่คือแนวคิดสำคัญของเพลง เป็น 'Hallelujah' ที่ยอมรับความเจ็บปวด ความไม่สมบูรณ์แบบ และความผิดหวัง ('love is not a victory march') มันไม่ใช่เสียงร้องแห่งชัยชนะ แต่เป็นการยอมรับความจริงที่แตกสลายของความรักและชีวิต"
+                },
+                care_for: { title: "Phrasal Verb: care for", content: "หมายถึง 'สนใจ' หรือ 'ให้คุณค่า' ในท่อน 'But you don't really care for music, do you?' สร้างความขัดแย้งระหว่างศิลปะอันสูงส่งกับความเฉยเมย" },
+                goes_like_this: { title: "Phrasal Verb: goes like this", content: "หมายถึง 'เป็นเช่นนี้' หรือ 'มีโครงสร้างแบบนี้' ใช้เพื่อเกริ่นนำเพื่ออธิบายโครงสร้างของคอร์ดดนตรี" },
+                let_know: { title: "Phrasal Verb: let (me) know", content: "หมายถึง 'บอกให้รู้' หรือ 'เปิดเผย' เน้นถึงความใกล้ชิดและความโปร่งใสในความสัมพันธ์ในอดีตที่ได้สูญเสียไป" },
+                going_on: { title: "Phrasal Verb: going on", content: "หมายถึง 'กำลังเกิดขึ้น' ในท่อน 'What's really going on below' อ้างถึงความจริงหรืออารมณ์ที่ลึกซึ้งซึ่งซ่อนเร้นอยู่" },
+                moved_in: { title: "Phrasal Verb: moved in", content: "มีความหมายสองนัย ทั้งการย้ายเข้ามาอยู่ร่วมกัน และการรวมกันอย่างลึกซึ้งทั้งทางร่างกายและจิตวิญญาณ ('The holy dove was moving too')" },
+                shoot_at: { title: "Phrasal Verb: shoot at someone who outdrew you", content: "เป็นภาพเปรียบเทียบความรักเหมือนการดวลปืน หมายถึงการโจมตีหรือชิงไหวชิงพริบกับคนที่ได้เปรียบกว่า สะท้อนมุมมองที่เย็นชาต่อความรักว่าเป็นเหมือนสนามแข่งขัน" }
+            };
+
+            const analysisPane = document.getElementById('analysis-pane');
+            const analysisContent = document.getElementById('analysis-content');
+
+            document.querySelectorAll('.lyric-interactive').forEach(item => {
+                item.addEventListener('click', event => {
+                    const key = event.target.dataset.key;
+                    const data = lyricAnalysisData[key];
+                    if (data) {
+                        analysisContent.innerHTML = `
+                            <h3 class="text-2xl font-bold mb-2">${data.title}</h3>
+                            <p class="text-gray-700 leading-relaxed">${data.content}</p>
+                        `;
+                    }
+                });
+            });
+
+            const pages = document.querySelectorAll('.page-section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            function showPage(hash) {
+                pages.forEach(page => {
+                    if ('#' + page.id === hash) {
+                        page.classList.remove('hidden');
+                    } else {
+                        page.classList.add('hidden');
+                    }
+                });
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === hash) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+                window.scrollTo(0,0);
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const hash = e.target.getAttribute('href');
+                    history.pushState(null, null, hash);
+                    showPage(hash);
+                });
+            });
+            
+            window.addEventListener('popstate', () => {
+                showPage(window.location.hash || '#home');
+            });
+
+            showPage(window.location.hash || '#home');
+
+            const chartData = {
+                labels: ['ศักดิ์สิทธิ์/บริสุทธิ์', 'สับสนงุนงง', 'ถูกดึง/บังคับ', 'เยือกเย็น/แตกสลาย'],
+                datasets: [{
+                    label: 'ลักษณะของ Hallelujah',
+                    data: [80, 65, 85, 100],
+                    backgroundColor: [
+                        'rgba(156, 39, 176, 0.6)',
+                        'rgba(251, 140, 0, 0.6)',
+                        'rgba(229, 57, 53, 0.6)',
+                        'rgba(33, 150, 243, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(156, 39, 176, 1)',
+                        'rgba(251, 140, 0, 1)',
+                        'rgba(229, 57, 53, 1)',
+                        'rgba(33, 150, 243, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+            const chartTooltips = [
+                'เกิดจากความสุข ความปีติยินดี และการเชื่อมต่อทางจิตวิญญาณ: "every breath we drew was Hallelujah"',
+                'เกิดจากการต่อสู้ดิ้นรนในการสร้างสรรค์หรือความศรัทธา: "The baffled king composing Hallelujah"',
+                'เกิดจากความเจ็บปวด การยอมจำนน หรือการทรยศ: "from your lips she drew the Hallelujah"',
+                'เกิดจากการยอมรับความผิดหวัง ความไม่สมบูรณ์แบบของความรักและชีวิต: "love is not a victory march"'
+            ];
+
+            const ctx = document.getElementById('hallelujahChart');
+            if(ctx) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: chartData,
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterBody: function(context) {
+                                        return chartTooltips[context[0].dataIndex];
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                suggestedMax: 100,
+                                ticks: {
+                                    display: false
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                     font: {
+                                        size: 14,
+                                        family: "'Sarabun', sans-serif"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+
+            const quizData = [
+                { type: 'fill', question: "I've heard there was a secret _______. That David played, and it pleased the Lord.", answer: "chord" },
+                { type: 'fill', question: "Her beauty in the moonlight ___________ you.", answer: "overthrew" },
+                { type: 'multiple', question: "ในท่อน 'Baby I've been here before,' กาลที่ใช้ ('have been') มีหน้าที่หลักเพื่ออะไร?", options: ["อธิบายการกระทำที่เสร็จสิ้นแล้วครั้งเดียว", "แสดงประสบการณ์ในอดีตที่มีความเกี่ยวข้องกับปัจจุบัน", "บ่งบอกเจตนาในอนาคต", "อธิบายการกระทำที่กำลังดำเนินอยู่"], answer: 1 },
+                { type: 'multiple', question: "การใช้ Present Simple ในท่อน 'Our love is not a victory march' สื่อความหมายอย่างไร?", options: ["เล่าถึงเหตุการณ์ในอดีต", "ประกาศหรือยืนยันสภาพความเป็นจริงในปัจจุบัน", "แสดงความไม่แน่นอน", "บรรยายถึงนิสัยในอดีต"], answer: 1 },
+                { type: 'multiple', question: "วลี 'a cold and it's a broken Hallelujah' สื่อเป็นนัยสำคัญว่า Hallelujah สามารถเป็นการแสดงออกถึงสิ่งใด?", options: ["ความสุขและชัยชนะที่บริสุทธิ์", "ความสับสนและความเข้าใจผิด", "การยอมรับความเจ็บปวดและความไม่สมบูรณ์แบบ", "การกลับใจทางศาสนา"], answer: 2 },
+                { type: 'multiple', question: "การอ้างอิงเรื่องราวของกษัตริย์เดวิดและนางบัทเชบาใช้เพื่อสำรวจประเด็นใดเป็นหลัก?", options: ["ความสำเร็จทางการทหาร", "ความเปราะบางของมนุษย์ต่อการล่อลวง", "ความสำคัญของดนตรีในราชสำนัก", "ความสัมพันธ์ทางการทูต"], answer: 1 },
+                { type: 'multiple', question: "ในท่อน '...she drew the Hallelujah,' คำว่า 'drew' ในที่นี้มีความหมายโดยนัยว่าอย่างไร?", options: ["วาดภาพ", "เปล่งออกมาโดยสมัครใจ", "สกัดออกมา หรือทำให้เปล่งออกมา (อาจไม่เต็มใจ)", "ถอนตัวออกไป"], answer: 2 }
+            ];
+            
+            const quizContainer = document.getElementById('quiz-container');
+            const quizResults = document.getElementById('quiz-results');
+            const scoreText = document.getElementById('score-text');
+            const scoreFeedback = document.getElementById('score-feedback');
+            const restartQuizBtn = document.getElementById('restart-quiz-btn');
+
+            function renderQuiz() {
+                quizContainer.innerHTML = '';
+                quizResults.classList.add('hidden');
+                quizContainer.classList.remove('hidden');
+
+                const form = document.createElement('form');
+                form.id = 'quiz-form';
+
+                quizData.forEach((q, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'mb-8';
+
+                    const questionP = document.createElement('p');
+                    questionP.className = 'text-lg font-semibold mb-3';
+                    questionP.textContent = `คำถามที่ ${index + 1}: ${q.question.split('_______')[0]}`;
+
+                    if (q.type === 'fill') {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.name = `question-${index}`;
+                        input.className = 'border-2 border-gray-300 rounded-md p-2 w-40 inline-block mx-2';
+                        questionP.appendChild(input);
+                        if (q.question.split('_______')[1]) {
+                             questionP.append(q.question.split('_______')[1]);
+                        }
+                    }
+                    questionDiv.appendChild(questionP);
+
+                    if (q.type === 'multiple') {
+                        const optionsDiv = document.createElement('div');
+                        optionsDiv.className = 'space-y-2';
+                        q.options.forEach((option, i) => {
+                            const label = document.createElement('label');
+                            label.className = 'block p-3 rounded-lg border border-gray-200 cursor-pointer quiz-option';
+                            const input = document.createElement('input');
+                            input.type = 'radio';
+                            input.name = `question-${index}`;
+                            input.value = i;
+                            input.className = 'mr-3';
+                            label.appendChild(input);
+                            label.append(option);
+                            optionsDiv.appendChild(label);
+                        });
+                        questionDiv.appendChild(optionsDiv);
+                    }
+                    form.appendChild(questionDiv);
+                });
+
+                const submitBtn = document.createElement('button');
+                submitBtn.type = 'submit';
+                submitBtn.textContent = 'ส่งคำตอบ';
+                submitBtn.className = 'btn-primary w-full font-bold py-3 px-6 rounded-full mt-4';
+                form.appendChild(submitBtn);
+
+                quizContainer.appendChild(form);
+                
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    checkAnswers();
+                });
+            }
+
+            function checkAnswers() {
+                let score = 0;
+                const form = document.getElementById('quiz-form');
+
+                quizData.forEach((q, index) => {
+                    const questionDiv = form.children[index];
+                    let isCorrect = false;
+                    if(q.type === 'fill') {
+                        const input = form.elements[`question-${index}`];
+                        if (input.value.toLowerCase().trim() === q.answer.toLowerCase()) {
+                            score++;
+                            isCorrect = true;
+                        }
+                        input.parentElement.parentElement.classList.add(isCorrect ? 'correct-answer' : 'incorrect-answer');
+                        input.disabled = true;
+                         if (!isCorrect) {
+                            const correctAnswer = document.createElement('p');
+                            correctAnswer.className = 'text-sm text-red-700 mt-1';
+                            correctAnswer.textContent = `คำตอบที่ถูกต้อง: ${q.answer}`;
+                            questionDiv.appendChild(correctAnswer);
+                        }
+                    } else if (q.type === 'multiple') {
+                        const selected = form.elements[`question-${index}`].value;
+                        const options = questionDiv.querySelectorAll('label');
+                        options.forEach(opt => opt.style.pointerEvents = 'none');
+
+                        if (selected !== '' && parseInt(selected) === q.answer) {
+                            score++;
+                            isCorrect = true;
+                        }
+
+                        if(selected !== ''){
+                            options[selected].classList.add(isCorrect ? 'correct-answer' : 'incorrect-answer');
+                        }
+                        if(!isCorrect) {
+                            options[q.answer].classList.add('correct-answer');
+                        }
+                    }
+                });
+                
+                displayResults(score);
+            }
+            
+            function displayResults(score) {
+                quizContainer.classList.add('hidden');
+                quizResults.classList.remove('hidden');
+
+                const percentage = (score / quizData.length) * 100;
+                scoreText.textContent = `${score} / ${quizData.length}`;
+                
+                let feedback = "ยอดเยี่ยม! คุณเข้าใจแก่นของเพลงนี้อย่างลึกซึ้ง";
+                if(percentage < 50) {
+                   feedback = "ลองทบทวนอีกครั้งในส่วนสำรวจเนื้อเพลงเพื่อเพิ่มความเข้าใจนะครับ";
+                } else if(percentage < 80) {
+                   feedback = "ทำได้ดีมากครับ! คุณมีความเข้าใจที่ดีในประเด็นสำคัญๆ";
+                }
+                scoreFeedback.textContent = feedback;
+            }
+            
+            restartQuizBtn.addEventListener('click', renderQuiz);
+            
+            renderQuiz();
+        });
+    </script>
+</body>
+</html>

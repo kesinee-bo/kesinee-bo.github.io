@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>วิเคราะห์เพลง: I Will Follow You Into the Dark - Death Cab for Cutie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals & Subtle Accents -->
+    <!-- Application Structure Plan: A single, long-scrolling page with a sticky navigation bar. This structure creates a narrative flow, guiding the user from a general introduction to a deep, interactive lyrical analysis, then to thematic explorations, and finally to a quiz. This is more engaging than a static report, transforming passive reading into active discovery. Key interactions include clickable lyrics revealing analysis, interactive cards for symbols, and a dynamic quiz. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Core themes -> Goal: Inform -> Method: Thematic sections with introductory text. -> Justification: Provides context and guides the user.
+        - Report Info: Vocabulary, Tenses, Phrasal Verbs -> Goal: Organize/Inform -> Method: Clickable lyrics with pop-up modals. -> Interaction: User-driven exploration. -> Justification: Makes detailed analysis accessible without cluttering the UI. -> Library: Vanilla JS.
+        - Report Info: Symbolism -> Goal: Organize/Compare -> Method: Interactive card grid with Unicode icons. -> Interaction: Hover effects. -> Justification: Visually separates symbolic concepts for clarity. -> Library: Tailwind CSS.
+        - Report Info: Tense analysis data -> Goal: Compare -> Method: Chart.js Bar Chart. -> Interaction: Hover tooltips. -> Justification: Visualizes linguistic data, making it more impactful than a static table. -> Library: Chart.js.
+        - Report Info: Quiz -> Goal: Test Knowledge -> Method: Interactive form. -> Interaction: Instant feedback on answer selection. -> Justification: Reinforces learning in an engaging way. -> Library: Vanilla JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background-color: #FDF8F2;
+            color: #434242;
+        }
+        .nav-link {
+            transition: color 0.3s, border-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #C87941;
+            border-bottom-color: #C87941;
+        }
+        .card {
+            background-color: #FFFBF5;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .modal {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .lyric-interactive {
+            cursor: pointer;
+            color: #A55E34;
+            font-weight: 500;
+            border-bottom: 1px dotted #A55E34;
+            transition: color 0.2s;
+        }
+        .lyric-interactive:hover {
+            color: #C87941;
+        }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 700px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 400px;
+            max-height: 50vh;
+        }
+        .quiz-option {
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Modal Structure -->
+    <div id="modal" class="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 opacity-0 pointer-events-none z-50">
+        <div id="modal-content" class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative transform scale-95 transition-transform duration-300">
+            <h3 id="modal-title" class="text-2xl font-bold mb-4 text-[#434242]"></h3>
+            <p id="modal-body" class="text-gray-700"></p>
+            <button id="modal-close" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+        </div>
+    </div>
+
+    <!-- Header & Navigation -->
+    <header class="bg-[#FDF8F2]/80 backdrop-blur-sm sticky top-0 z-40">
+        <nav class="container mx-auto px-6 py-4">
+            <ul class="flex justify-center space-x-4 md:space-x-8 text-sm md:text-base">
+                <li><a href="#intro" class="nav-link px-2 py-2">บทนำ</a></li>
+                <li><a href="#lyrics" class="nav-link px-2 py-2">ถอดรหัสเนื้อเพลง</a></li>
+                <li><a href="#symbols" class="nav-link px-2 py-2">สัญลักษณ์และความหมาย</a></li>
+                <li><a href="#analysis" class="nav-link px-2 py-2">การวิเคราะห์เชิงลึก</a></li>
+                <li><a href="#quiz" class="nav-link px-2 py-2">ทดสอบความเข้าใจ</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 md:py-16">
+
+        <!-- Hero Section -->
+        <section class="text-center mb-16 md:mb-24">
+            <h1 class="text-4xl md:text-6xl font-bold text-[#C87941] tracking-tight">I Will Follow You into the Dark</h1>
+            <p class="text-xl md:text-2xl mt-4 text-gray-600">Death Cab for Cutie</p>
+            <p class="mt-8 max-w-3xl mx-auto text-lg text-gray-700 italic">
+                "If there's no one beside you when your soul embarks, then I'll follow you into the dark."
+            </p>
+        </section>
+
+        <!-- Introduction Section -->
+        <section id="intro" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-8">สู่ห้วงลึกของคำมั่นสัญญา</h2>
+            <div class="max-w-4xl mx-auto text-lg leading-relaxed space-y-4 text-gray-800">
+                <p>บทเพลง "I Will Follow You Into the Dark" ไม่ใช่แค่เพลงรักอะคูสติกธรรมดา แต่เป็นบทกวีที่สำรวจแก่นแท้ของความรัก ความตาย และคำมั่นสัญญาอันแน่วแน่ ด้วยดนตรีที่เรียบง่ายอย่างยิ่ง ใช้เพียงกีตาร์โปร่งและเสียงร้องที่บันทึกผ่านไมโครโฟนตัวเดียว บทเพลงนี้กลับสร้างแรงสั่นสะเทือนทางอารมณ์ได้อย่างมหาศาล ความเรียบง่ายนี้เองที่ผลักให้เราต้องเผชิญหน้ากับเนื้อหาที่ลุ่มลึกโดยตรง</p>
+                <p>แอปพลิเคชันนี้จะนำคุณเดินทางไปสำรวจทุกมิติของบทเพลง ตั้งแต่การเลือกใช้ถ้อยคำที่คมคาย การใช้ไวยากรณ์เพื่อเล่าเรื่อง ไปจนถึงสัญลักษณ์และความหมายแฝงที่ซ่อนอยู่ เพื่อให้คุณได้เข้าใจว่าเหตุใดเพลงที่เรียบง่ายเพลงนี้จึงสามารถก้องกังวานในหัวใจของผู้คนข้ามยุคสมัย</p>
+            </div>
+        </section>
+
+        <!-- Interactive Lyrics Section -->
+        <section id="lyrics" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-2">ถอดรหัสเนื้อเพลง</h2>
+            <p class="text-center text-lg text-gray-600 mb-12">คลิกที่คำหรือวลีที่เน้นสีเพื่อดูการวิเคราะห์</p>
+            <div class="bg-white/50 rounded-lg shadow-lg p-6 md:p-10 max-w-3xl mx-auto text-lg leading-loose text-center">
+                <p>
+                    Love of mine, someday you <span class="lyric-interactive" data-key="die">will die</span><br>
+                    But I'll be <span class="lyric-interactive" data-key="close_behind">close behind</span><br>
+                    I'll follow you into the dark<br>
+                    No blinding light or <span class="lyric-interactive" data-key="tunnels">tunnels</span> to gates of white<br>
+                    Just our hands <span class="lyric-interactive" data-key="clasped">clasped</span> so tight<br>
+                    Waiting for the hint of a spark
+                </p>
+                <br>
+                <p>
+                    If heaven and hell <span class="lyric-interactive" data-key="decide">decide</span><br>
+                    That they both are satisfied<br>
+                    <span class="lyric-interactive" data-key="illuminate">Illuminate</span> the no's on their vacancy signs<br>
+                    If there's no one beside you<br>
+                    When your soul <span class="lyric-interactive" data-key="embarks">embarks</span><br>
+                    Then I'll follow you into the dark
+                </p>
+                <br>
+                <p>
+                    In catholic school as <span class="lyric-interactive" data-key="vicious">vicious</span> as Roman rule<br>
+                    I got my knuckles bruised by a lady in black<br>
+                    And I held my tongue as she told me,<br>
+                    "Son, fear is the heart of love"<br>
+                    So I never <span class="lyric-interactive" data-key="went_back">went back</span>
+                </p>
+                <br>
+                <p>
+                    You and me <span class="lyric-interactive" data-key="have_seen">have seen everything to see</span><br>
+                    From Bangkok to Calgary<br>
+                    And the <span class="lyric-interactive" data-key="soles">soles</span> of your shoes are all <span class="lyric-interactive" data-key="worn_down">worn down</span><br>
+                    The time for sleep is now<br>
+                    It's nothing to cry about<br>
+                    'Cause we'll hold each other soon<br>
+                    In the <span class="lyric-interactive" data-key="blackest">blackest</span> of rooms
+                </p>
+            </div>
+        </section>
+
+        <!-- Symbols and Meanings Section -->
+        <section id="symbols" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-12">สัญลักษณ์และความหมายแฝง</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="card p-6 rounded-lg shadow-md border border-gray-200/50">
+                    <div class="text-4xl mb-4">⚫</div>
+                    <h3 class="text-xl font-bold mb-2">The Dark (ความมืด)</h3>
+                    <p class="text-gray-700">อุปมาหลักของเพลง หมายถึงความตายและชีวิตหลังความตายที่ไม่รู้จัก ปราศจากความเชื่อทางศาสนาแบบดั้งเดิม การ "ติดตาม" เข้าไปคือการแสดงความภักดีสูงสุด ที่ให้ค่ากับการอยู่ร่วมกันมากกว่าความกลัว</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md border border-gray-200/50">
+                    <div class="text-4xl mb-4">🚫</div>
+                    <h3 class="text-xl font-bold mb-2">Vacancy Signs (ป้ายว่าง)</h3>
+                    <p class="text-gray-700">สัญลักษณ์ของการปฏิเสธแนวคิดเรื่องสวรรค์และนรกแบบเดิมๆ การที่ป้าย "ว่าง" ถูกส่องสว่างด้วยคำว่า "ไม่" แสดงว่าทางเลือกเหล่านั้นไม่พร้อมใช้งานหรือไม่เกี่ยวข้องกับผู้เล่าอีกต่อไป</p>
+                </div>
+                 <div class="card p-6 rounded-lg shadow-md border border-gray-200/50">
+                    <div class="text-4xl mb-4">👞</div>
+                    <h3 class="text-xl font-bold mb-2">Worn Down Shoes (รองเท้าที่สึกกร่อน)</h3>
+                    <p class="text-gray-700">สัญลักษณ์ของการเดินทางในชีวิตที่ยาวนานและเต็มไปด้วยประสบการณ์ร่วมกัน พื้นรองเท้าที่สึกคือหลักฐานเชิงรูปธรรมของประวัติศาสตร์และความผูกพันที่ไม่อาจแยกจากกันได้</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md border border-gray-200/50">
+                    <div class="text-4xl mb-4">🤝</div>
+                    <h3 class="text-xl font-bold mb-2">Hands Clasped Tight (มือที่กุมแน่น)</h3>
+                    <p class="text-gray-700">ภาพที่ทรงพลังของการสนับสนุนซึ่งกันและกันและความเป็นหนึ่งเดียวในการเผชิญหน้ากับสิ่งที่ไม่รู้จัก เป็นความแน่นอนเพียงหนึ่งเดียวท่ามกลางความว่างเปล่าอันมืดมิด</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md border border-gray-200/50">
+                    <div class="text-4xl mb-4">✨</div>
+                    <h3 class="text-xl font-bold mb-2">Hint of a Spark (ประกายไฟเล็กน้อย)</h3>
+                    <p class="text-gray-700">ท่ามกลางความมืดที่ไร้แสงสว่างจากสวรรค์ การรอคอยเพียง "ประกายไฟ" เล็กๆ คือสัญลักษณ์ของความหวังที่สมจริงและเรียบง่าย เป็นความปรารถนาที่จะมีการเชื่อมต่อหรือการรับรู้ใดๆ ก็ตามที่ยังคงอยู่</p>
+                </div>
+                 <div class="card p-6 rounded-lg shadow-md border border-gray-200/50">
+                    <div class="text-4xl mb-4">🚪</div>
+                    <h3 class="text-xl font-bold mb-2">Blackest of Rooms (ห้องที่มืดมิดที่สุด)</h3>
+                    <p class="text-gray-700">ภาพของสภาวะหลังความตายที่ว่างเปล่าและสมบูรณ์ที่สุด แต่ความน่ากลัวของมันกลับถูกเปลี่ยนให้เป็นพื้นที่แห่งความใกล้ชิด ด้วยคำมั่นสัญญาว่า "เราจะกอดกันในไม่ช้า"</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deeper Analysis Section -->
+        <section id="analysis" class="mb-16 md:mb-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-12">การวิเคราะห์เชิงลึก</h2>
+            <div class="max-w-4xl mx-auto space-y-12">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">การเดินทางข้ามเวลา: พลังของกาล (Tense)</h3>
+                    <p class="text-lg text-gray-700 mb-6">ผู้แต่งใช้กาล (Tense) อย่างชาญฉลาดเพื่อสร้างมิติทางอารมณ์และเรื่องเล่า Future Simple ("I'll follow you") คือคำปฏิญาณอันแน่วแน่, Present Simple ("fear is the heart of love") คือสัจธรรมที่ขมขื่น, Past Simple ("I never went back") คือบาดแผลที่หล่อหลอมตัวตน และ Present Perfect ("have seen everything") คือความผูกพันที่สั่งสมมา การสลับไปมาระหว่างอดีต ปัจจุบัน และอนาคต สะท้อนถึงจิตใจที่กำลังประมวลผลทุกอย่างเพื่อยืนยันคำมั่นสัญญาสุดท้าย</p>
+                    <div class="chart-container">
+                        <canvas id="tenseChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">เบื้องหลังบทเพลง: เสียงของ Ben Gibbard</h3>
+                    <p class="text-lg text-gray-700">Ben Gibbard เขียนเพลงนี้ในวัยใกล้ 30 ปี ช่วงเวลาที่เขารู้สึกสบายในชีวิตแต่กลับหมกมุ่นกับความคิดเรื่องความตาย เขาตั้งใจแต่งเพลงนี้เพื่อพูดถึง "ความตายที่มิอาจเลี่ยงของคนรัก" และให้คำมั่นว่าจะติดตามไปสู่อะไรก็ตามที่รออยู่เบื้องหน้า เขาจินตนาการถึง "ความมืด" ว่าเป็น "ห้องที่ว่างเปล่า" ซึ่งคือ "สิ่งที่ไม่รู้จัก" เพราะเขาเองก็ไม่รู้ว่ามีอะไรอยู่หลังความตาย เพลงที่เขียนจบใน 15 นาทีนี้จึงมีความดิบและจริงใจอย่างยิ่ง</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-12">ทดสอบความเข้าใจของคุณ</h2>
+            <div class="max-w-3xl mx-auto bg-white/60 p-8 rounded-lg shadow-lg space-y-10">
+                <!-- Quiz Part 1 -->
+                <div class="quiz-part" data-part="1">
+                    <p class="font-bold text-lg mb-1">ส่วนที่ 1/4: ทดสอบการฟัง</p>
+                    <p class="text-gray-600 mb-4">เติมคำในช่องว่างให้ถูกต้อง</p>
+                    <div id="listening-quiz-container"></div>
+                </div>
+
+                <!-- Quiz Part 2 -->
+                <div class="quiz-part hidden" data-part="2">
+                     <p class="font-bold text-lg mb-1">ส่วนที่ 2/4: การใช้ Tenses</p>
+                     <p class="text-gray-600 mb-4">เลือกคำตอบที่ถูกต้องที่สุด</p>
+                    <div id="tenses-quiz-container"></div>
+                </div>
+                
+                <!-- Quiz Part 3 -->
+                <div class="quiz-part hidden" data-part="3">
+                     <p class="font-bold text-lg mb-1">ส่วนที่ 3/4: ความเข้าใจในความหมาย</p>
+                     <p class="text-gray-600 mb-4">เลือกคำตอบที่ถูกต้องที่สุด</p>
+                    <div id="meaning-quiz-container"></div>
+                </div>
+
+                <!-- Quiz Part 4 -->
+                <div class="quiz-part hidden" data-part="4">
+                     <p class="font-bold text-lg mb-1">ส่วนที่ 4/4: Phrasal Verbs</p>
+                     <p class="text-gray-600 mb-4">เลือกคำตอบที่ถูกต้องที่สุด</p>
+                    <div id="phrasal-quiz-container"></div>
+                </div>
+
+                 <!-- Quiz Navigation -->
+                <div class="flex justify-between items-center mt-8">
+                    <button id="prev-btn" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 transition disabled:opacity-50" disabled>ก่อนหน้า</button>
+                    <p id="quiz-progress" class="text-gray-600 font-medium">ส่วนที่ 1 จาก 4</p>
+                    <button id="next-btn" class="bg-[#C87941] text-white px-6 py-2 rounded-md hover:bg-[#A55E34] transition">ถัดไป</button>
+                </div>
+
+                <div id="quiz-results" class="hidden text-center mt-8">
+                     <h3 class="text-2xl font-bold mb-4">ผลการทดสอบ</h3>
+                     <p class="text-lg">คุณทำคะแนนได้ <span id="score-display" class="font-bold text-[#C87941]"></span> คะแนน</p>
+                     <button id="retry-btn" class="mt-6 bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition">ทำแบบทดสอบอีกครั้ง</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 mt-16 border-t border-gray-200/80">
+        <p class="text-gray-500">Interactive Analysis created from a source report.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const lyricAnalysisData = {
+                die: { title: "Tense: Future Simple (will die)", body: "การใช้ Future Simple ในที่นี้ไม่ใช่แค่การคาดการณ์ แต่เป็นการบอกถึงความจริงที่แน่นอนและหลีกเลี่ยงไม่ได้ในอนาคต เป็นการยอมรับความจริงข้อนี้อย่างตรงไปตรงมาเพื่อปูทางไปสู่คำมั่นสัญญาที่จะตามมา" },
+                close_behind: { title: "Phrasal Verb: close behind", body: "หมายถึง 'ตามไปติดๆ' วลีนี้เน้นย้ำถึงความตั้งใจที่แน่วแน่และทันทีทันใด ไม่ใช่คำสัญญาที่ห่างไกล แต่เป็นการยืนยันว่าจะตามไปในเวลาอันใกล้" },
+                tunnels: { title: "Vocabulary: Tunnels to gates of white", body: "วลีนี้คือภาพจำทั่วไปของประสบการณ์ใกล้ตายหรือการไปสู่สวรรค์ การปฏิเสธภาพนี้อย่างชัดเจนเป็นการสร้างวิสัยทัศน์เกี่ยวกับชีวิตหลังความตายที่เป็นเอกลักษณ์และไม่ขึ้นอยู่กับความเชื่อดั้งเดิม" },
+                clasped: { title: "Vocabulary: Clasped", body: "หมายถึง 'กุมหรือจับไว้แน่น' คำนี้ให้ภาพที่สื่อถึงความมั่นคง ปลอดภัย และการยึดเหนี่ยวซึ่งกันและกัน การกระทำทางกายภาพนี้กลายเป็นสัญลักษณ์ของความผูกพันที่ไม่ยอมพรากจากกันเพื่อต่อสู้กับความมืดมิด" },
+                decide: { title: "Tense: Present Simple (decide)", body: "ใช้ในประโยคเงื่อนไข (If-clause) เพื่อตั้งสมมติฐานเกี่ยวกับสถานการณ์ในอนาคต ('ถ้าสวรรค์และนรกตัดสินใจ...') ซึ่งเป็นเงื่อนไขที่นำไปสู่การกระทำของผู้เล่า" },
+                illuminate: { title: "Vocabulary: Illuminate", body: "ปกติแปลว่า 'ส่องสว่าง' แต่ในที่นี้ใช้ในเชิงประชด การส่องแสงไปที่คำว่า 'ไม่' (no's) เป็นการเน้นย้ำถึงการปฏิเสธและความว่างเปล่าของทางเลือกชีวิตหลังความตายแบบเดิมๆ" },
+                embarks: { title: "Vocabulary: Embarks", body: "เป็นคำที่เป็นทางการ แปลว่า 'ออกเดินทาง' การใช้คำนี้ยกระดับความตายจากการเป็นแค่การสิ้นสุด ให้กลายเป็นการเดินทางครั้งสำคัญ ทำให้ช่วงเวลานี้ดูสง่างามและมีความหมายมากขึ้น" },
+                vicious: { title: "Vocabulary: Vicious", body: "หมายถึง 'โหดร้าย, รุนแรง' การใช้คำนี้เพื่ออธิบายโรงเรียนคาทอลิก เน้นย้ำถึงประสบการณ์เลวร้ายในอดีตที่หล่อหลอมให้ผู้เล่าไม่ไว้วางใจในศรัทธาแบบสถาบัน" },
+                went_back: { title: "Phrasal Verb: went back", body: "หมายถึง 'กลับไป' ในบริบทนี้ 'never went back' คือการปฏิเสธสถาบันและความเชื่อที่นั่นอย่างถาวรและเด็ดขาด เป็นการแสดงออกถึงการตัดสินใจด้วยตนเอง" },
+                have_seen: { title: "Tense: Present Perfect (have seen)", body: "เน้นย้ำถึงประสบการณ์ที่สั่งสมมาร่วมกันในอดีต และยังคงมีความสำคัญและส่งผลต่อความผูกพันของพวกเขาในปัจจุบัน ซึ่งเป็นเหตุผลที่ทำให้เขาให้คำมั่นสัญญา" },
+                soles: { title: "Vocabulary: Soles", body: "'Soles' คือพื้นรองเท้า ในที่นี้เป็นส่วนหนึ่งของภาพที่ใหญ่กว่า ซึ่งแสดงถึงการเดินทางอันยาวนานในชีวิต" },
+                worn_down: { title: "Phrasal Verb: worn down", body: "หมายถึง 'สึกกร่อน' จากการใช้งานเป็นเวลานาน พื้นรองเท้าที่สึกเป็นสัญลักษณ์ที่เป็นรูปธรรมของการเดินทางในชีวิตที่ยาวนานร่วมกัน เป็นเครื่องยืนยันถึงประวัติศาสตร์ที่พวกเขามีร่วมกัน" },
+                blackest: { title: "Vocabulary: Blackest", body: "เป็นขั้นสูงสุดของ 'black' (ดำ) ใช้เพื่อเน้นย้ำถึงความมืดมิดและความว่างเปล่าอย่างสมบูรณ์ของสิ่งที่ไม่รู้จัก แต่ความน่ากลัวนี้กลับถูกเปลี่ยนให้เป็นความหวังด้วยคำสัญญาว่าจะได้อยู่ด้วยกัน" }
+            };
+
+            const modal = document.getElementById('modal');
+            const modalContent = document.getElementById('modal-content');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const modalClose = document.getElementById('modal-close');
+
+            document.querySelectorAll('.lyric-interactive').forEach(span => {
+                span.addEventListener('click', () => {
+                    const key = span.dataset.key;
+                    const data = lyricAnalysisData[key];
+                    if (data) {
+                        modalTitle.textContent = data.title;
+                        modalBody.textContent = data.body;
+                        modal.classList.remove('opacity-0', 'pointer-events-none');
+                        modalContent.classList.remove('scale-95');
+                    }
+                });
+            });
+
+            const closeModal = () => {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                modalContent.classList.add('scale-95');
+            };
+
+            modalClose.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Tense Chart
+            const ctx = document.getElementById('tenseChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Future Simple', 'Present Simple', 'Past Simple', 'Present Perfect'],
+                    datasets: [{
+                        label: 'ความถี่ในการใช้ Tense ในเพลง',
+                        data: [4, 8, 3, 1],
+                        backgroundColor: [
+                            'rgba(200, 121, 65, 0.6)',
+                            'rgba(165, 94, 52, 0.6)',
+                            'rgba(107, 89, 78, 0.6)',
+                            'rgba(67, 66, 66, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(200, 121, 65, 1)',
+                            'rgba(165, 94, 52, 1)',
+                            'rgba(107, 89, 78, 1)',
+                            'rgba(67, 66, 66, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + ' ครั้ง';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Active Nav Link on Scroll
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: '-50% 0px -50% 0px' });
+            sections.forEach(sec => observer.observe(sec));
+            
+            // --- QUIZ LOGIC ---
+            const quizData = {
+                listening: [
+                    { question: "Love of mine someday you will ____, But I'll be close behind.", answer: "die" },
+                    { question: "No blinding light or _______ to gates of white.", answer: "tunnels" },
+                    { question: "If heaven and hell ______ That they both are satisfied...", answer: "decide" },
+                    { question: "And the _____ of your shoes are all worn down.", answer: "soles" },
+                    { question: "Cause we'll hold each other soon In the ________ of rooms.", answer: "blackest" },
+                ],
+                tenses: [
+                    { question: "ในบรรทัด \"Love of mine someday you **will die**,\" กาลของ \"will die\" คือ:", options: ["Present Simple", "Past Simple", "Future Simple", "Present Continuous"], answer: "Future Simple" },
+                    { question: "\"You and me **have seen** everything to see.\" กาลของ \"have seen\" เน้นย้ำเป็นหลักถึง:", options: ["การกระทำในอนาคต", "การกระทำในปัจจุบัน", "ประสบการณ์ในอดีตที่เกี่ยวข้องกับปัจจุบัน", "สถานการณ์สมมติ"], answer: "ประสบการณ์ในอดีตที่เกี่ยวข้องกับปัจจุบัน" },
+                    { question: "เมื่อผู้เล่ากล่าวว่า, \"So I never **went back**,\" กาล Past Simple หมายถึง:", options: ["แผนที่จะกลับมา", "นิสัยที่ทำเป็นประจำ", "การกระทำที่เสร็จแล้ว", "การตัดสินใจที่เด็ดขาดในอดีต"], answer: "การตัดสินใจที่เด็ดขาดในอดีต" },
+                ],
+                meaning: [
+                    { question: "วลี \"follow you into the dark\" สื่อความหมายหลักว่า:", options: ["กลัวการอยู่คนเดียว", "คำมั่นสัญญาที่จะติดตามคนรักไปสู่ความตาย", "แผนไปสำรวจถ้ำ", "ชอบเที่ยวกลางคืน"], answer: "คำมั่นสัญญาที่จะติดตามคนรักไปสู่ความตาย" },
+                    { question: "สัญลักษณ์ \"the soles of your shoes...all worn down\" หมายถึง:", options: ["ความยากจน", "ชีวิตที่ยาวนานและเต็มไปด้วยประสบการณ์ร่วมกัน", "คุณภาพรองเท้าไม่ดี", "เพิ่งไปเดินป่ามา"], answer: "ชีวิตที่ยาวนานและเต็มไปด้วยประสบการณ์ร่วมกัน" },
+                    { question: "แก่นเรื่องหลักของเพลงคืออะไร?", options: ["ความสำคัญของศาสนา", "ความกลัวความมืด", "พลังของความรักและคำมั่นสัญญาเมื่อเผชิญหน้าความตาย", "ความตื่นเต้นในการสำรวจ"], answer: "พลังของความรักและคำมั่นสัญญาเมื่อเผชิญหน้าความตาย" },
+                ],
+                phrasal: [
+                    { question: "ใน \"But I'll be **close behind**,\" วลี \"close behind\" หมายถึง:", options: ["อยู่ห่างไกล", "ซ่อนบางสิ่ง", "ติดตามไปอย่างใกล้ชิด", "มาถึงช้า"], answer: "ติดตามไปอย่างใกล้ชิด" },
+                    { question: "ใน \"...are all **worn down**,\" วลี \"worn down\" อธิบายรองเท้าว่า:", options: ["เพิ่งขัดเงา", "สึกกร่อนจากการใช้งาน", "ดัดแปลงเพื่อความสบาย", "เป็นสไตล์ใหม่"], answer: "สึกกร่อนจากการใช้งาน" },
+                ]
+            };
+
+            const listeningContainer = document.getElementById('listening-quiz-container');
+            const tensesContainer = document.getElementById('tenses-quiz-container');
+            const meaningContainer = document.getElementById('meaning-quiz-container');
+            const phrasalContainer = document.getElementById('phrasal-quiz-container');
+
+            function createListeningQuiz() {
+                quizData.listening.forEach((q, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'mb-4';
+                    div.innerHTML = `
+                        <label for="listen-${index}" class="block text-gray-700 mb-2">${index + 1}. ${q.question}</label>
+                        <input type="text" id="listen-${index}" data-answer="${q.answer.toLowerCase()}" class="quiz-input w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#C87941] focus:border-transparent">
+                    `;
+                    listeningContainer.appendChild(div);
+                });
+            }
+
+            function createMultipleChoiceQuiz(container, questions, partName) {
+                questions.forEach((q, index) => {
+                    const fieldset = document.createElement('fieldset');
+                    fieldset.className = 'mb-6';
+                    fieldset.innerHTML = `<legend class="font-medium text-gray-800 mb-2">${index + 1}. ${q.question}</legend>`;
+                    const optionsWrapper = document.createElement('div');
+                    optionsWrapper.className = 'space-y-2';
+                    
+                    q.options.forEach(opt => {
+                        const optionDiv = document.createElement('div');
+                        optionDiv.innerHTML = `
+                            <label class="quiz-option block w-full p-3 border border-gray-300 rounded-md cursor-pointer hover:bg-orange-50">
+                                <input type="radio" name="${partName}-${index}" value="${opt}" class="hidden">
+                                <span>${opt}</span>
+                            </label>
+                        `;
+                        optionsWrapper.appendChild(optionDiv);
+                    });
+
+                    fieldset.appendChild(optionsWrapper);
+                    container.appendChild(fieldset);
+
+                    fieldset.querySelectorAll('.quiz-option').forEach(label => {
+                        label.addEventListener('click', () => {
+                            const selectedRadio = label.querySelector('input');
+                            if (selectedRadio.checked) return;
+
+                            const isCorrect = selectedRadio.value === q.answer;
+                            const radios = fieldset.querySelectorAll('input[type="radio"]');
+                            
+                            radios.forEach(r => {
+                                r.disabled = true;
+                                const parentLabel = r.parentElement;
+                                parentLabel.classList.remove('hover:bg-orange-50');
+                                parentLabel.style.cursor = 'default';
+                                if (r.value === q.answer) {
+                                    parentLabel.style.backgroundColor = '#D1FAE5';
+                                    parentLabel.style.borderColor = '#10B981';
+                                }
+                            });
+
+                            if (!isCorrect) {
+                                label.style.backgroundColor = '#FEE2E2';
+                                label.style.borderColor = '#EF4444';
+                            }
+                        });
+                    });
+                });
+            }
+
+            createListeningQuiz();
+            createMultipleChoiceQuiz(tensesContainer, quizData.tenses, 'tenses');
+            createMultipleChoiceQuiz(meaningContainer, quizData.meaning, 'meaning');
+            createMultipleChoiceQuiz(phrasalContainer, quizData.phrasal, 'phrasal');
+            
+            const quizParts = document.querySelectorAll('.quiz-part');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progressText = document.getElementById('quiz-progress');
+            const quizResults = document.getElementById('quiz-results');
+            const scoreDisplay = document.getElementById('score-display');
+            const retryBtn = document.getElementById('retry-btn');
+            let currentPart = 1;
+
+            function showPart(partNumber) {
+                quizParts.forEach(part => {
+                    part.classList.toggle('hidden', parseInt(part.dataset.part) !== partNumber);
+                });
+                progressText.textContent = `ส่วนที่ ${partNumber} จาก ${quizParts.length}`;
+                prevBtn.disabled = partNumber === 1;
+                nextBtn.textContent = partNumber === quizParts.length ? 'ดูผลคะแนน' : 'ถัดไป';
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (currentPart < quizParts.length) {
+                    currentPart++;
+                    showPart(currentPart);
+                } else {
+                    calculateScore();
+                }
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentPart > 1) {
+                    currentPart--;
+                    showPart(currentPart);
+                }
+            });
+
+            function calculateScore() {
+                let score = 0;
+                let total = 0;
+
+                // Listening
+                document.querySelectorAll('#listening-quiz-container .quiz-input').forEach(input => {
+                    total++;
+                    if (input.value.trim().toLowerCase() === input.dataset.answer) {
+                        score++;
+                    }
+                });
+
+                // Multiple choice
+                const mcParts = { tenses: quizData.tenses, meaning: quizData.meaning, phrasal: quizData.phrasal };
+                Object.keys(mcParts).forEach(partName => {
+                    mcParts[partName].forEach((q, index) => {
+                        total++;
+                        const selected = document.querySelector(`input[name="${partName}-${index}"]:checked`);
+                        if (selected && selected.value === q.answer) {
+                            score++;
+                        }
+                    });
+                });
+
+                quizParts.forEach(p => p.classList.add('hidden'));
+                document.getElementById('prev-btn').classList.add('hidden');
+                document.getElementById('next-btn').classList.add('hidden');
+                progressText.classList.add('hidden');
+
+                scoreDisplay.textContent = `${score} / ${total}`;
+                quizResults.classList.remove('hidden');
+            }
+
+            retryBtn.addEventListener('click', () => {
+                // Reset UI
+                quizResults.classList.add('hidden');
+                document.getElementById('prev-btn').classList.remove('hidden');
+                document.getElementById('next-btn').classList.remove('hidden');
+                progressText.classList.remove('hidden');
+                currentPart = 1;
+                showPart(1);
+
+                // Reset listening inputs
+                document.querySelectorAll('#listening-quiz-container .quiz-input').forEach(input => {
+                    input.value = '';
+                });
+
+                // Reset multiple choice
+                document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.disabled = false;
+                    const label = radio.parentElement;
+                    label.style.backgroundColor = '';
+                    label.style.borderColor = '';
+                    label.style.cursor = 'pointer';
+                    label.classList.add('hover:bg-orange-50');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
