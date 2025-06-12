@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>นำเสนอ: การวิเคราะห์ไวยากรณ์และภาษาจากบทเพลง</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f0f9ff; /* Light Blue Background */
+        }
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 1.5rem 2rem;
+            border-radius: 0.75rem;
+            background-color: white;
+            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            overflow-y: auto;
+        }
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .slide-title {
+            color: #0d47a1; /* Deep Blue */
+            font-weight: 700;
+        }
+        .slide-subtitle {
+             color: #1565c0; /* Medium Blue */
+        }
+        .highlight-text {
+            color: #ff8f00; /* Amber */
+        }
+        .slide-content ul {
+            list-style-position: inside;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div id="presentation-container" class="w-full max-w-4xl h-[65vh] md:h-[75vh] relative">
+        <!-- Slides will be injected here by script -->
+    </div>
+
+    <div class="flex items-center justify-center mt-6 space-x-4">
+        <button id="prevBtn" class="bg-[#0d47a1] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#1565c0] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+            ย้อนกลับ
+        </button>
+        <div id="slide-counter" class="text-lg font-semibold text-gray-800"></div>
+        <button id="nextBtn" class="bg-[#0d47a1] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#1565c0] transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+            ถัดไป
+        </button>
+    </div>
+
+    <script>
+        const slidesData = [
+            // --- Fortnight ---
+            // Slide 1: Title
+            `
+                <div class="text-center">
+                    <h1 class="text-4xl md:text-5xl slide-title">Fortnight</h1>
+                    <p class="mt-4 text-xl md:text-2xl slide-subtitle">โดย Taylor Swift (featuring Post Malone)</p>
+                </div>
+            `,
+            // Slide 2: Tense
+            `
+                <div class="slide-content">
+                    <h2 class="text-3xl slide-title mb-4">การใช้ Tense</h2>
+                    <p class="mb-4 text-md">เพลง "Fortnight" ใช้ tense ที่หลากหลายเพื่อเล่าเรื่องราวและถ่ายทอดอารมณ์ในมิติของอดีต ปัจจุบัน และอนาคต</p>
+                    <ul class="space-y-2 text-sm md:text-base">
+                        <li><strong class="highlight-text">Past Simple:</strong> ใช้เล่าถึงเหตุการณ์ที่เกิดขึ้นแล้ว
+                            <ul class="list-disc pl-8 text-gray-600 italic">
+                                <li>"I was supposed to be sent away" – บ่งบอกถึงเหตุการณ์ที่คาดว่าจะเกิดในอดีตแต่ไม่เกิดขึ้นจริง</li>
+                                <li>"I touched you for only a fortnight" – อ้างถึงช่วงเวลาสั้น ๆ ที่ผ่านมา</li>
+                            </ul>
+                        </li>
+                        <li><strong class="highlight-text">Present Simple:</strong> ใช้แสดงความรู้สึกหรือสถานการณ์ที่ยังคงอยู่
+                             <ul class="list-disc pl-8 text-gray-600 italic">
+                                <li>"I love you, it’s ruining my life" – แสดงถึงความรู้สึกในปัจจุบันที่มีผลกระทบต่อชีวิต</li>
+                                <li>"Your wife waters flowers" – อธิบายสถานการณ์ที่เป็นปกติในปัจจุบัน</li>
+                            </ul>
+                        </li>
+                        <li><strong class="highlight-text">Present Continuous:</strong> ใช้แสดงการกระทำที่กำลังเกิดขึ้น
+                            <ul class="list-disc pl-8 text-gray-600 italic">
+                                <li>"I’m planning to run away" – บ่งบอกถึงการวางแผนที่ดำเนินอยู่ในขณะนี้</li>
+                            </ul>
+                        </li>
+                        <li><strong class="highlight-text">Future Simple:</strong> ใช้แสดงเจตนาหรือสิ่งที่จะเกิดขึ้น
+                             <ul class="list-disc pl-8 text-gray-600 italic">
+                                <li>"I’ll run away" – แสดงถึงความตั้งใจในอนาคต</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            `,
+            // Slide 3: Phrasal Verbs
+            `
+                <div class="slide-content">
+                    <h2 class="text-3xl slide-title mb-6">Phrasal Verbs (กริยาวลี)</h2>
+                     <ul class="space-y-6 text-lg">
+                        <li class="p-4 bg-blue-50 rounded-lg">
+                            <strong class="text-[#1565c0]">"Run away":</strong> 
+                            <p class="mt-1 text-gray-700">หมายถึงการหนีไปจากสถานที่หรือสถานการณ์ ("I’m planning to run away")</p>
+                        </li>
+                        <li class="p-4 bg-blue-50 rounded-lg">
+                            <strong class="text-[#1565c0]">"Send away":</strong> 
+                            <p class="mt-1 text-gray-700">หมายถึงการส่งไปไกลหรือขับไล่ ("I was supposed to be sent away")</p>
+                        </li>
+                    </ul>
+                    <p class="mt-4 text-sm text-gray-500">เคล็ดลับ: กริยาวลีเหล่านี้ใช้บ่อยในชีวิตประจำวัน การเรียนผ่านเพลงช่วยให้จำง่าย</p>
+                </div>
+            `,
+            // Slide 4: Figurative Meanings
+            `
+                <div class="slide-content">
+                    <h2 class="text-3xl slide-title mb-6">ความหมายเชิงเปรียบเทียบ</h2>
+                    <ul class="space-y-4 text-md">
+                        <li class="p-3 bg-amber-50 rounded-lg">
+                            <strong class="text-[#ff8f00]">อุปมา (Metaphor):</strong> 
+                            <p class="mt-1 text-gray-700">"I love you, it’s ruining my life" – เปรียบเทียบความรักกับสิ่งที่ทำลายล้าง แสดงถึงความขัดแย้งภายใน</p>
+                        </li>
+                        <li class="p-3 bg-amber-50 rounded-lg">
+                            <strong class="text-[#ff8f00]">การพูดเกินจริง (Hyperbole):</strong> 
+                            <p class="mt-1 text-gray-700">"I touched you for only a fortnight" – ใช้คำว่า "fortnight" เพื่อเน้นความสั้นของช่วงเวลา</p>
+                        </li>
+                         <li class="p-3 bg-amber-50 rounded-lg">
+                            <strong class="text-[#ff8f00]">ภาพพจน์ (Imagery):</strong> 
+                            <p class="mt-1 text-gray-700">"Your wife waters flowers, I want to kill her" – สร้างภาพของความอิจฉาและความโกรธที่ชัดเจน</p>
+                        </li>
+                    </ul>
+                </div>
+            `,
+            // --- BIRDS OF A FEATHER ---
+            // Slide 5: Title
+            `
+                <div class="text-center">
+                    <h1 class="text-4xl md:text-5xl slide-title">BIRDS OF A FEATHER</h1>
+                    <p class="mt-4 text-xl md:text-2xl slide-subtitle">โดย Billie Eilish</p>
+                </div>
+            `,
+            // Slide 6: Tense
+            `
+                <div class="slide-content">
+                    <h2 class="text-3xl slide-title mb-4">การใช้ Tense</h2>
+                     <p class="mb-4 text-md">เพลงนี้ใช้ tense หลากหลาย โดยส่วนใหญ่เป็น Present Simple และ Future Simple</p>
+                    <ul class="space-y-2 text-sm md:text-base">
+                        <li><strong class="highlight-text">Present Simple:</strong> ใช้เพื่อแสดงความรู้สึกหรือความปรารถนาในปัจจุบัน
+                            <ul class="list-disc pl-8 text-gray-600 italic">
+                                <li>"I want you to stay" – แสดงถึงความปรารถนาในตอนนี้</li>
+                                <li>"You are the one" – บอกถึงความจริงในปัจจุบันเกี่ยวกับความสัมพันธ์</li>
+                            </ul>
+                        </li>
+                        <li><strong class="highlight-text">Future Simple:</strong> ใช้เพื่อแสดงคำสัญญาหรือเจตนาในอนาคต
+                             <ul class="list-disc pl-8 text-gray-600 italic">
+                                <li>"I'll love you 'til the day that I die" – เป็นคำสัญญาที่แข็งแกร่ง</li>
+                                <li>"We should stick together" – แนะนำการกระทำในอนาคต</li>
+                            </ul>
+                        </li>
+                        <li><strong class="highlight-text">Present Continuous:</strong> ใช้เพื่อแสดงอารมณ์ที่กำลังดำเนินอยู่
+                            <ul class="list-disc pl-8 text-gray-600 italic">
+                                <li>"I’m crying" (ในวลี "I don't know what I'm crying for")</li>
+                            </ul>
+                        </li>
+                         <li><strong class="highlight-text">Past Simple:</strong> ใช้เพื่อพูดถึงประสบการณ์หรือสถานการณ์สมมติ
+                            <ul class="list-disc pl-8 text-gray-600 italic">
+                                <li>"I knew you in another life" – บ่งบอกถึงความสัมพันธ์ที่เกินกว่าปัจจุบัน</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            `,
+            // Slide 7: Phrasal Verbs
+            `
+                <div class="slide-content">
+                    <h2 class="text-3xl slide-title mb-6">Phrasal Verbs</h2>
+                    <div class="p-6 bg-blue-50 rounded-lg text-center">
+                        <strong class="text-2xl text-[#1565c0]">"Stick together"</strong>
+                        <p class="mt-2 text-xl text-gray-700">หมายถึงการอยู่ด้วยกันหรือคงความสามัคคี</p>
+                        <p class="mt-4 italic text-gray-500">"Birds of a feather, we should stick together"</p>
+                    </div>
+                     <p class="mt-4 text-sm text-gray-500">เคล็ดลับ: การใช้เพลงช่วยให้ผู้เรียนเข้าใจบริบทและฝึกใช้กริยาวลีได้อย่างเป็นธรรมชาติ</p>
+                </div>
+            `,
+            // Slide 8: Figurative Meanings
+            `
+                 <div class="slide-content">
+                    <h2 class="text-3xl slide-title mb-4">ความหมายเชิงเปรียบเทียบ</h2>
+                    <ul class="space-y-2 text-sm md:text-base">
+                        <li class="p-2 bg-amber-50 rounded-lg">
+                            <strong class="text-[#ff8f00]">สำนวน (Idiom):</strong> 
+                            <p class="mt-1 text-gray-700">"Birds of a feather" หมายถึงคนที่มีความสนใจหรือลักษณะคล้ายกันมักอยู่ด้วยกัน</p>
+                        </li>
+                        <li class="p-2 bg-amber-50 rounded-lg">
+                            <strong class="text-[#ff8f00]">อุปมา (Metaphor):</strong> 
+                            <p class="mt-1 text-gray-700">"‘Til I’m in the grave..." ใช้ความตายเป็นอุปมาเพื่อแสดงถึงความรักที่ยั่งยืน</p>
+                        </li>
+                         <li class="p-2 bg-amber-50 rounded-lg">
+                            <strong class="text-[#ff8f00]">การพูดเกินจริง (Hyperbole):</strong> 
+                            <p class="mt-1 text-gray-700">"If I’m turning blue, please don’t save me" ใช้เพื่อเน้นความทุ่มเทอย่างสุดขีด</p>
+                        </li>
+                        <li class="p-2 bg-amber-50 rounded-lg">
+                            <strong class="text-[#ff8f00]">การให้ชีวิต (Personification):</strong> 
+                            <p class="mt-1 text-gray-700">"Can’t change the weather" เปรียบเทียบสภาพอากาศกับสิ่งที่ควบคุมไม่ได้ เช่น ความรัก</p>
+                        </li>
+                    </ul>
+                </div>
+            `,
+            // --- If We Were Vampires ---
+            // Slide 9: Title
+            `
+                 <div class="text-center">
+                    <h1 class="text-4xl md:text-5xl slide-title">If We Were Vampires</h1>
+                    <p class="mt-4 text-xl md:text-2xl slide-subtitle">โดย Jason Isbell and the 400 Unit</p>
+                </div>
+            `,
+            // Slide 10: Tense
+            `
+                <div class="slide-content">
+                    <h2 class="text-3xl slide-title mb-6">การใช้ Tense</h2>
+                    <ul class="space-y-4 text-lg">
+                        <li><strong class="highlight-text">Conditional Tense (ประโยคเงื่อนไข):</strong> สร้างสถานการณ์สมมติ
+                            <p class="pl-6 italic text-gray-600">"If we were vampires and death was a joke"</p>
+                        </li>
+                        <li><strong class="highlight-text">Present Simple:</strong> แสดงความจริงหรือความรู้สึกในปัจจุบัน
+                            <p class="pl-6 italic text-gray-600">"It’s knowing that this can’t go on forever"</p>
+                        </li>
+                        <li><strong class="highlight-text">Future Simple:</strong> พูดถึงสิ่งที่จะเกิดขึ้น
+                            <p class="pl-6 italic text-gray-600">"One of us will die inside these arms"</p>
+                        </li>
+                    </ul>
+                     <p class="mt-4 text-sm text-gray-500">เคล็ดลับ: ฝึกใช้ "if clause" จากตัวอย่างในเพลงเพื่อสร้างประโยคสมมติของตัวเอง</p>
+                </div>
+            `,
+            // Slide 11: Phrasal Verbs
+            `
+                 <div class="slide-content">
+                    <h2 class="text-3xl slide-title mb-6">Phrasal Verbs</h2>
+                     <ul class="space-y-6 text-xl">
+                        <li class="p-4 bg-blue-50 rounded-lg">
+                            <strong class="text-[#1565c0]">"Go out":</strong> 
+                            <p class="mt-1 text-gray-700">ออกไปข้างนอก ("We’d go out on the sidewalk and smoke")</p>
+                        </li>
+                        <li class="p-4 bg-blue-50 rounded-lg">
+                            <strong class="text-[#1565c0]">"Live on":</strong> 
+                            <p class="mt-1 text-gray-700">มีชีวิตต่อไป ("I’d hope that you’d live on")</p>
+                        </li>
+                    </ul>
+                </div>
+            `,
+            // Slide 12: Figurative Meanings
+            `
+                <div class="slide-content">
+                    <h2 class="text-3xl slide-title mb-6">ความหมายเชิงเปรียบเทียบ</h2>
+                    <ul class="space-y-4 text-lg">
+                        <li class="p-3 bg-amber-50 rounded-lg">
+                            <strong class="text-[#ff8f00]">อุปมา (Metaphor):</strong> 
+                            <p class="mt-1 text-gray-700">"If we were vampires" – แวมไพร์เป็นสัญลักษณ์ของความเป็นอมตะ</p>
+                        </li>
+                         <li class="p-3 bg-amber-50 rounded-lg">
+                            <strong class="text-[#ff8f00]">การพูดเกินจริง (Hyperbole):</strong> 
+                            <p class="mt-1 text-gray-700">"We’d laugh at all the couples who don’t know" – หัวเราะเยาะคู่รักที่ไม่รู้</p>
+                        </li>
+                        <li class="p-3 bg-amber-50 rounded-lg">
+                            <strong class="text-[#ff8f00]">ภาพพจน์ (Imagery):</strong> 
+                            <p class="mt-1 text-gray-700">"One of us will die inside these arms" – ภาพของการจากลาที่ใกล้ชิด</p>
+                        </li>
+                    </ul>
+                     <p class="mt-4 text-sm text-gray-500">เคล็ดลับ: วิเคราะห์ภาษาเชิงเปรียบเทียบเพื่อฝึกการถ่ายทอดอารมณ์ที่ลึกซึ้ง</p>
+                </div>
+            `
+        ];
+
+        const container = document.getElementById('presentation-container');
+        slidesData.forEach((slideHTML) => {
+            const slideElement = document.createElement('div');
+            slideElement.className = 'slide';
+            slideElement.innerHTML = slideHTML;
+            container.appendChild(slideElement);
+        });
+
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const slideCounter = document.getElementById('slide-counter');
+        let currentSlide = 0;
+
+        function showSlide(n) {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === n) {
+                    slide.classList.add('active');
+                }
+            });
+            currentSlide = n;
+            updateControls();
+        }
+        
+        function updateControls() {
+            slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === slides.length - 1;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextBtn.click();
+            } else if (e.key === 'ArrowLeft') {
+                prevBtn.click();
+            }
+        });
+        
+        showSlide(0);
+
+    </script>
+</body>
+</html>
